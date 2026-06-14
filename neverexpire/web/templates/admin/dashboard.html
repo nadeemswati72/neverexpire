@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Admin - NeverExpire{% endblock %}
+{% block content %}
+<h1 class="mb-4">Admin Dashboard</h1>
+
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card text-center"><div class="card-body">
+      <h5 class="card-title">Users</h5>
+      <p class="display-6">{{ summary.total_users }}</p>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center"><div class="card-body">
+      <h5 class="card-title">Persons</h5>
+      <p class="display-6">{{ summary.total_persons }}</p>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center"><div class="card-body">
+      <h5 class="card-title">Documents</h5>
+      <p class="display-6">{{ summary.total_documents }}</p>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center"><div class="card-body">
+      <h5 class="card-title">Reminders</h5>
+      <p class="display-6">{{ summary.total_reminders }}</p>
+    </div></div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-12">
+    <h2>Master Data</h2>
+  </div>
+  <div class="col-md-6">
+    <div class="card"><div class="card-body">
+      <h5 class="card-title">Document Types</h5>
+      <p class="card-text">
+        {{ summary.total_document_types }} document type(s),
+        {{ summary.total_field_definitions }} field definition(s)
+      </p>
+      <a class="btn btn-outline-primary" href="{{ url_for('admin.document_types') }}">Manage Document Types</a>
+    </div></div>
+  </div>
+  <div class="col-md-6">
+    <div class="card"><div class="card-body">
+      <h5 class="card-title">Family Relation Types</h5>
+      <p class="card-text">{{ summary.total_family_relation_types }} relation type(s)</p>
+      <a class="btn btn-outline-primary" href="{{ url_for('admin.family_relation_types') }}">Manage Family Relation Types</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-6">
+    <h2>Extraction Runs by Status</h2>
+    <table class="table">
+      <tbody>
+        {% for status, count in summary.extraction_status_counts.items() %}
+        <tr><td>{{ status }}</td><td>{{ count }}</td></tr>
+        {% else %}
+        <tr><td colspan="2" class="text-muted">No extraction runs yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="col-md-6">
+    <h2>Reminders by Status</h2>
+    <table class="table">
+      <tbody>
+        {% for status, count in summary.reminder_status_counts.items() %}
+        <tr><td>{{ status }}</td><td>{{ count }}</td></tr>
+        {% else %}
+        <tr><td colspan="2" class="text-muted">No reminders yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<h2>Users</h2>
+<table class="table">
+  <thead>
+    <tr><th>ID</th><th>Email</th><th>Name</th><th>Role</th><th>Active</th><th>Joined</th></tr>
+  </thead>
+  <tbody>
+    {% for user in users %}
+    <tr>
+      <td>{{ user.id }}</td>
+      <td>{{ user.email }}</td>
+      <td>{{ user.full_name }}</td>
+      <td>{{ user.role }}</td>
+      <td>{{ 'Yes' if user.is_active else 'No' }}</td>
+      <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

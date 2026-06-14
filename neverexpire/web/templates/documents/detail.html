@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}{{ document.title }} - NeverExpire{% endblock %}
+{% block content %}
+{% if document.expiry_date and document.expiry_date < today %}
+  {% set status = 'expired' %}
+  {% set status_text = 'Expired ' ~ (today - document.expiry_date).days ~ ' days ago' %}
+{% elif document.expiry_date and document.expiry_date <= soon_cutoff %}
+  {% set status = 'expiring_soon' %}
+  {% set status_text = 'Expires in ' ~ (document.expiry_date - today).days ~ ' days' %}
+{% elif document.expiry_date %}
+  {% set status = 'valid' %}
+  {% set status_text = 'Expires in ' ~ (document.expiry_date - today).days ~ ' days' %}
+{% else %}
+  {% set status = 'no_expiry' %}
+  {% set status_text = 'No expiry date' %}
+{% endif %}
+
+<a class="back-link" href="{{ url_for('documents.list_documents') }}">&larr; Back to Documents</a>
+
+<div class="d-flex justify-content-between align-items-start mb-3 mt-1 flex-wrap gap-2">
+  <div>
+    <h1 class="mb-1">{{ document.title }}</h1>
+    <p class="text-secondary mb-0">{{ document.document_type.default_name }} &middot; {{ document.person.full_name }}</p>
+  </div>
+  <span class="status-badge status-badge-{{ status }}">{{ status_text }}</span>
+</div>
+
+<div class="detail-grid">
+  <div class="detail-preview">
+    {% set primary_file = document.files[0] if document.files else None %}
+    {% if primary_file %}
+      {% if primary_file.mime_type and primary_file.mime_type.startswith('image/') %}
+      <img class="detail-preview-img" src="{{ url_for('documents.serve_file', document_id=document.id, file_id=primary_file.id) }}" alt="{{ document.title }}">
+      {% elif primary_file.mime_type == 'application/pdf' %}
+      <iframe class="detail-preview-pdf" src="{{ url_for('documents.serve_file', document_id=document.id, file_id=primary_file.id) }}"></iframe>
+      {% else %}
+      <div class="detail-preview-placeholder">📄</div>
+      {% endif %}
+    {% else %}
+    <div class="detail-preview-placeholder">📄</div>
+    {% endif %}
+  </div>
+
+  <div class="detail-fields">
+    <div class="field-grid">
+      <div class="field-item">
+        <span class="field-label">Document Type</span>
+        <span class="field-value">{{ document.document_type.default_name }}</span>
+      </div>
+      <div class="field-item">
+        <span class="field-label">Belongs to</span>
+        <span class="field-value">{{ document.person.full_name }}</span>
+      </div>
+      <div class="field-item">
+        <span class="field-label">Issue Date</span>
+        <span class="field-value">{{ document.issued_date or '-' }}</span>
+      </div>
+      <div class="field-item">
+        <span class="field-label">Expiry Date</span>
+        <span class="field-value">{{ document.expiry_date or '-' }}</span>
+      </div>
+      {% if document.document_number %}
+      <div class="field-item">
+        <span class="field-label">Document Number</span>
+        <span class="field-value">{{ document.document_number }}</span>
+      </div>
+      {% endif %}
+      {% if document.issuing_authority %}
+      <div class="field-item">
+        <span class="field-label">Issuing Authority</span>
+        <span class="field-value">{{ document.issuing_authority }}</span>
+      </div>
+      {% endif %}
+      {% if document.holder_name %}
+      <div class="field-item">
+        <span class="field-label">Holder Name</span>
+        <span class="field-value">{{ document.holder_name }}</span>
+      </div>
+      {% endif %}
+      {% for field in document.document_type.field_definitions|sort(attribute='display_order') %}
+      {% if document.extra_fields and field.field_code in document.extra_fields %}
+      <div class="field-item">
+        <span class="field-label">{{ field.label }}</span>
+        <span class="field-value">
+          {% set value = document.extra_fields[field.field_code] %}
+          {% if field.data_type == 'boolean' %}{{ 'Yes' if value else 'No' }}{% else %}{{ value }}{% endif %}
+        </span>
+      </div>
+      {% endif %}
+      {% endfor %}
+      {% if document.notes %}
+      <div class="field-item field-item-full">
+        <span class="field-label">Notes</span>
+        <span class="field-value">{{ document.notes }}</span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<h2>Files</h2>
+{% if document.files %}
+<ul class="list-group mb-4">
+  {% for file in document.files %}
+  <li class="list-group-item">
+    <a href="{{ url_for('documents.serve_file', document_id=document.id, file_id=file.id) }}" target="_blank">{{ file.original_filename }}</a>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="text-muted">No files attached.</p>
+{% endif %}
+
+<h2>Extraction History</h2>
+{% if document.extraction_runs %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Model</th>
+      <th>Status</th>
+      <th>Confidence</th>
+      <th>Extracted Title</th>
+      <th>Extracted Type</th>
+      <th>Issued</th>
+      <th>Expiry</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for run in document.extraction_runs %}
+    <tr>
+      <td>{{ run.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      <td>{{ run.model_name }}</td>
+      <td>{{ run.status }}</td>
+      <td class="confidence-{{ run.confidence }}">{{ run.confidence or '-' }}</td>
+      <td>{{ run.extracted_title or '-' }}</td>
+      <td>{{ run.extracted_document_type.default_name if run.extracted_document_type else '-' }}</td>
+      <td>{{ run.extracted_issued_date or '-' }}</td>
+      <td>{{ run.extracted_expiry_date or '-' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="text-muted">No extraction history.</p>
+{% endif %}
+
+<div class="d-flex gap-2 mt-3">
+  <a class="btn btn-secondary" href="{{ url_for('documents.list_documents') }}">Back to Documents</a>
+  <form method="post" action="{{ url_for('documents.delete', document_id=document.id) }}" class="ms-auto" onsubmit="return confirm('Delete this document? This cannot be undone.');">
+    <button class="btn btn-danger" type="submit">Delete Document</button>
+  </form>
+</div>
+{% endblock %}

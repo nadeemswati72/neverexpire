@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Family - NeverExpire{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>Family</h1>
+  <a class="btn btn-primary" href="{{ url_for('family.add_family') }}">Add Family Member</a>
+</div>
+
+<div class="card-grid">
+  {% for person in persons %}
+  <a class="family-card" href="{{ url_for('family.person_detail', person_id=person.id) }}">
+    {% if person.photo_path %}
+    <img class="avatar-lg" src="{{ url_for('static', filename=person.photo_path) }}" alt="{{ person.full_name }}">
+    {% else %}
+    <div class="avatar-lg avatar-placeholder">{{ person.full_name[0] }}</div>
+    {% endif %}
+    <div class="family-card-name">{{ person.full_name }}</div>
+    <div class="family-card-relation">
+      {% if person.is_primary %}
+        Me
+      {% else %}
+        {% for rel in person.relationships_to %}
+          {% if rel.person.is_primary %}{{ rel.relation_type.name }}{% endif %}
+        {% endfor %}
+      {% endif %}
+    </div>
+    <div class="family-card-dob">{{ person.date_of_birth or '' }}</div>
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}

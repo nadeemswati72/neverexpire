@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Documents - NeverExpire{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="mb-0">Documents</h1>
+  <a class="btn btn-primary" href="{{ url_for('documents.add_document') }}">Add Document</a>
+</div>
+
+<input type="search" id="docSearch" class="form-control doc-search mb-3" placeholder="Search documents...">
+
+<div class="filter-tabs mb-3">
+  <a class="filter-tab {{ 'active' if not status_filter }}" href="{{ url_for('documents.list_documents') }}">All</a>
+  <a class="filter-tab {{ 'active' if status_filter == 'expired' }}" href="{{ url_for('documents.list_documents', filter='expired') }}">Needs Attention</a>
+  <a class="filter-tab {{ 'active' if status_filter == 'expiring_soon' }}" href="{{ url_for('documents.list_documents', filter='expiring_soon') }}">Expiring Soon</a>
+  <a class="filter-tab {{ 'active' if status_filter == 'valid' }}" href="{{ url_for('documents.list_documents', filter='valid') }}">All Good</a>
+  <a class="filter-tab {{ 'active' if status_filter == 'no_expiry' }}" href="{{ url_for('documents.list_documents', filter='no_expiry') }}">No Expiry</a>
+</div>
+
+{% set icons = {
+  'PASSPORT': '🛂', 'INSURANCE': '🏥', 'WARRANTY': '🧾', 'MEDICATION': '💊',
+  'FOOD_ITEM': '🥫', 'CERTIFICATE': '📜', 'SUBSCRIPTION': '💳', 'OTHER': '📄'
+} %}
+
+{% if documents %}
+<div class="doc-list">
+  {% for document in documents %}
+  {% if document.expiry_date and document.expiry_date < today %}
+    {% set status = 'expired' %}
+    {% set status_text = 'Expired ' ~ (today - document.expiry_date).days ~ ' days ago' %}
+  {% elif document.expiry_date and document.expiry_date <= soon_cutoff %}
+    {% set status = 'expiring_soon' %}
+    {% set status_text = 'Expires in ' ~ (document.expiry_date - today).days ~ ' days' %}
+  {% elif document.expiry_date %}
+    {% set status = 'valid' %}
+    {% set status_text = 'Expires in ' ~ (document.expiry_date - today).days ~ ' days' %}
+  {% else %}
+    {% set status = 'no_expiry' %}
+    {% set status_text = 'No expiry date' %}
+  {% endif %}
+  <a class="doc-row" href="{{ url_for('documents.detail', document_id=document.id) }}"
+     data-search="{{ (document.title ~ ' ' ~ document.person.full_name ~ ' ' ~ document.document_type.default_name)|lower }}">
+    <span class="doc-row-icon">{{ icons.get(document.document_type.code, '📄') }}</span>
+    <span class="doc-row-main">
+      <span class="doc-row-title">{{ document.title }}</span>
+      <span class="doc-row-subtitle">{{ document.person.full_name }}</span>
+    </span>
+    <span class="doc-row-meta">
+      <span class="doc-row-status status-{{ status }}">{{ status_text }}</span>
+      {% if document.expiry_date %}
+      <span class="doc-row-date">{{ document.expiry_date }}</span>
+      {% endif %}
+    </span>
+    <span class="status-dot dot-{{ status }}"></span>
+  </a>
+  {% endfor %}
+</div>
+<p class="text-muted d-none" id="noResults">No documents match your search.</p>
+{% else %}
+<p class="text-muted">No documents match this filter.</p>
+{% endif %}
+
+<script>
+  (function () {
+    var input = document.getElementById('docSearch');
+    var rows = document.querySelectorAll('.doc-row');
+    var noResults = document.getElementById('noResults');
+    if (!input) return;
+    input.addEventListener('input', function () {
+      var term = this.value.trim().toLowerCase();
+      var visible = 0;
+      rows.forEach(function (row) {
+        var match = row.dataset.search.indexOf(term) !== -1;
+        row.classList.toggle('d-none', !match);
+        if (match) visible++;
+      });
+      if (noResults) noResults.classList.toggle('d-none', visible !== 0);
+    });
+  })();
+</script>
+{% endblock %}

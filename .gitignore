@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+.env
+
+# Logs
+*.log
+*.pid
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Archives
+*.zip
+*.tar
+*.gz
+
+# Claude / MCP / local configs
+.claude/
+.mcp.json
+
+# Node / frontend (if exists)
+node_modules/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/

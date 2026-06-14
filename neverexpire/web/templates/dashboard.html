@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - NeverExpire{% endblock %}
+{% block content %}
+<h1 class="mb-1">Welcome back, {{ current_user.full_name }}</h1>
+<p class="text-secondary mb-4">Here's your document health overview</p>
+
+<div class="health-summary-row">
+  <a class="health-pill pill-expired" href="{{ url_for('documents.list_documents', filter='expired') }}">
+    <span class="pill-count">{{ summary.expired }}</span>
+    <span class="pill-label">🔴 Needs Attention</span>
+  </a>
+  <a class="health-pill pill-expiring" href="{{ url_for('documents.list_documents', filter='expiring_soon') }}">
+    <span class="pill-count">{{ summary.expiring_soon }}</span>
+    <span class="pill-label">🟡 Expiring Soon</span>
+  </a>
+  <a class="health-pill pill-valid" href="{{ url_for('documents.list_documents', filter='valid') }}">
+    <span class="pill-count">{{ summary.valid }}</span>
+    <span class="pill-label">🟢 All Good</span>
+  </a>
+  <a class="health-pill pill-no-expiry" href="{{ url_for('documents.list_documents', filter='no_expiry') }}">
+    <span class="pill-count">{{ summary.no_expiry }}</span>
+    <span class="pill-label">⚪ No Expiry</span>
+  </a>
+</div>
+
+<h2>Pending Reminders</h2>
+{% if summary.pending_reminders %}
+<div class="card-grid">
+  {% for reminder in summary.pending_reminders %}
+  {% set document = reminder.document %}
+  {% if document.expiry_date and document.expiry_date < today %}
+    {% set status = 'expired' %}
+  {% elif document.expiry_date and document.expiry_date <= soon_cutoff %}
+    {% set status = 'expiring_soon' %}
+  {% elif document.expiry_date %}
+    {% set status = 'valid' %}
+  {% else %}
+    {% set status = 'no_expiry' %}
+  {% endif %}
+  <a class="doc-card border-{{ status }}" href="{{ url_for('documents.detail', document_id=document.id) }}">
+    <div class="doc-card-header">
+      <span class="doc-card-icon">📄</span>
+      <div>
+        <div class="doc-card-title">{{ document.title }}</div>
+        <div class="doc-card-subtitle">{{ document.person.full_name }}</div>
+        <div class="doc-card-status status-{{ status }}">
+          {% if document.expiry_date %}
+            {% if status == 'expired' %}Expired {{ document.expiry_date }}{% else %}Expires {{ document.expiry_date }}{% endif %}
+          {% else %}
+            No expiry date
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="doc-card-actions">
+      <span class="card-btn card-btn-primary">View Details</span>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">No pending reminders.</p>
+{% endif %}
+
+<a class="btn btn-primary" href="{{ url_for('documents.add_document') }}">Add Document</a>
+{% endblock %}

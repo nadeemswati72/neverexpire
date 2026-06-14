@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Family Relation Types - NeverExpire{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>Family Relation Types</h1>
+  <a class="btn btn-outline-secondary" href="{{ url_for('admin.dashboard') }}">Back to Dashboard</a>
+</div>
+
+<div class="card mb-4"><div class="card-body">
+  <h5 class="card-title">Add Family Relation Type</h5>
+  <form method="post" class="row g-2 align-items-end">
+    <div class="col-auto">
+      <label class="form-label" for="code">Code</label>
+      <input class="form-control" type="text" id="code" name="code" placeholder="e.g. DOMESTIC_HELP" required>
+    </div>
+    <div class="col-auto">
+      <label class="form-label" for="name">Name</label>
+      <input class="form-control" type="text" id="name" name="name" placeholder="e.g. Domestic Help" required>
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-primary" type="submit">Add</button>
+    </div>
+  </form>
+</div></div>
+
+<table class="table align-middle">
+  <thead>
+    <tr><th>Code</th><th>Name</th><th>System</th><th>Status</th></tr>
+  </thead>
+  <tbody>
+    {% for rt in relation_types %}
+    <tr>
+      <td>{{ rt.code }}</td>
+      <td>
+        <form method="post" action="{{ url_for('admin.update_family_relation_type', type_id=rt.id) }}" class="d-flex gap-2">
+          <input class="form-control form-control-sm" type="text" name="name" value="{{ rt.name }}">
+          <button class="btn btn-sm btn-outline-secondary" type="submit">Save</button>
+        </form>
+      </td>
+      <td>{{ 'Yes' if rt.is_system else 'No' }}</td>
+      <td>
+        <form method="post" action="{{ url_for('admin.toggle_family_relation_type', type_id=rt.id) }}">
+          <input type="hidden" name="is_active" value="{{ '0' if rt.is_active else '1' }}">
+          {% if rt.is_system and rt.is_active %}
+          <button class="btn btn-sm btn-outline-secondary" type="submit" disabled title="System relation types cannot be deactivated">Active</button>
+          {% else %}
+          <button class="btn btn-sm {{ 'btn-success' if rt.is_active else 'btn-outline-secondary' }}" type="submit">
+            {{ 'Active' if rt.is_active else 'Inactive' }}
+          </button>
+          {% endif %}
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Add Document - NeverExpire{% endblock %}
+{% block content %}
+<h1 class="mb-4">Add Document</h1>
+
+<ul class="nav nav-pills mb-4" id="add-mode-tabs">
+  <li class="nav-item">
+    <button class="nav-link active" type="button" data-mode="upload">Upload Document</button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" type="button" data-mode="manual">Enter Manually</button>
+  </li>
+</ul>
+
+<div id="upload-mode">
+  <form method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+      <label class="form-label" for="person_id">For</label>
+      <select class="form-select" id="person_id" name="person_id" required>
+        {% for person in persons %}
+        <option value="{{ person.id }}">{{ person.full_name }}{% if person.is_primary %} (Me){% endif %}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="file">Document file</label>
+      <input class="form-control" type="file" id="file" name="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif" required>
+    </div>
+    <button class="btn btn-primary" type="submit">Upload &amp; Extract</button>
+  </form>
+</div>
+
+<div id="manual-mode" class="d-none">
+  <form method="post" action="{{ url_for('documents.add_document_manual') }}">
+    <div class="mb-3">
+      <label class="form-label" for="manual_person_id">For</label>
+      <select class="form-select" id="manual_person_id" name="person_id" required>
+        {% for person in persons %}
+        <option value="{{ person.id }}">{{ person.full_name }}{% if person.is_primary %} (Me){% endif %}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="manual_title">Title</label>
+      <input class="form-control" type="text" id="manual_title" name="title" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="manual_document_type_id">Document type</label>
+      <select class="form-select" id="manual_document_type_id" name="document_type_id" required>
+        {% for doc_type in document_types %}
+        <option value="{{ doc_type.id }}">{{ doc_type.default_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="manual_issued_date">Issued date</label>
+      <input class="form-control" type="date" id="manual_issued_date" name="issued_date">
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="manual_expiry_date">Expiry date</label>
+      <input class="form-control" type="date" id="manual_expiry_date" name="expiry_date">
+    </div>
+    <div class="row">
+      <div class="mb-3 col-md-6">
+        <label class="form-label" for="manual_document_number">Document number</label>
+        <input class="form-control" type="text" id="manual_document_number" name="document_number">
+      </div>
+      <div class="mb-3 col-md-6">
+        <label class="form-label" for="manual_issuing_authority">Issuing authority</label>
+        <input class="form-control" type="text" id="manual_issuing_authority" name="issuing_authority">
+      </div>
+    </div>
+    <div class="row">
+      <div class="mb-3 col-md-6">
+        <label class="form-label" for="manual_holder_name">Holder name</label>
+        <input class="form-control" type="text" id="manual_holder_name" name="holder_name">
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="manual_notes">Additional notes</label>
+      <textarea class="form-control" id="manual_notes" name="notes" rows="2"></textarea>
+    </div>
+
+    {% for doc_type in document_types %}
+    {% set fields = field_defs_by_type.get(doc_type.id, []) %}
+    {% if fields %}
+    <div class="extra-fields border rounded p-3 mb-3 {{ '' if loop.first else 'd-none' }}"
+         data-doctype-id="{{ doc_type.id }}">
+      <h6 class="mb-3">{{ doc_type.default_name }} details</h6>
+      {% for field in fields %}
+      <div class="mb-3">
+        <label class="form-label" for="extra__{{ field.field_code }}">
+          {{ field.label }}{% if field.is_required %} *{% endif %}
+        </label>
+        {% if field.data_type == 'boolean' %}
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="extra__{{ field.field_code }}" name="extra__{{ field.field_code }}">
+        </div>
+        {% elif field.data_type == 'number' %}
+        <input class="form-control" type="number" step="any" id="extra__{{ field.field_code }}" name="extra__{{ field.field_code }}" {{ 'required' if field.is_required }}>
+        {% elif field.data_type == 'date' %}
+        <input class="form-control" type="date" id="extra__{{ field.field_code }}" name="extra__{{ field.field_code }}" {{ 'required' if field.is_required }}>
+        {% else %}
+        <input class="form-control" type="text" id="extra__{{ field.field_code }}" name="extra__{{ field.field_code }}" {{ 'required' if field.is_required }}>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    <button class="btn btn-success" type="submit">Save Document</button>
+  </form>
+</div>
+
+<script>
+  document.querySelectorAll('#add-mode-tabs button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('#add-mode-tabs button').forEach(function (b) {
+        b.classList.remove('active');
+      });
+      btn.classList.add('active');
+      document.getElementById('upload-mode').classList.toggle('d-none', btn.dataset.mode !== 'upload');
+      document.getElementById('manual-mode').classList.toggle('d-none', btn.dataset.mode !== 'manual');
+    });
+  });
+
+  var manualTypeSelect = document.getElementById('manual_document_type_id');
+  if (manualTypeSelect) {
+    manualTypeSelect.addEventListener('change', function () {
+      var selectedId = this.value;
+      document.querySelectorAll('#manual-mode .extra-fields').forEach(function (group) {
+        group.classList.toggle('d-none', group.dataset.doctypeId !== selectedId);
+      });
+    });
+  }
+</script>
+{% endblock %}

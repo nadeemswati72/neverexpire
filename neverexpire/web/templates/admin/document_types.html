@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Document Types - NeverExpire{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>Document Types</h1>
+  <a class="btn btn-outline-secondary" href="{{ url_for('admin.dashboard') }}">Back to Dashboard</a>
+</div>
+
+<div class="card mb-4"><div class="card-body">
+  <h5 class="card-title">Add Document Type</h5>
+  <form method="post" class="row g-2 align-items-end">
+    <div class="col-auto">
+      <label class="form-label" for="code">Code</label>
+      <input class="form-control" type="text" id="code" name="code" placeholder="e.g. PDC" required>
+    </div>
+    <div class="col-auto">
+      <label class="form-label" for="default_name">Name</label>
+      <input class="form-control" type="text" id="default_name" name="default_name" placeholder="e.g. Post Dated Cheque" required>
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-primary" type="submit">Add</button>
+    </div>
+  </form>
+</div></div>
+
+<table class="table align-middle">
+  <thead>
+    <tr><th>Code</th><th>Name</th><th>System</th><th>Status</th><th>Fields</th></tr>
+  </thead>
+  <tbody>
+    {% for dt in document_types %}
+    <tr>
+      <td>{{ dt.code }}</td>
+      <td>
+        <form method="post" action="{{ url_for('admin.update_document_type', type_id=dt.id) }}" class="d-flex gap-2">
+          <input class="form-control form-control-sm" type="text" name="default_name" value="{{ dt.default_name }}">
+          <button class="btn btn-sm btn-outline-secondary" type="submit">Save</button>
+        </form>
+      </td>
+      <td>{{ 'Yes' if dt.is_system else 'No' }}</td>
+      <td>
+        <form method="post" action="{{ url_for('admin.toggle_document_type', type_id=dt.id) }}">
+          <input type="hidden" name="is_active" value="{{ '0' if dt.is_active else '1' }}">
+          {% if dt.is_system and dt.is_active %}
+          <button class="btn btn-sm btn-outline-secondary" type="submit" disabled title="System document types cannot be deactivated">Active</button>
+          {% else %}
+          <button class="btn btn-sm {{ 'btn-success' if dt.is_active else 'btn-outline-secondary' }}" type="submit">
+            {{ 'Active' if dt.is_active else 'Inactive' }}
+          </button>
+          {% endif %}
+        </form>
+      </td>
+      <td>
+        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.document_type_fields', type_id=dt.id) }}">Manage Fields</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Fields - {{ document_type.default_name }} - NeverExpire{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>Fields for {{ document_type.default_name }}</h1>
+  <a class="btn btn-outline-secondary" href="{{ url_for('admin.document_types') }}">Back to Document Types</a>
+</div>
+
+<div class="card mb-4"><div class="card-body">
+  <h5 class="card-title">Add Field</h5>
+  <form method="post" class="row g-2 align-items-end">
+    <div class="col-auto">
+      <label class="form-label" for="field_code">Field Code</label>
+      <input class="form-control" type="text" id="field_code" name="field_code" placeholder="e.g. cheque_number" required>
+    </div>
+    <div class="col-auto">
+      <label class="form-label" for="label">Label</label>
+      <input class="form-control" type="text" id="label" name="label" placeholder="e.g. Cheque Number" required>
+    </div>
+    <div class="col-auto">
+      <label class="form-label" for="data_type">Data Type</label>
+      <select class="form-select" id="data_type" name="data_type">
+        <option value="text">Text</option>
+        <option value="number">Number</option>
+        <option value="date">Date</option>
+        <option value="boolean">Boolean</option>
+      </select>
+    </div>
+    <div class="col-auto">
+      <label class="form-label" for="display_order">Order</label>
+      <input class="form-control" type="number" id="display_order" name="display_order" value="0" style="width: 6rem;">
+    </div>
+    <div class="col-auto form-check">
+      <input class="form-check-input" type="checkbox" id="is_required" name="is_required">
+      <label class="form-check-label" for="is_required">Required</label>
+    </div>
+    <div class="col-auto form-check">
+      <input class="form-check-input" type="checkbox" id="applies_to_extraction" name="applies_to_extraction" checked>
+      <label class="form-check-label" for="applies_to_extraction">Use in AI Extraction</label>
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-primary" type="submit">Add</button>
+    </div>
+  </form>
+</div></div>
+
+<table class="table align-middle">
+  <thead>
+    <tr>
+      <th>Code</th><th>Label</th><th>Data Type</th><th>Required</th><th>Order</th><th>Extraction</th><th></th><th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for field in fields %}
+    <tr>
+      <td>
+        {{ field.field_code }}
+        <form id="field-{{ field.id }}" method="post" action="{{ url_for('admin.update_document_type_field', type_id=document_type.id, field_id=field.id) }}"></form>
+      </td>
+      <td><input form="field-{{ field.id }}" class="form-control form-control-sm" type="text" name="label" value="{{ field.label }}"></td>
+      <td>
+        <select form="field-{{ field.id }}" class="form-select form-select-sm" name="data_type">
+          <option value="text" {{ 'selected' if field.data_type == 'text' }}>Text</option>
+          <option value="number" {{ 'selected' if field.data_type == 'number' }}>Number</option>
+          <option value="date" {{ 'selected' if field.data_type == 'date' }}>Date</option>
+          <option value="boolean" {{ 'selected' if field.data_type == 'boolean' }}>Boolean</option>
+        </select>
+      </td>
+      <td class="text-center">
+        <input form="field-{{ field.id }}" class="form-check-input" type="checkbox" name="is_required" {{ 'checked' if field.is_required }}>
+      </td>
+      <td>
+        <input form="field-{{ field.id }}" class="form-control form-control-sm" type="number" name="display_order" value="{{ field.display_order }}" style="width: 5rem;">
+      </td>
+      <td class="text-center">
+        <input form="field-{{ field.id }}" class="form-check-input" type="checkbox" name="applies_to_extraction" {{ 'checked' if field.applies_to_extraction }}>
+      </td>
+      <td>
+        <button form="field-{{ field.id }}" class="btn btn-sm btn-outline-secondary" type="submit">Save</button>
+      </td>
+      <td>
+        <form method="post" action="{{ url_for('admin.toggle_document_type_field', type_id=document_type.id, field_id=field.id) }}">
+          <input type="hidden" name="is_active" value="{{ '0' if field.is_active else '1' }}">
+          <button class="btn btn-sm {{ 'btn-success' if field.is_active else 'btn-outline-secondary' }}" type="submit">
+            {{ 'Active' if field.is_active else 'Inactive' }}
+          </button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="8" class="text-muted">No field definitions yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

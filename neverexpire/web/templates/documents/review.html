@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Review Extraction - NeverExpire{% endblock %}
+{% block content %}
+<h1 class="mb-4">Review Extracted Details</h1>
+<p>For: <strong>{{ person.full_name }}</strong></p>
+<p>AI confidence: <span class="confidence-{{ extraction.confidence }}">{{ extraction.confidence }}</span></p>
+
+<form method="post" action="{{ url_for('documents.confirm_document') }}">
+  <div class="mb-3">
+    <label class="form-label" for="title">Title</label>
+    <input class="form-control" type="text" id="title" name="title" value="{{ extraction.title }}" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="document_type_id">Document type</label>
+    <select class="form-select" id="document_type_id" name="document_type_id" required>
+      {% for doc_type in document_types %}
+      <option value="{{ doc_type.id }}" {% if doc_type.id == suggested_type_id %}selected{% endif %}>{{ doc_type.default_name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="issued_date">Issued date</label>
+    <input class="form-control" type="date" id="issued_date" name="issued_date" value="{{ extraction.issued_date or '' }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="expiry_date">Expiry date</label>
+    <input class="form-control" type="date" id="expiry_date" name="expiry_date" value="{{ extraction.expiry_date or '' }}">
+  </div>
+  <div class="row">
+    <div class="mb-3 col-md-6">
+      <label class="form-label" for="document_number">Document number</label>
+      <input class="form-control" type="text" id="document_number" name="document_number" value="{{ extraction.document_number or '' }}">
+    </div>
+    <div class="mb-3 col-md-6">
+      <label class="form-label" for="issuing_authority">Issuing authority</label>
+      <input class="form-control" type="text" id="issuing_authority" name="issuing_authority" value="{{ extraction.issuing_authority or '' }}">
+    </div>
+  </div>
+  <div class="row">
+    <div class="mb-3 col-md-6">
+      <label class="form-label" for="holder_name">Holder name</label>
+      <input class="form-control" type="text" id="holder_name" name="holder_name" value="{{ extraction.holder_name or '' }}">
+    </div>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="notes">Additional notes</label>
+    <textarea class="form-control" id="notes" name="notes" rows="2">{{ extraction.additional_notes or '' }}</textarea>
+  </div>
+
+  {% for doc_type in document_types %}
+  {% set fields = field_defs_by_type.get(doc_type.id, []) %}
+  {% if fields %}
+  <div class="extra-fields border rounded p-3 mb-3 {{ '' if doc_type.id == suggested_type_id else 'd-none' }}"
+       data-doctype-id="{{ doc_type.id }}">
+    <h6 class="mb-3">{{ doc_type.default_name }} details</h6>
+    {% for field in fields %}
+    <div class="mb-3">
+      <label class="form-label" for="extra__{{ field.field_code }}">
+        {{ field.label }}{% if field.is_required %} *{% endif %}
+      </label>
+      {% if field.data_type == 'boolean' %}
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="extra__{{ field.field_code }}" name="extra__{{ field.field_code }}" {{ 'checked' if extra_field_values.get(field.field_code) }}>
+      </div>
+      {% elif field.data_type == 'number' %}
+      <input class="form-control" type="number" step="any" id="extra__{{ field.field_code }}" name="extra__{{ field.field_code }}" value="{{ extra_field_values.get(field.field_code, '') }}" {{ 'required' if field.is_required }}>
+      {% elif field.data_type == 'date' %}
+      <input class="form-control" type="date" id="extra__{{ field.field_code }}" name="extra__{{ field.field_code }}" value="{{ extra_field_values.get(field.field_code, '') }}" {{ 'required' if field.is_required }}>
+      {% else %}
+      <input class="form-control" type="text" id="extra__{{ field.field_code }}" name="extra__{{ field.field_code }}" value="{{ extra_field_values.get(field.field_code, '') }}" {{ 'required' if field.is_required }}>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endfor %}
+
+  <button class="btn btn-success" type="submit">Save Document</button>
+  <a class="btn btn-secondary" href="{{ url_for('documents.add_document') }}">Cancel</a>
+</form>
+<script>
+  document.getElementById('document_type_id').addEventListener('change', function () {
+    var selectedId = this.value;
+    document.querySelectorAll('.extra-fields').forEach(function (group) {
+      group.classList.toggle('d-none', group.dataset.doctypeId !== selectedId);
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+{% block title %}Testing Guide - NeverExpire{% endblock %}
+{% block content %}
+<div class="text-center mb-5">
+  <h1>NeverExpire Testing Guide</h1>
+  <p class="lead">Everything you need to test the NeverExpire website and the NeverExpire Mobile app for this round.</p>
+</div>
+
+<div class="alert alert-warning">
+  <strong>Temporary page</strong> &mdash; this guide is for the current testing round and will be removed afterwards.
+</div>
+
+<h2>Before You Start</h2>
+<ul>
+  <li>The website and the mobile app are <strong>two separate apps with separate demo accounts</strong> &mdash; that's expected for this round, not a bug.</li>
+  <li>Every demo account on both apps uses the same password: <code>Demo@1234</code></li>
+  <li>To use the mobile app, or the AI document scan inside it, your phone needs to be on the <strong>same Wi-Fi network</strong> as the developer's computer.</li>
+  <li>On a <strong>different network</strong> and can't reach the mobile app? No problem &mdash; skip ahead to <a href="#mobile-screenshots">Mobile App Screenshots</a>, look through each screen, and send your feedback based on those instead.</li>
+</ul>
+
+<h2>1. Testing the Website</h2>
+<p>
+  Open the address the developer gives you in your browser &mdash; it will look like
+  <code>http://&lt;developer's IP address&gt;:5000</code>.
+</p>
+
+<h3>Demo Accounts</h3>
+<table class="table table-bordered">
+  <thead>
+    <tr><th>Account</th><th>Email</th><th>Password</th><th>Notes</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Alice Johnson</td>
+      <td><code>alice@neverexpire.test</code></td>
+      <td><code>Demo@1234</code></td>
+      <td>Regular user with a family and a mix of documents (expired / expiring / valid / no expiry)</td>
+    </tr>
+    <tr>
+      <td>Demo Admin</td>
+      <td><code>demoadmin@neverexpire.test</code></td>
+      <td><code>Demo@1234</code></td>
+      <td>Admin &mdash; can manage document types, custom fields, and family relation types</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>What to Test</h3>
+<ul>
+  <li><strong>Dashboard</strong> &mdash; overview cards for expiring soon, expired, valid, and no-expiry documents</li>
+  <li><strong>Documents</strong>
+    <ul>
+      <li>Add a document by uploading a photo or PDF &mdash; AI reads the title, dates, and other fields automatically; review and confirm before saving</li>
+      <li>Add a document manually (no file)</li>
+      <li>Edit and delete a document</li>
+      <li>Filter the documents list by status (Expiring Soon, Expired, Valid, No Expiry)</li>
+    </ul>
+  </li>
+  <li><strong>Family</strong> &mdash; view family members, add a new member, open a member's documents</li>
+  <li><strong>Admin</strong> (Demo Admin account only) &mdash; manage document types, their custom fields, and family relation types</li>
+</ul>
+
+<h2>2. Testing the Mobile App</h2>
+
+<div class="alert alert-info">
+  <strong>On a different network than the developer?</strong> You won't be able to open the app on your
+  phone. Scroll down to <a href="#mobile-screenshots">Mobile App Screenshots</a> instead, review each
+  screen, and let us know what you think.
+</div>
+
+<h3>Set Up</h3>
+<ol>
+  <li>Install <strong>Expo Go</strong> from the Play Store (Android) or App Store (iOS).</li>
+  <li>Make sure your phone is on the <strong>same Wi-Fi network</strong> as the developer's computer.</li>
+  <li>Ask the developer for the QR code or the <code>exp://&lt;ip&gt;:8081</code> link shown in their terminal, and open it with Expo Go.</li>
+  <li>The app bundle compiles on first connect &mdash; this can take a minute.</li>
+</ol>
+
+<h3>Demo Accounts</h3>
+<table class="table table-bordered">
+  <thead>
+    <tr><th>Account</th><th>Email</th><th>Password</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Nadeem Ahmad</td>
+      <td><code>nadeem.ahmad@neverexpire.test</code></td>
+      <td><code>Demo@1234</code></td>
+    </tr>
+    <tr>
+      <td>Aisha Khan</td>
+      <td><code>aisha.khan@neverexpire.test</code></td>
+      <td><code>Demo@1234</code></td>
+    </tr>
+  </tbody>
+</table>
+<p>The login screen has a "demo accounts" card &mdash; tap an account to auto-fill its email.</p>
+
+<h3>What to Test</h3>
+<ul>
+  <li><strong>Dashboard</strong> &mdash; greeting, summary cards (tap through to a filtered document list), recent documents</li>
+  <li><strong>Add Document</strong> (the centre "+" button)
+    <ul>
+      <li><strong>Take Photo</strong>, <strong>Choose from Gallery</strong>, or <strong>Upload File</strong> &mdash; the app sends the image to the same AI extraction the website uses and pre-fills the form (document type, name, dates, document number, issuer, notes). Review the pre-filled fields, fix anything that's wrong, then save.</li>
+      <li><strong>Enter details manually</strong> skips the AI step entirely</li>
+    </ul>
+  </li>
+  <li><strong>Document Details</strong> &mdash; view, edit, and delete (with confirmation) a document</li>
+  <li><strong>My Documents</strong> &mdash; search box and status filter chips</li>
+  <li><strong>Family</strong> &mdash; member list with document counts, add a new member, open a member's documents</li>
+  <li><strong>Profile</strong> &mdash; edit account details, "Change Password" (UI-only), log out</li>
+  <li><strong>Notifications</strong> (bell icon) &mdash; documents that are expiring soon or expired</li>
+  <li><strong>Side drawer</strong> (hamburger icon) &mdash; Settings, Help &amp; Support, About, Logout</li>
+</ul>
+
+<h3>Known Limitations</h3>
+<ul>
+  <li>The mobile app's family members and documents are a separate, on-device demo dataset &mdash; they are not shared with the website.</li>
+  <li>The AI document scan needs the phone and the developer's computer on the same Wi-Fi network. If it can't reach the server you'll see a message and can still fill in the form manually.</li>
+  <li>Camera capture needs a real device &mdash; most emulators don't have a working camera.</li>
+  <li>"Change Password" and the notification toggles in Settings are UI-only and don't persist or send anything.</li>
+  <li>Reinstalling the app or clearing its storage resets documents and family members back to the seed data.</li>
+</ul>
+
+<h3>Troubleshooting</h3>
+<p>
+  <strong><code>_ExpoFontLoader.default.getLoadedFonts is not a function</code></strong> on first load &mdash;
+  already fixed in this build. If you re-clone the project and see it again, run
+  <code>npx expo install --fix</code> and then <code>npx expo start -c</code>.
+</p>
+<p>
+  <strong>"Project is incompatible with this version of Expo Go"</strong> &mdash; the Expo Go app on your
+  phone doesn't support the SDK version this project uses. Update Expo Go from the store, or ask the
+  developer for guidance.
+</p>
+
+<h2 id="mobile-screenshots">3. Mobile App Screenshots</h2>
+<p>
+  Every screen of the mobile app, in the order you'd normally move through them. If you couldn't open the
+  app yourself, look through these and tell us what you think of the layout, wording, and overall feel
+  &mdash; that feedback is just as valuable as testing on a device.
+</p>
+
+<div class="row g-4">
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="screenshot-card">
+      <img src="{{ url_for('static', filename='screenshots/mobile/01-login.png') }}" alt="Login screen" class="screenshot-img">
+      <div class="screenshot-caption">
+        <h5>1. Login</h5>
+        <p>The first screen you see. Enter your email and password to sign in, or tap a name in the "Demo accounts" card to auto-fill the email &mdash; the password is the same for everyone (<code>Demo@1234</code>).</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="screenshot-card">
+      <img src="{{ url_for('static', filename='screenshots/mobile/02-dashboard.png') }}" alt="Dashboard screen" class="screenshot-img">
+      <div class="screenshot-caption">
+        <h5>2. Dashboard</h5>
+        <p>Your home screen after logging in. Greets you by name and shows two quick-glance cards (Expiring Soon, All Documents) plus a Recent Documents list, color-coded red/orange/green for expired, expiring soon, and valid. Tap "See All" for the full list.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="screenshot-card">
+      <img src="{{ url_for('static', filename='screenshots/mobile/03-drawer.png') }}" alt="Side drawer menu screen" class="screenshot-img">
+      <div class="screenshot-caption">
+        <h5>3. Side Drawer (Menu)</h5>
+        <p>Opened with the hamburger icon in the top-left of Dashboard or Family. Shows your profile at the top and links to every other screen: Add Document, My Documents, Family Members, Notifications, Settings, Help &amp; Support, About, Testing Guide, and Logout.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="screenshot-card">
+      <img src="{{ url_for('static', filename='screenshots/mobile/04-profile.png') }}" alt="Profile screen" class="screenshot-img">
+      <div class="screenshot-caption">
+        <h5>4. Profile</h5>
+        <p>Opened by tapping your name and avatar at the top of the side drawer. Shows your account details (editable via "Edit") and a Change Password form. The password change is UI-only for this round and doesn't actually update anything.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="screenshot-card">
+      <img src="{{ url_for('static', filename='screenshots/mobile/05-family-members.png') }}" alt="Family Members screen" class="screenshot-img">
+      <div class="screenshot-caption">
+        <h5>5. Family Members</h5>
+        <p>Reached via the Family tab at the bottom. Lists everyone in the family with an avatar, name, relationship (Wife, Son, Daughter, etc.), and how many documents they have. Tap a card to see that person's documents, or the "+" icon to add a new family member.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="screenshot-card">
+      <img src="{{ url_for('static', filename='screenshots/mobile/06-family-member-documents.png') }}" alt="Family member documents screen" class="screenshot-img">
+      <div class="screenshot-caption">
+        <h5>6. Family Member's Documents</h5>
+        <p>Opened by tapping a person on Family Members. Shows every document belonging to that person &mdash; type, document number, and expiry status &mdash; in one place.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="screenshot-card">
+      <img src="{{ url_for('static', filename='screenshots/mobile/07-notifications.png') }}" alt="Notifications screen" class="screenshot-img">
+      <div class="screenshot-caption">
+        <h5>7. Notifications</h5>
+        <p>Opened by tapping the bell icon on the Dashboard. Lists every document across the family that has expired or is expiring soon, so you can see at a glance what needs attention.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="screenshot-card">
+      <img src="{{ url_for('static', filename='screenshots/mobile/08-add-document.png') }}" alt="Add Document source picker screen" class="screenshot-img">
+      <div class="screenshot-caption">
+        <h5>8. Add Document &mdash; Choose Source</h5>
+        <p>Opened with the green "+" button in the middle of the bottom tab bar. Choose Take Photo, Choose from Gallery, or Upload File to scan a document &mdash; the app sends the image to the same AI extraction the website uses and pre-fills the form. Or tap "Enter details manually instead" to skip the scan.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="screenshot-card">
+      <img src="{{ url_for('static', filename='screenshots/mobile/09-document-form.png') }}" alt="Document form screen" class="screenshot-img">
+      <div class="screenshot-caption">
+        <h5>9. Document Form</h5>
+        <p>Where you review (after a scan) or enter (manually) a document's details: Document Type, who it "Belongs To", then Full Name, Document Number, Issued Date, Expiry Date, Issued By, and Notes. After an AI scan, these fields arrive pre-filled for you to check and correct.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="screenshot-card">
+      <img src="{{ url_for('static', filename='screenshots/mobile/10-my-documents.png') }}" alt="My Documents screen" class="screenshot-img">
+      <div class="screenshot-caption">
+        <h5>10. My Documents</h5>
+        <p>Reached from the side drawer or the Dashboard's "See All" link. Shows every document for the whole family, with a search box and filter chips (All / Expiring Soon / Expired / Valid) to narrow the list down.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="screenshot-card">
+      <img src="{{ url_for('static', filename='screenshots/mobile/11-document-details.png') }}" alt="Document Details screen" class="screenshot-img">
+      <div class="screenshot-caption">
+        <h5>11. Document Details</h5>
+        <p>Opened by tapping any document row. Shows the document's photo (or a placeholder if none was attached), its type and status badge, all of its details, any notes, and buttons to Edit or Delete the document &mdash; deleting asks for confirmation first.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2>Reporting Issues</h2>
+<p>
+  For each issue, please note: which app (website or mobile), the screen and action, what you expected
+  to happen, and what happened instead. Screenshots help a lot.
+</p>
+{% endblock %}

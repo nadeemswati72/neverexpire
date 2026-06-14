@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}About - NeverExpire{% endblock %}
+{% block content %}
+<div class="text-center mb-5">
+  <h1>NeverExpire</h1>
+  <p class="lead">Never miss a renewal, expiry, or deadline again &mdash; for you and your family.</p>
+</div>
+
+<h2>What is NeverExpire?</h2>
+<p>
+  NeverExpire is a personal and family document tracker. Upload a photo or PDF of any
+  document &mdash; a passport, insurance policy, warranty, medication, certificate, or
+  subscription &mdash; and AI automatically reads the key details so you don't have to
+  type them in. NeverExpire keeps track of issue and expiry dates for every member of
+  your family and reminds you before anything lapses.
+</p>
+
+<h2>How It Works</h2>
+<ol>
+  <li><strong>Add a document</strong> &mdash; upload a photo/PDF, or enter the details manually.</li>
+  <li><strong>AI extracts the details</strong> &mdash; title, dates, document number, issuing authority, and other key fields are read automatically.</li>
+  <li><strong>Review &amp; confirm</strong> &mdash; check the extracted information and edit anything before saving.</li>
+  <li><strong>Tracked per family member</strong> &mdash; every document is linked to a person in your household.</li>
+  <li><strong>Stay ahead of deadlines</strong> &mdash; the dashboard highlights what's expiring soon or already expired.</li>
+</ol>
+
+<h2>Current Features</h2>
+<ul>
+  <li>AI-powered document extraction using Claude</li>
+  <li>Family member profiles with per-person document tracking</li>
+  <li>Dashboard with "Expiring Soon" and "Expired" views</li>
+  <li>Manual entry mode for documents without a scan</li>
+  <li>Admin-configurable document types and custom fields</li>
+  <li>Document watermarking for safer sharing</li>
+  <li>Role-based access for admins and users</li>
+</ul>
+
+<h2>Benefits</h2>
+<ul>
+  <li>Peace of mind &mdash; never get caught off guard by an expired document again</li>
+  <li>One place for your whole family's important documents</li>
+  <li>Minimal manual data entry, thanks to AI extraction</li>
+  <li>You stay in control of your data</li>
+  <li>Built to grow &mdash; ready for future compliance and platform needs</li>
+</ul>
+
+<div class="text-center mt-4">
+  {% if current_user %}
+  <a class="btn btn-primary btn-lg" href="{{ url_for('dashboard.index') }}">Go to Dashboard</a>
+  {% else %}
+  <a class="btn btn-primary btn-lg" href="{{ url_for('auth.login') }}">Get Started</a>
+  {% endif %}
+</div>
+{% endblock %}

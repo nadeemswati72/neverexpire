@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Road Map - NeverExpire{% endblock %}
+{% block content %}
+<div class="text-center mb-5">
+  <h1>Road Map</h1>
+  <p class="lead">Where NeverExpire is headed, phase by phase.</p>
+</div>
+
+<div class="timeline">
+  <div class="timeline-item status-done">
+    <div class="d-flex justify-content-between align-items-start flex-wrap">
+      <h3 class="mb-1">Phase 1 &mdash; Foundation</h3>
+      <span class="badge bg-success">Done</span>
+    </div>
+    <p class="text-muted mb-2">The core experience, live today.</p>
+    <ul>
+      <li>Core document tracking with expiry dates</li>
+      <li>AI-powered extraction with Claude</li>
+      <li>Family member management</li>
+      <li>Admin-configurable document types</li>
+      <li>Dashboard with expiry reminders</li>
+    </ul>
+  </div>
+
+  <div class="timeline-item status-done">
+    <div class="d-flex justify-content-between align-items-start flex-wrap">
+      <h3 class="mb-1">Phase 2 &mdash; Smarter Input &amp; Trust</h3>
+      <span class="badge bg-success">Done</span>
+    </div>
+    <p class="text-muted mb-2">Richer extraction and more ways to add documents.</p>
+    <ul>
+      <li>Expanded AI extraction: document number, issuing authority, holder name, and more</li>
+      <li>Manual entry mode &mdash; add documents without uploading a file</li>
+      <li>Document watermarking for safer sharing</li>
+      <li>About and Road Map pages</li>
+    </ul>
+  </div>
+
+  <div class="timeline-item status-current">
+    <div class="d-flex justify-content-between align-items-start flex-wrap">
+      <h3 class="mb-1">Phase 3 &mdash; Reach &amp; Accessibility</h3>
+      <span class="badge bg-info text-dark">In Progress</span>
+    </div>
+    <p class="text-muted mb-2">Taking NeverExpire beyond the browser.</p>
+    <ul>
+      <li>Voice integration for adding and querying documents</li>
+      <li>Android &amp; iOS companion apps</li>
+      <li>Push notifications for upcoming expiries</li>
+    </ul>
+  </div>
+
+  <div class="timeline-item status-planned">
+    <div class="d-flex justify-content-between align-items-start flex-wrap">
+      <h3 class="mb-1">Phase 4 &mdash; Advanced Reminders &amp; Document Intelligence</h3>
+      <span class="badge bg-secondary">Planned</span>
+    </div>
+    <p class="text-muted mb-2">Reminders and document support that adapt to you.</p>
+    <ul>
+      <li>Recursive/recurring reminders for documents that renew on a schedule</li>
+      <li>Enhanced document type support and broader extraction coverage</li>
+      <li>Smart suggestions based on your document history</li>
+    </ul>
+  </div>
+
+  <div class="timeline-item status-planned">
+    <div class="d-flex justify-content-between align-items-start flex-wrap">
+      <h3 class="mb-1">Phase 5 &mdash; Compliance &amp; Trust</h3>
+      <span class="badge bg-secondary">Planned</span>
+    </div>
+    <p class="text-muted mb-2">Meeting data protection standards.</p>
+    <ul>
+      <li>GDPR / PDPL compliance tooling (data export &amp; deletion, consent tracking)</li>
+      <li>Audit logging</li>
+      <li>Stronger security: encryption at rest, two-factor authentication</li>
+      <li>PCI DSS compliance for handling payment data</li>
+    </ul>
+  </div>
+
+  <div class="timeline-item status-planned">
+    <div class="d-flex justify-content-between align-items-start flex-wrap">
+      <h3 class="mb-1">Phase 6 &mdash; Public Deployment &amp; Monetization</h3>
+      <span class="badge bg-secondary">Planned</span>
+    </div>
+    <p class="text-muted mb-2">Taking NeverExpire live for everyone.</p>
+    <ul>
+      <li>Production hosting &amp; deployment (beyond the local dev server and SQLite)</li>
+      <li>Subscription plans &amp; premium tiers</li>
+      <li>Payment integration and billing</li>
+      <li>Public sign-up, onboarding, and usage analytics</li>
+    </ul>
+  </div>
+
+</div>
+{% endblock %}

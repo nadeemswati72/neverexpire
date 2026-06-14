@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Add Family Member - NeverExpire{% endblock %}
+{% block content %}
+<h1 class="mb-4">Add Family Member</h1>
+<form method="post" enctype="multipart/form-data">
+  <div class="mb-3">
+    <label class="form-label" for="full_name">Full name</label>
+    <input class="form-control" type="text" id="full_name" name="full_name" required autofocus>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="relation_type_code">Relation to you</label>
+    <select class="form-select" id="relation_type_code" name="relation_type_code" required>
+      {% for relation_type in relation_types %}
+      <option value="{{ relation_type.code }}">{{ relation_type.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="date_of_birth">Date of birth</label>
+    <input class="form-control" type="date" id="date_of_birth" name="date_of_birth">
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="photo">Profile photo (optional)</label>
+    <input class="form-control" type="file" id="photo" name="photo" accept="image/png,image/jpeg,image/gif,image/webp">
+  </div>
+  <button class="btn btn-primary" type="submit">Add</button>
+</form>
+{% endblock %}

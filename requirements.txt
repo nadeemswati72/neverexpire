@@ -1,0 +1,7 @@
+anthropic
+pydantic
+python-dotenv
+SQLAlchemy
+Flask
+Pillow
+streamlit

@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "NeverExpire",
+    "slug": "neverexpire-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "android": {
+      "package": "com.neverexpire.mobile",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "NeverExpire needs access to your photos so you can attach a document image.",
+          "cameraPermission": "NeverExpire needs access to your camera so you can capture a document."
+        }
+      ],
+      "expo-font"
+    ]
+  }
+}

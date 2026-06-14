@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: neverexpire
+    runtime: python
+    plan: free
+    buildCommand: >-
+      pip install -r requirements.txt &&
+      python -m neverexpire.db.init_db &&
+      python -m neverexpire.db.seed &&
+      python -m neverexpire.db.seed_demo &&
+      python -m neverexpire.db.seed_extras
+    startCommand: gunicorn wsgi:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true

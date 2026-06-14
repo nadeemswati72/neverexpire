@@ -1,5 +1,3 @@
+from neverexpire.web import create_app
 
-from neverexpire import create_app
-
-app = create_app
-
+app = create_app()

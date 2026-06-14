@@ -31,7 +31,10 @@ build/
 # IDE
 .vscode/
 .idea/
-=======
+.vs/
+
+# App data (DB, uploads, staging) - generated at runtime / via seed scripts
+data/
 # Logs
 logs
 *.log

@@ -110,7 +110,7 @@ export default function AddDocumentScreen() {
 
   async function pickAndExtract() {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'] as any,
       quality: 0.85,
       allowsEditing: false,
     })

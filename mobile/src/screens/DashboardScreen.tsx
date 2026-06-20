@@ -165,7 +165,7 @@ export default function DashboardScreen() {
                         {row.map(l => (
                           <View key={l.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 5, flex: 1 }}>
                             <View style={[styles.legendDot, { backgroundColor: l.color }]} />
-                            <Text style={styles.legendLabel}>{l.label}</Text>
+                            <Text style={[styles.legendLabel, { width: 52 }]} numberOfLines={1}>{l.label}</Text>
                             <Text style={styles.legendValue}>{l.value}</Text>
                           </View>
                         ))}

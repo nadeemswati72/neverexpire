@@ -51,7 +51,7 @@ function MemberAvatarCell({ personId, hasPhoto, initials, color, onUpload }: { p
   }, [personId, hasPhoto])
 
   async function handleUpload() {
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.85 })
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'] as any, quality: 0.85 })
     if (result.canceled) return
     setUploading(true)
     const asset = result.assets[0]

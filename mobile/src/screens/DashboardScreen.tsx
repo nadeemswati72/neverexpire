@@ -47,11 +47,23 @@ export default function DashboardScreen() {
   const [refreshing, setRefreshing] = useState(false)
   const [primaryMember, setPrimaryMember] = useState<Person | null>(null)
   const [profilePhotoUri, setProfilePhotoUri] = useState<string | null>(null)
+  const [attentionDocs, setAttentionDocs] = useState<DocumentBrief[]>([])
 
   async function load() {
-    const [me, dash, fam] = await Promise.all([fetchMe(), api.get('/dashboard/summary'), api.get('/family')])
+    const [me, dash, fam, expired, expiring] = await Promise.all([
+      fetchMe(),
+      api.get('/dashboard/summary'),
+      api.get('/family'),
+      api.get('/documents?status=expired'),
+      api.get('/documents?status=expiring_soon'),
+    ])
     setUser(me)
     setSummary(dash.data.data)
+    const allAttention: DocumentBrief[] = [
+      ...expired.data.data,
+      ...expiring.data.data,
+    ].sort((a, b) => (a.days_remaining ?? -9999) - (b.days_remaining ?? -9999))
+    setAttentionDocs(allAttention)
     const primary = (fam.data.data as Person[]).find(p => p.is_primary) ?? null
     setPrimaryMember(primary)
     // Load profile photo if exists
@@ -143,18 +155,20 @@ export default function DashboardScreen() {
                       { value: summary.no_expiry, color: colors.noExpiry },
                     ]}
                   />
-                  {/* Legend — 2 columns, all 4 types */}
-                  <View style={{ marginTop: 10, flexDirection: 'row', flexWrap: 'wrap', gap: 4 }}>
+                  {/* Legend — 2 columns, all 4 types, tight layout */}
+                  <View style={{ marginTop: 10, gap: 5 }}>
                     {[
-                      { color: colors.expired, label: 'Expired', value: summary.expired },
-                      { color: colors.expiring, label: 'Expiring', value: summary.expiring_soon },
-                      { color: colors.valid, label: 'Valid', value: summary.valid },
-                      { color: colors.noExpiry, label: 'No expiry', value: summary.no_expiry },
-                    ].map(l => (
-                      <View key={l.label} style={[styles.legendRow, { width: '48%' }]}>
-                        <View style={[styles.legendDot, { backgroundColor: l.color }]} />
-                        <Text style={styles.legendLabel}>{l.label}</Text>
-                        <Text style={styles.legendValue}>{l.value}</Text>
+                      [{ color: colors.expired, label: 'Expired', value: summary.expired }, { color: colors.expiring, label: 'Expiring', value: summary.expiring_soon }],
+                      [{ color: colors.valid, label: 'Valid', value: summary.valid }, { color: colors.noExpiry, label: 'No expiry', value: summary.no_expiry }],
+                    ].map((row, i) => (
+                      <View key={i} style={{ flexDirection: 'row', gap: 10 }}>
+                        {row.map(l => (
+                          <View key={l.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 5, flex: 1 }}>
+                            <View style={[styles.legendDot, { backgroundColor: l.color }]} />
+                            <Text style={styles.legendLabel}>{l.label}</Text>
+                            <Text style={styles.legendValue}>{l.value}</Text>
+                          </View>
+                        ))}
                       </View>
                     ))}
                   </View>
@@ -166,19 +180,19 @@ export default function DashboardScreen() {
                 {/* Attention list */}
                 <View style={styles.attentionWrap}>
                   <Text style={styles.heroTitle}>
-                    {summary.upcoming.length > 0 ? '⚠️ Needs Attention' : '✅ All Clear'}
+                    {attentionDocs.length > 0 ? '⚠️ Needs Attention' : '✅ All Clear'}
                   </Text>
                   <Text style={styles.heroSub}>
-                    {summary.upcoming.length > 0
-                      ? `${summary.upcoming.length} document${summary.upcoming.length !== 1 ? 's' : ''}`
+                    {attentionDocs.length > 0
+                      ? `${attentionDocs.length} document${attentionDocs.length !== 1 ? 's' : ''}`
                       : 'All documents are up to date'}
                   </Text>
                 </View>
               </View>
 
-              {/* Attention docs — max 4, scrollable, See all link */}
-              <ScrollView style={{ maxHeight: 240 }} nestedScrollEnabled showsVerticalScrollIndicator={false}>
-                {summary.upcoming.slice(0, 4).map((doc: DocumentBrief) => (
+              {/* All attention docs — scrollable, ~4 visible at a time */}
+              <ScrollView style={{ maxHeight: 248 }} nestedScrollEnabled showsVerticalScrollIndicator={false}>
+                {attentionDocs.map((doc: DocumentBrief) => (
                   <TouchableOpacity
                     key={doc.id}
                     onPress={() => nav.navigate('DocumentDetail', { id: doc.id })}
@@ -198,11 +212,6 @@ export default function DashboardScreen() {
                   </TouchableOpacity>
                 ))}
               </ScrollView>
-              {summary.upcoming.length > 0 && (
-                <TouchableOpacity onPress={() => nav.navigate('Documents', { statusFilter: 'expiring_soon' })} style={{ marginTop: 10, alignItems: 'center' }}>
-                  <Text style={{ color: colors.brand, fontSize: 12, fontWeight: '600' }}>See all {summary.expired + summary.expiring_soon} requiring attention →</Text>
-                </TouchableOpacity>
-              )}
             </GlassCard>
 
             {/* Quick actions */}
@@ -249,7 +258,7 @@ const styles = StyleSheet.create({
   donutWrap: { alignItems: 'center' },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legendDot: { width: 7, height: 7, borderRadius: 99 },
-  legendLabel: { fontSize: 10, color: colors.textMutedDark, flex: 1 },
+  legendLabel: { fontSize: 10, color: colors.textMutedDark },
   legendValue: { fontSize: 10, color: colors.textOnDark, fontWeight: '700' },
   divider: { width: 1, backgroundColor: 'rgba(255,255,255,0.08)' },
   attentionWrap: { flex: 1, justifyContent: 'center' },

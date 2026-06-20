@@ -15,6 +15,7 @@ import DocumentsScreen from './src/screens/DocumentsScreen'
 import DocumentDetailScreen from './src/screens/DocumentDetailScreen'
 import AddDocumentScreen from './src/screens/AddDocumentScreen'
 import FamilyScreen from './src/screens/FamilyScreen'
+import RegisterScreen from './src/screens/RegisterScreen'
 
 const Stack = createNativeStackNavigator<RootStackParamList>()
 
@@ -53,6 +54,7 @@ export default function App() {
           }}
         >
           <Stack.Screen name="Login" component={LoginScreenWrapper} options={{ headerShown: false }} />
+          <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Documents" component={DocumentsScreen} options={{ title: 'Documents' }} />
           <Stack.Screen name="DocumentDetail" component={DocumentDetailScreen} options={{ title: 'Document' }} />

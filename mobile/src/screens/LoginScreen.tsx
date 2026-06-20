@@ -1,13 +1,17 @@
 import { useState } from 'react'
-import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useNavigation } from '@react-navigation/native'
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { colors } from '../theme'
 import { login } from '../auth'
+import type { RootStackParamList } from '../navigation'
 
 interface Props { onLogin: () => void }
 
 export default function LoginScreen({ onLogin }: Props) {
+  const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -86,6 +90,20 @@ export default function LoginScreen({ onLogin }: Props) {
               }
             </TouchableOpacity>
 
+            <TouchableOpacity onPress={() => Alert.alert('Forgot Password', 'Password reset is not available in the demo version. Please contact your administrator.')} style={{ alignItems: 'center', marginTop: 12 }}>
+              <Text style={styles.linkText}>Forgot password?</Text>
+            </TouchableOpacity>
+
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>or</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <TouchableOpacity style={styles.registerBtn} onPress={() => nav.navigate('Register')} activeOpacity={0.85}>
+              <Text style={styles.registerText}>Create new account</Text>
+            </TouchableOpacity>
+
             <Text style={styles.demo}>Demo: alice@neverexpire.test / Demo@1234</Text>
           </View>
         </ScrollView>
@@ -131,5 +149,11 @@ const styles = StyleSheet.create({
   },
   btnDisabled: { backgroundColor: colors.textMuted, shadowOpacity: 0 },
   btnText: { color: 'white', fontWeight: '700', fontSize: 16 },
+  linkText: { fontSize: 13, color: colors.brand, fontWeight: '500' },
+  divider: { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 16 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: 'rgba(30,45,80,0.1)' },
+  dividerText: { fontSize: 12, color: colors.textMuted },
+  registerBtn: { borderWidth: 1.5, borderColor: colors.brand, borderRadius: 12, padding: 13, alignItems: 'center' },
+  registerText: { color: colors.brand, fontWeight: '700', fontSize: 15 },
   demo: { textAlign: 'center', fontSize: 12, color: colors.textMuted, marginTop: 18 },
 })

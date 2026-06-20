@@ -3,8 +3,8 @@ import { ActivityIndicator, Alert, Animated, Easing, KeyboardAvoidingView, Platf
 import { LinearGradient } from 'expo-linear-gradient'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as ImagePicker from 'expo-image-picker'
-import { Picker } from '@react-native-picker/picker'
 import DatePickerField from '../components/DatePickerField'
+import ModalPicker from '../components/ModalPicker'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import api from '../api'
@@ -243,13 +243,12 @@ export default function AddDocumentScreen() {
                   ))}
                 </ScrollView>
 
-                {/* Document Type — native Picker dropdown */}
-                <Text style={styles.label}>Document Type</Text>
-                <View style={styles.pickerWrap}>
-                  <Picker selectedValue={docTypeCode} onValueChange={v => setDocTypeCode(v)} style={styles.picker} itemStyle={{ fontSize: 14 }}>
-                    {docTypes.map(dt => <Picker.Item key={dt.code} label={dt.name} value={dt.code} />)}
-                  </Picker>
-                </View>
+                <ModalPicker
+                  label="Document Type"
+                  value={docTypeCode}
+                  options={docTypes.map(dt => ({ label: dt.name, value: dt.code }))}
+                  onChange={setDocTypeCode}
+                />
 
                 {inp('Title *', title, setTitle, { placeholder: 'e.g. Alice Passport' })}
                 {inp('Document Number', docNumber, setDocNumber, { placeholder: 'e.g. A12345678' })}
@@ -298,9 +297,7 @@ const styles = StyleSheet.create({
   personChipActive: { backgroundColor: colors.brand, borderColor: colors.brand },
   personChipText: { fontSize: 13, color: colors.textSecondary, fontWeight: '500' },
   personChipTextActive: { color: 'white', fontWeight: '700' },
-  pickerWrap: { backgroundColor: 'rgba(255,255,255,0.7)', borderWidth: 1, borderColor: 'rgba(30,45,80,0.12)', borderRadius: 10, marginBottom: 14, overflow: 'hidden' },
-  picker: { height: 44, color: colors.textPrimary },
-errorText: { color: '#c53030', fontSize: 13, marginBottom: 10, textAlign: 'center' },
+  errorText: { color: '#c53030', fontSize: 13, marginBottom: 10, textAlign: 'center' },
   saveBtn: { borderRadius: 12, overflow: 'hidden' },
   saveBtnGrad: { padding: 15, alignItems: 'center' },
   saveBtnText: { color: 'white', fontWeight: '700', fontSize: 16 },

@@ -4,6 +4,7 @@ import api from '../api'
 import type { Person, User } from '../api'
 import StatusBadge from '../components/StatusBadge'
 import Sidebar from '../components/Sidebar'
+import AuthenticatedImage from '../components/AuthenticatedImage'
 import { fetchMe } from '../auth'
 
 interface DocFile {
@@ -49,6 +50,27 @@ function Field({ label, value, highlight }: { label: string; value: string | nul
 
 const STATUS_COLOR: Record<string, string> = {
   expired: '#c53030', expiring_soon: '#b45309', valid: '#276749', no_expiry: '#4a5568'
+}
+
+function FilePreview({ file }: { file: DocFile }) {
+  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(file.original_filename || '')
+  const fileUrl = `/api/v1/files/${file.id}`
+  if (isImage) {
+    return (
+      <AuthenticatedImage
+        fileId={file.id}
+        alt={file.original_filename}
+        style={{ width: '100%', display: 'block', maxHeight: 420, objectFit: 'contain', background: '#f0f4fa' }}
+      />
+    )
+  }
+  return (
+    <div style={{ padding: '40px 20px', textAlign: 'center' }}>
+      <div style={{ fontSize: 40, marginBottom: 12 }}>📄</div>
+      <div style={{ fontSize: 13, color: '#4a5568', fontWeight: 600 }}>{file.original_filename}</div>
+      <a href={fileUrl} download={file.original_filename} style={{ display: 'inline-block', marginTop: 12, background: 'linear-gradient(135deg, #34c9ba, #22a99c)', color: 'white', borderRadius: 8, padding: '7px 16px', fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>⬇ Download</a>
+    </div>
+  )
 }
 
 export default function DocumentDetailPage() {
@@ -253,24 +275,7 @@ export default function DocumentDetailPage() {
                     )}
                   </div>
                   {/* Preview image */}
-                  {(() => {
-                    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(previewFile.original_filename || previewFile.file_path || '')
-                    const fileUrl = `/api/v1/files/${previewFile.id}`
-                    return isImage ? (
-                      <img
-                        src={fileUrl}
-                        alt={previewFile.original_filename}
-                        style={{ width: '100%', display: 'block', maxHeight: 420, objectFit: 'contain', background: '#f0f4fa' }}
-                        onError={e => { (e.target as HTMLImageElement).parentElement!.innerHTML = '<div style="padding:40px;text-align:center;color:#8a9ab5;font-size:13px">Preview unavailable</div>' }}
-                      />
-                    ) : (
-                      <div style={{ padding: '40px 20px', textAlign: 'center' }}>
-                        <div style={{ fontSize: 40, marginBottom: 12 }}>📄</div>
-                        <div style={{ fontSize: 13, color: '#4a5568', fontWeight: 600 }}>{previewFile.original_filename}</div>
-                        <a href={fileUrl} download={previewFile.original_filename} style={{ display: 'inline-block', marginTop: 12, background: 'linear-gradient(135deg, #34c9ba, #22a99c)', color: 'white', borderRadius: 8, padding: '7px 16px', fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>⬇ Download</a>
-                      </div>
-                    )
-                  })()}
+                  <FilePreview file={previewFile} />
                   <div style={{ padding: '10px 18px', borderTop: '1px solid rgba(30,45,80,0.07)', fontSize: 11, color: '#8a9ab5', display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span>🔒</span> For NeverExpire use only · Watermarked
                   </div>

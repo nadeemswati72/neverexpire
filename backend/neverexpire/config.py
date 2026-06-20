@@ -7,7 +7,7 @@ load_dotenv()
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 
-EXTRACTION_MODEL = "claude-haiku-4-5"
+EXTRACTION_MODEL = "claude-sonnet-4-6"
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"

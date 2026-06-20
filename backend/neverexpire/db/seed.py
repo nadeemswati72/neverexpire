@@ -20,6 +20,7 @@ FAMILY_RELATION_TYPES = [
 
 DOCUMENT_TYPES = [
     ("PASSPORT", "Passport"),
+    ("ID_CARD", "Emirates ID / ID Card"),
     ("VISA", "Visa"),
     ("DRIVING_LICENSE", "Driving License"),
     ("VEHICLE_REGISTRATION", "Vehicle Registration"),

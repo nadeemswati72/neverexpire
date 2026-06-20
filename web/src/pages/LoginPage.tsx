@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { login } from '../auth'
 
 export default function LoginPage() {
@@ -145,7 +145,30 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', fontSize: 13, color: '#8a9ab5', marginTop: 24 }}>
+        {/* Forgot password */}
+        <p style={{ textAlign: 'center', marginTop: 14, marginBottom: 0 }}>
+          <button
+            type="button"
+            onClick={() => alert('Password reset is not available in the demo version.\nPlease contact your administrator.')}
+            style={{ background: 'none', border: 'none', color: '#8a9ab5', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}
+          >
+            Forgot password?
+          </button>
+        </p>
+
+        {/* Divider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '18px 0' }}>
+          <div style={{ flex: 1, height: 1, background: 'rgba(30,45,80,0.1)' }} />
+          <span style={{ fontSize: 12, color: '#8a9ab5' }}>or</span>
+          <div style={{ flex: 1, height: 1, background: 'rgba(30,45,80,0.1)' }} />
+        </div>
+
+        {/* Register link */}
+        <Link to="/register" style={{ display: 'block', textAlign: 'center', padding: '12px', border: '1.5px solid #34c9ba', borderRadius: 10, color: '#34c9ba', fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
+          Create new account
+        </Link>
+
+        <p style={{ textAlign: 'center', fontSize: 13, color: '#8a9ab5', marginTop: 20 }}>
           Demo: <strong style={{ color: '#4a5568' }}>alice@neverexpire.test</strong> / <strong style={{ color: '#4a5568' }}>Demo@1234</strong>
         </p>
       </div>

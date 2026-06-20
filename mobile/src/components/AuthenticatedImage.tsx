@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, Image, View, type StyleProp, type ImageStyle } from 'react-native'
-import * as FileSystem from 'expo-file-system'
+import { downloadAsync, cacheDirectory } from 'expo-file-system/legacy'
 import * as SecureStore from 'expo-secure-store'
 import { API_BASE } from '../api'
 
@@ -20,8 +20,8 @@ export default function AuthenticatedImage({ path, style, fallback }: Props) {
       try {
         const token = await SecureStore.getItemAsync('ne_token')
         const url = `${API_BASE}${path}`
-        const dest = `${FileSystem.cacheDirectory}${encodeURIComponent(path).replace(/[^a-z0-9]/gi, '_')}`
-        const result = await FileSystem.downloadAsync(url, dest, {
+        const dest = `${cacheDirectory}${encodeURIComponent(path).replace(/[^a-z0-9]/gi, '_')}`
+        const result = await downloadAsync(url, dest, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         })
         if (!cancelled) setLocalUri(result.uri)

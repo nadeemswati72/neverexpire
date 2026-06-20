@@ -3,9 +3,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-WATERMARK_TEXT = "For NeverExpire Reminders Only"
-
-# Only raster images can be watermarked with Pillow; PDFs are left as-is.
+WATERMARK_TEXT = "NeverExpire"
+WATERMARK_SUBTEXT = "For Reminder Use Only"
 WATERMARKABLE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 
 
@@ -14,44 +13,50 @@ def watermarked_path_for(source_path: Path) -> Path:
 
 
 def apply_watermark(source_path: str | Path) -> Path | None:
-    """Write a watermarked copy of an image alongside source_path.
-
-    Returns the path of the watermarked copy, or None if the file type can't
-    be watermarked (e.g. PDF) - in which case no file is written and the
-    original should be served as-is.
-    """
     path = Path(source_path)
     if path.suffix.lower() not in WATERMARKABLE_EXTENSIONS:
         return None
 
     image = Image.open(path).convert("RGBA")
+    w, h = image.size
 
-    font_size = max(14, min(image.width, image.height) // 10)
+    font_size = max(18, min(w, h) // 16)
+    sub_font_size = max(10, font_size // 2)
+
     try:
         font = ImageFont.truetype("arial.ttf", font_size)
+        sub_font = ImageFont.truetype("arial.ttf", sub_font_size)
     except OSError:
         font = ImageFont.load_default()
+        sub_font = font
 
-    # Render the text on its own layer, then rotate it to follow the
-    # document's diagonal (bottom-left to top-right) before pasting it
-    # centered over the document.
-    measurer = ImageDraw.Draw(Image.new("RGBA", (1, 1)))
-    bbox = measurer.textbbox((0, 0), WATERMARK_TEXT, font=font)
-    text_width = bbox[2] - bbox[0]
-    text_height = bbox[3] - bbox[1]
+    # Build a single tile with both lines
+    dummy = ImageDraw.Draw(Image.new("RGBA", (1, 1)))
+    bb1 = dummy.textbbox((0, 0), WATERMARK_TEXT, font=font)
+    bb2 = dummy.textbbox((0, 0), WATERMARK_SUBTEXT, font=sub_font)
+    tile_w = max(bb1[2] - bb1[0], bb2[2] - bb2[0]) + font_size * 3
+    tile_h = (bb1[3] - bb1[1]) + (bb2[3] - bb2[1]) + font_size * 2
 
-    text_layer = Image.new("RGBA", (text_width, text_height), (0, 0, 0, 0))
-    ImageDraw.Draw(text_layer).text(
-        (-bbox[0], -bbox[1]), WATERMARK_TEXT, font=font, fill=(255, 255, 255, 140)
-    )
+    tile = Image.new("RGBA", (tile_w, tile_h), (0, 0, 0, 0))
+    td = ImageDraw.Draw(tile)
+    # Main text
+    td.text((font_size, font_size // 2), WATERMARK_TEXT, font=font, fill=(255, 255, 255, 110))
+    # Sub text
+    td.text((font_size, font_size // 2 + (bb1[3] - bb1[1]) + 4), WATERMARK_SUBTEXT, font=sub_font, fill=(255, 255, 255, 90))
 
-    angle = math.degrees(math.atan2(image.height, image.width))
-    rotated = text_layer.rotate(angle, expand=True, resample=Image.BICUBIC)
+    # Rotate tile ~30 degrees
+    angle = 25
+    rotated_tile = tile.rotate(angle, expand=True, resample=Image.BICUBIC)
 
+    # Tile the rotated stamp across the full image
     overlay = Image.new("RGBA", image.size, (0, 0, 0, 0))
-    x = (image.width - rotated.width) // 2
-    y = (image.height - rotated.height) // 2
-    overlay.paste(rotated, (x, y), rotated)
+    rw, rh = rotated_tile.size
+    step_x = int(rw * 1.2)
+    step_y = int(rh * 1.2)
+
+    for y in range(-rh, h + rh, step_y):
+        for x in range(-rw, w + rw, step_x):
+            overlay.paste(rotated_tile, (x, y), rotated_tile)
 
     watermarked = Image.alpha_composite(image, overlay)
     if path.suffix.lower() in (".jpg", ".jpeg", ".gif"):

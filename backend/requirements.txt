@@ -1,0 +1,9 @@
+anthropic
+pydantic
+python-dotenv
+SQLAlchemy
+Flask
+Flask-Cors
+Pillow
+PyJWT
+gunicorn

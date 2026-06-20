@@ -5,6 +5,7 @@ import DashboardPage from './pages/DashboardPage'
 import DocumentsPage from './pages/DocumentsPage'
 import DocumentDetailPage from './pages/DocumentDetailPage'
 import AddDocumentPage from './pages/AddDocumentPage'
+import FamilyPage from './pages/FamilyPage'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   return isLoggedIn() ? <>{children}</> : <Navigate to="/login" replace />
@@ -18,6 +19,7 @@ export default function App() {
       <Route path="/documents" element={<RequireAuth><DocumentsPage /></RequireAuth>} />
       <Route path="/documents/add" element={<RequireAuth><AddDocumentPage /></RequireAuth>} />
       <Route path="/documents/:id" element={<RequireAuth><DocumentDetailPage /></RequireAuth>} />
+      <Route path="/family" element={<RequireAuth><FamilyPage /></RequireAuth>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

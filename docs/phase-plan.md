@@ -68,20 +68,27 @@
 
 ---
 
-## Sprint 3 — Web Documents ⬜ NOT STARTED
+## Sprint 3 — Web Documents ✅ DONE
 **Goal:** Document list page, document detail, add document with AI extraction.
 
 | Task | Status |
 |------|--------|
-| Documents list page (`/documents`) | ⬜ |
-| Document detail page (`/documents/:id`) | ⬜ |
-| Add document form — manual entry | ⬜ |
-| Add document — AI extraction flow (upload → preview → confirm) | ⬜ |
-| Document type filter + status filter on list | ⬜ |
+| Documents list page (`/documents`) with search + status filter | ✅ |
+| Document detail page (`/documents/:id`) with dark hero card | ✅ |
+| Add document — manual entry form | ✅ |
+| Add document — AI extraction flow (upload → animation → preview → confirm) | ✅ |
+| AI extraction animation — scan line, step dots, progress bar | ✅ |
+| Sidebar on all pages (detail + add) | ✅ |
+| Dates in both header card AND Document Details section | ✅ |
+| Watermarked file preview (fetch+blob, authenticated) | ✅ |
+| Tiled watermark pattern matching reference sample | ✅ |
+| Dashboard rows clickable → navigate to document detail | ✅ |
+| `GET /api/v1/files/:id` — watermarked file serve endpoint | ✅ |
+| family list API returns relation_type per member | ✅ |
 
 ---
 
-## Sprint 4 — Web Family + Complete Web MVP ⬜ NOT STARTED
+## Sprint 4 — Web Family + Complete Web MVP 🔄 IN PROGRESS
 **Goal:** Family management UI, complete web MVP ready for user testing.
 
 | Task | Status |

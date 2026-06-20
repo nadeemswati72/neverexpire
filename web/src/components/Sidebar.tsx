@@ -13,7 +13,7 @@ interface Props {
 const NAV_ITEMS = [
   { label: 'Dashboard', icon: '▦', path: '/', id: 'dashboard' },
   { label: 'Documents', icon: '📄', path: '/documents', id: 'documents' },
-  { label: 'Family', icon: '👥', path: '/family', id: 'family', soon: true },
+  { label: 'Family', icon: '👥', path: '/family', id: 'family' },
   { label: 'Reminders', icon: '🔔', path: '/reminders', id: 'reminders', soon: true },
 ]
 

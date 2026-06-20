@@ -311,7 +311,7 @@ export default function FamilyPage() {
   }
 
   const primaryMember = family.find(m => m.is_primary)
-  const otherMembers = family.filter(m => !m.is_primary)
+
 
   if (loading) return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>

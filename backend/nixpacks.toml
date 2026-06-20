@@ -1,0 +1,15 @@
+[phases.setup]
+nixPkgs = ["python311", "python311Packages.pip"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
+
+[phases.build]
+cmds = [
+  "python -m neverexpire.db.init_db",
+  "python -m neverexpire.db.seed",
+  "python -m neverexpire.db.seed_demo"
+]
+
+[start]
+cmd = "gunicorn -w 2 -b 0.0.0.0:$PORT \"neverexpire.web:create_app()\""

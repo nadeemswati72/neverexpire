@@ -5,9 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-if not ANTHROPIC_API_KEY:
-    raise RuntimeError("ANTHROPIC_API_KEY is not set. Copy .env.example to .env and add your key.")
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 
 EXTRACTION_MODEL = "claude-haiku-4-5"
 
@@ -23,4 +21,7 @@ REMINDER_DAYS_THRESHOLD = 90
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-insecure-secret-key-change-in-prod")
 JWT_EXPIRY_HOURS = int(os.getenv("JWT_EXPIRY_HOURS", "24"))
 
-CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:8081").split(",")
+CORS_ORIGINS = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:5173,http://localhost:8081,https://neverexpire-poc.vercel.app"
+).split(",")

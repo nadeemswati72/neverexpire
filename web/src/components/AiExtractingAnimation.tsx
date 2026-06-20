@@ -106,7 +106,6 @@ export default function AiExtractingAnimation({ filename }: { filename?: string 
         borderRadius: 99, padding: '10px 20px',
         marginBottom: 24,
         animation: 'ne-step-in 0.3s ease-out',
-        key: activeStep,
       }}>
         <span style={{ fontSize: 20 }}>{STEPS[activeStep].icon}</span>
         <span style={{ fontSize: 14, fontWeight: 700, color: '#22a99c' }}>{STEPS[activeStep].text}</span>

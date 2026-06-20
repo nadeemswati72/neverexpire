@@ -268,7 +268,7 @@ export default function DocumentDetailPage() {
                     </div>
                     {doc.files.length > 1 && (
                       <div style={{ display: 'flex', gap: 4 }}>
-                        {doc.files.map((f, i) => (
+                        {doc.files.map((f) => (
                           <button key={f.id} onClick={() => setPreviewFile(f)} style={{ width: 8, height: 8, borderRadius: '50%', border: 'none', background: previewFile.id === f.id ? '#34c9ba' : 'rgba(30,45,80,0.15)', cursor: 'pointer', padding: 0 }} />
                         ))}
                       </div>

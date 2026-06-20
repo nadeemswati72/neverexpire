@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import API_BASE from '../apiBase'
 
 interface Props {
   personId: number
@@ -20,7 +21,7 @@ export default function MemberAvatar({ personId, initials, color, size = 62, has
     if (!hasPhoto) { setBlobUrl(null); return }
     let url: string | null = null
     const token = localStorage.getItem('ne_token')
-    fetch(`/api/v1/family/${personId}/photo`, {
+    fetch(`${API_BASE}/api/v1/family/${personId}/photo`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
       .then(r => r.ok ? r.blob() : Promise.reject())
@@ -37,7 +38,7 @@ export default function MemberAvatar({ personId, initials, color, size = 62, has
     fd.append('file', file)
     const token = localStorage.getItem('ne_token')
     try {
-      const r = await fetch(`/api/v1/family/${personId}/photo`, {
+      const r = await fetch(`${API_BASE}/api/v1/family/${personId}/photo`, {
         method: 'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: fd,
@@ -46,7 +47,7 @@ export default function MemberAvatar({ personId, initials, color, size = 62, has
         // Revoke old blob and refetch
         if (blobUrl) URL.revokeObjectURL(blobUrl)
         setBlobUrl(null)
-        const blob = await fetch(`/api/v1/family/${personId}/photo`, {
+        const blob = await fetch(`${API_BASE}/api/v1/family/${personId}/photo`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         }).then(r2 => r2.blob())
         setBlobUrl(URL.createObjectURL(blob))

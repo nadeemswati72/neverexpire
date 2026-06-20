@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import API_BASE from '../apiBase'
 
 interface Props {
   fileId: number
@@ -15,7 +16,7 @@ export default function AuthenticatedImage({ fileId, alt, style, onError }: Prop
     let objectUrl: string | null = null
     const token = localStorage.getItem('ne_token')
 
-    fetch(`/api/v1/files/${fileId}`, {
+    fetch(`${API_BASE}/api/v1/files/${fileId}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
       .then(r => {

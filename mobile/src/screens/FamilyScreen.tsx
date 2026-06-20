@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import api from '../api'
@@ -24,6 +25,7 @@ function formatAge(dob: string | null) {
 
 export default function FamilyScreen() {
   const nav = useNavigation<Nav>()
+  const insets = useSafeAreaInsets()
   const [family, setFamily] = useState<Person[]>([])
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
@@ -72,7 +74,7 @@ export default function FamilyScreen() {
       <FlatList
         data={family}
         keyExtractor={p => String(p.id)}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 40 }]}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <GlassCard dark style={styles.summaryCard}>

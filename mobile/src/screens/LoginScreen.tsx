@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { colors } from '../theme'
 import { login } from '../auth'
 
@@ -23,10 +24,12 @@ export default function LoginScreen({ onLogin }: Props) {
     } finally { setLoading(false) }
   }
 
+  const insets = useSafeAreaInsets()
+
   return (
     <LinearGradient colors={[colors.bgStart, colors.bgEnd]} style={styles.root}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.kav}>
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]} keyboardShouldPersistTaps="handled">
 
           {/* Logo */}
           <View style={styles.logoWrap}>
@@ -94,7 +97,7 @@ export default function LoginScreen({ onLogin }: Props) {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   kav: { flex: 1 },
-  scroll: { flexGrow: 1, justifyContent: 'center', padding: 24 },
+  scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24 },
   logoWrap: { alignItems: 'center', marginBottom: 32 },
   logoBox: {
     width: 72, height: 72, borderRadius: 20,

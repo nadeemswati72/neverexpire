@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native'
 import api from '../api'
 import type { DocumentDetail } from '../api'
@@ -29,6 +30,7 @@ function Field({ label, value }: { label: string; value: string | null | undefin
 export default function DocumentDetailScreen() {
   const nav = useNavigation()
   const route = useRoute<Route>()
+  const insets = useSafeAreaInsets()
   const [doc, setDoc] = useState<DocumentDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
@@ -60,7 +62,7 @@ export default function DocumentDetailScreen() {
 
   return (
     <LinearGradient colors={[colors.bgStart, colors.bgEnd]} style={styles.root}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]} showsVerticalScrollIndicator={false}>
 
         {/* Hero dark card */}
         <GlassCard dark style={styles.heroCard}>
@@ -98,7 +100,7 @@ export default function DocumentDetailScreen() {
                 <View style={styles.dateDivider} />
                 <View>
                   <Text style={styles.dateLabel}>DOC NO.</Text>
-                  <Text style={[styles.dateValue, { fontFamily: 'monospace' }]}>{doc.document_number}</Text>
+                  <Text style={[styles.dateValue, { fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }]}>{doc.document_number}</Text>
                 </View>
               </>
             )}

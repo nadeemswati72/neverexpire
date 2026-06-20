@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Alert, Animated, Easing, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as ImagePicker from 'expo-image-picker'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -65,6 +66,7 @@ const aiStyles = StyleSheet.create({
 
 export default function AddDocumentScreen() {
   const nav = useNavigation<Nav>()
+  const insets = useSafeAreaInsets()
   const [step, setStep] = useState<Step>('choose')
   const [family, setFamily] = useState<Person[]>([])
   const [docTypes, setDocTypes] = useState<DocType[]>([])
@@ -187,7 +189,7 @@ export default function AddDocumentScreen() {
   return (
     <LinearGradient colors={[colors.bgStart, colors.bgEnd]} style={styles.root}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 60 }]} showsVerticalScrollIndicator={false}>
 
           {/* Choose step */}
           {step === 'choose' && (

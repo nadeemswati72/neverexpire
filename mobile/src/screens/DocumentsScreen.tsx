@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import api from '../api'
@@ -27,6 +28,7 @@ function daysLabel(days: number | null, status: string) {
 
 export default function DocumentsScreen() {
   const nav = useNavigation<Nav>()
+  const insets = useSafeAreaInsets()
   const [docs, setDocs] = useState<DocumentBrief[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -82,7 +84,7 @@ export default function DocumentsScreen() {
       <FlatList
         data={filtered}
         keyExtractor={d => String(d.id)}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 100 }]}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.empty}>
@@ -123,8 +125,8 @@ export default function DocumentsScreen() {
         )}
       />
 
-      {/* FAB */}
-      <TouchableOpacity style={styles.fab} onPress={() => nav.navigate('AddDocument')} activeOpacity={0.85}>
+      {/* FAB — above iOS home indicator */}
+      <TouchableOpacity style={[styles.fab, { bottom: insets.bottom + 16 }]} onPress={() => nav.navigate('AddDocument')} activeOpacity={0.85}>
         <LinearGradient colors={[colors.brand, colors.brandDark]} style={styles.fabGrad}>
           <Text style={styles.fabText}>＋</Text>
         </LinearGradient>
@@ -154,7 +156,7 @@ const styles = StyleSheet.create({
   daysText: { fontSize: 11, fontWeight: '600' },
   empty: { alignItems: 'center', paddingTop: 60 },
   emptyText: { fontSize: 15, color: colors.textMuted },
-  fab: { position: 'absolute', bottom: 28, right: 20, borderRadius: 99, shadowColor: colors.brand, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.4, shadowRadius: 12, elevation: 8 },
+  fab: { position: 'absolute', right: 20, borderRadius: 99, shadowColor: colors.brand, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.4, shadowRadius: 12, elevation: 8 },
   fabGrad: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' },
   fabText: { color: 'white', fontSize: 28, lineHeight: 32 },
 })

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import api from '../api'
@@ -38,6 +39,7 @@ function StatTile({ label, value, color, bg }: { label: string; value: number; c
 
 export default function DashboardScreen() {
   const nav = useNavigation<Nav>()
+  const insets = useSafeAreaInsets()
   const [user, setUser] = useState<User | null>(null)
   const [summary, setSummary] = useState<DashboardSummary | null>(null)
   const [loading, setLoading] = useState(true)
@@ -66,7 +68,7 @@ export default function DashboardScreen() {
   return (
     <LinearGradient colors={[colors.bgStart, colors.bgEnd]} style={styles.root}>
       <ScrollView
-        contentContainerStyle={styles.scroll}
+        contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 40 }]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.brand} />}
         showsVerticalScrollIndicator={false}
       >
@@ -191,7 +193,7 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  scroll: { padding: 20, paddingTop: 60, paddingBottom: 40 },
+  scroll: { paddingHorizontal: 20 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 },
   greeting: { fontSize: 14, color: colors.textMuted },
   userName: { fontSize: 22, fontWeight: '800', color: colors.textPrimary, marginTop: 2 },

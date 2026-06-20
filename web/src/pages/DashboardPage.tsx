@@ -6,6 +6,7 @@ import { fetchMe } from '../auth'
 import Sidebar from '../components/Sidebar'
 import StatCard from '../components/StatCard'
 import StatusBadge from '../components/StatusBadge'
+import DonutChart from '../components/DonutChart'
 
 function formatDate(d: string | null) {
   if (!d) return '—'
@@ -125,82 +126,98 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* Hero health card */}
+          {/* Hero card — donut chart + attention list */}
+          {summary && (
           <div style={{
             background: 'linear-gradient(135deg, rgba(21,32,58,0.9) 0%, rgba(30,45,80,0.95) 100%)',
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: 20,
-            padding: '28px 32px',
+            padding: '24px 28px',
             marginBottom: 20,
             boxShadow: '0 8px 32px rgba(30,45,80,0.2)',
             position: 'relative',
             overflow: 'hidden',
+            display: 'flex',
+            gap: 28,
           }}>
-            {/* Background accent */}
-            <div style={{
-              position: 'absolute', top: -40, right: -40, width: 200, height: 200,
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(52,201,186,0.2) 0%, transparent 70%)',
-              pointerEvents: 'none',
-            }} />
+            <div style={{ position: 'absolute', top: -30, right: -30, width: 180, height: 180, borderRadius: '50%', background: 'radial-gradient(circle, rgba(52,201,186,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-              <div>
-                <h2 style={{ fontSize: 16, fontWeight: 700, color: '#e8f0fe', margin: 0 }}>
-                  {attentionDocs.length > 0 ? '⚠️ Documents Need Attention' : '✅ All Clear'}
-                </h2>
-                <p style={{ fontSize: 12, color: '#8fa8cc', marginTop: 4 }}>
-                  {attentionDocs.length > 0
-                    ? `${attentionDocs.length} document${attentionDocs.length !== 1 ? 's' : ''} require action`
-                    : 'All your documents are up to date'}
-                </p>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 36, fontWeight: 800, color: attentionDocs.length > 0 ? '#f6ad55' : '#34c9ba' }}>
-                  {attentionDocs.length}
-                </div>
-                <div style={{ fontSize: 11, color: '#8fa8cc' }}>need action</div>
-              </div>
-            </div>
-
-            {attentionDocs.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {attentionDocs.slice(0, 4).map(doc => (
-                  <div key={doc.id} onClick={() => navigate(`/documents/${doc.id}`)} style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    borderRadius: 10, padding: '12px 16px',
-                    cursor: 'pointer', transition: 'background 0.15s',
-                  }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
-                  >
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#e8f0fe', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {doc.title}
-                      </div>
-                      <div style={{ fontSize: 12, color: '#8fa8cc', marginTop: 2 }}>
-                        {doc.person?.full_name} · {doc.document_type?.name}
-                      </div>
-                    </div>
-                    <div style={{ textAlign: 'right', marginLeft: 16 }}>
-                      <StatusBadge status={doc.status} />
-                      <div style={{ fontSize: 11, color: '#8fa8cc', marginTop: 4 }}>
-                        {daysLabel(doc.days_remaining, doc.status)}
-                      </div>
-                    </div>
+            {/* Left — donut chart */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, flexShrink: 0 }}>
+              <DonutChart
+                total={summary.total}
+                size={140}
+                thickness={20}
+                segments={[
+                  { value: summary.expired,       color: '#e53e3e', label: 'Expired' },
+                  { value: summary.expiring_soon, color: '#d97706', label: 'Expiring' },
+                  { value: summary.valid,         color: '#38a169', label: 'Valid' },
+                  { value: summary.no_expiry,     color: '#718096', label: 'No expiry' },
+                ]}
+              />
+              {/* Legend */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                {[
+                  { color: '#e53e3e', label: 'Expired',   value: summary.expired },
+                  { color: '#d97706', label: 'Expiring',  value: summary.expiring_soon },
+                  { color: '#38a169', label: 'Valid',     value: summary.valid },
+                  { color: '#718096', label: 'No expiry', value: summary.no_expiry },
+                ].map(l => (
+                  <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: l.color, flexShrink: 0 }} />
+                    <span style={{ fontSize: 11, color: '#8fa8cc' }}>{l.label}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#e8f0fe', marginLeft: 'auto', paddingLeft: 10 }}>{l.value}</span>
                   </div>
                 ))}
               </div>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '12px 0', color: '#34c9ba', fontSize: 13 }}>
-                Next check due in {Math.min(...(summary?.upcoming?.map(d => d.days_remaining ?? 999) ?? [999]))} days
-              </div>
-            )}
+            </div>
+
+            {/* Divider */}
+            <div style={{ width: 1, background: 'rgba(255,255,255,0.08)', flexShrink: 0 }} />
+
+            {/* Right — attention list */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h2 style={{ fontSize: 15, fontWeight: 700, color: '#e8f0fe', margin: '0 0 4px' }}>
+                {attentionDocs.length > 0 ? '⚠️ Documents Need Attention' : '✅ All Clear'}
+              </h2>
+              <p style={{ fontSize: 12, color: '#8fa8cc', marginBottom: 14 }}>
+                {attentionDocs.length > 0
+                  ? `${attentionDocs.length} document${attentionDocs.length !== 1 ? 's' : ''} require action`
+                  : 'All your documents are up to date'}
+              </p>
+
+              {attentionDocs.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {attentionDocs.slice(0, 4).map(doc => (
+                    <div key={doc.id} onClick={() => navigate(`/documents/${doc.id}`)} style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)',
+                      borderRadius: 10, padding: '10px 14px', cursor: 'pointer', transition: 'background 0.15s',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
+                    >
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: '#e8f0fe', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{doc.title}</div>
+                        <div style={{ fontSize: 11, color: '#8fa8cc', marginTop: 2 }}>{doc.person?.full_name} · {doc.document_type?.name}</div>
+                      </div>
+                      <div style={{ textAlign: 'right', marginLeft: 12, flexShrink: 0 }}>
+                        <StatusBadge status={doc.status} />
+                        <div style={{ fontSize: 11, color: '#8fa8cc', marginTop: 3 }}>{daysLabel(doc.days_remaining, doc.status)}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '20px 0', color: '#34c9ba', fontSize: 13 }}>
+                  🎉 All documents are in order
+                </div>
+              )}
+            </div>
           </div>
+          )}
 
           {/* Two column grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>

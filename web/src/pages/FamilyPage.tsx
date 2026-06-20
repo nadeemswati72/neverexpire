@@ -4,6 +4,7 @@ import api from '../api'
 import type { User } from '../api'
 import { fetchMe } from '../auth'
 import Sidebar from '../components/Sidebar'
+import MemberAvatar from '../components/MemberAvatar'
 
 interface FamilyMember {
   id: number
@@ -11,6 +12,7 @@ interface FamilyMember {
   relation_type: string
   is_primary: boolean
   date_of_birth: string | null
+  photo_path: string | null
 }
 
 interface DocSummary {
@@ -37,13 +39,14 @@ function formatDOB(d: string | null) {
 }
 
 function MemberCard({
-  member, docSummary, onEdit, onDelete, onAddDoc, isPrimary,
+  member, docSummary, onEdit, onDelete, onAddDoc, onPhotoChange, isPrimary,
 }: {
   member: FamilyMember
   docSummary: DocSummary
   onEdit: (m: FamilyMember) => void
   onDelete: (m: FamilyMember) => void
   onAddDoc: (m: FamilyMember) => void
+  onPhotoChange: () => void
   isPrimary: boolean
 }) {
   const navigate = useNavigate()
@@ -102,17 +105,15 @@ function MemberCard({
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 14 }}>
         {/* Avatar with relation icon badge */}
         <div style={{ position: 'relative', flexShrink: 0 }}>
-          {/* Photo placeholder — initials */}
-          <div style={{
-            width: 62, height: 62, borderRadius: '50%',
-            background: `linear-gradient(135deg, ${color}33, ${color}55)`,
-            border: `2px solid ${color}55`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 20, fontWeight: 800, color,
-            letterSpacing: '-0.5px',
-          }}>
-            {initials}
-          </div>
+          <MemberAvatar
+            personId={member.id}
+            initials={initials}
+            color={color}
+            size={62}
+            hasPhoto={!!member.photo_path}
+            editable={true}
+            onPhotoChange={onPhotoChange}
+          />
           {/* Relation icon badge */}
           <div style={{
             position: 'absolute', bottom: -2, right: -4,
@@ -122,6 +123,7 @@ function MemberCard({
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 12,
             boxShadow: '0 2px 6px rgba(30,45,80,0.12)',
+            pointerEvents: 'none',
           }}>
             {icon}
           </div>
@@ -378,6 +380,7 @@ export default function FamilyPage() {
                   onEdit={m => { setEditingMember(m); setShowModal(true) }}
                   onDelete={m => setDeleteConfirm(m)}
                   onAddDoc={m => navigate(`/documents/add?person_id=${m.id}`)}
+                  onPhotoChange={loadData}
                 />
               ))}
             </div>

@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+.env
+data/uploads/
+data/avatars/
+data/staging/
+flask.log
+flask.err

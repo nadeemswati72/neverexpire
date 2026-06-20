@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../auth'
 import type { Person, User } from '../api'
+import MemberAvatar from './MemberAvatar'
 
 interface Props {
   user: User | null
@@ -19,6 +20,11 @@ const NAV_ITEMS = [
 
 const RELATION_ICONS: Record<string, string> = {
   SELF: '👤', SPOUSE: '💑', CHILD: '👶', PARENT: '👴', SIBLING: '🧑', OTHER: '🙂',
+}
+
+const RELATION_COLORS: Record<string, string> = {
+  SELF: '#34c9ba', SPOUSE: '#e879a0', CHILD: '#f6ad55',
+  PARENT: '#68d391', SIBLING: '#76e4f7', OTHER: '#b794f4',
 }
 
 export default function Sidebar({ user, family, selectedPersonId, onSelectPerson, activePage = 'dashboard' }: Props) {
@@ -126,7 +132,26 @@ export default function Sidebar({ user, family, selectedPersonId, onSelectPerson
                 transition: 'background 0.15s',
               }}
             >
-              <span style={{ fontSize: 14 }}>{RELATION_ICONS[p.relation_type] || '🙂'}</span>
+              {/* Avatar + relation badge */}
+              <div style={{ position: 'relative', flexShrink: 0 }}>
+                <MemberAvatar
+                  personId={p.id}
+                  initials={p.full_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+                  color={RELATION_COLORS[p.relation_type] ?? '#b794f4'}
+                  size={32}
+                  hasPhoto={!!p.photo_path}
+                  editable={false}
+                />
+                <div style={{
+                  position: 'absolute', bottom: -2, right: -3,
+                  width: 14, height: 14, borderRadius: '50%',
+                  background: 'white', border: '1px solid rgba(30,45,80,0.12)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 8, lineHeight: 1, pointerEvents: 'none',
+                }}>
+                  {RELATION_ICONS[p.relation_type] || '🙂'}
+                </div>
+              </div>
               <div>
                 <div>{p.full_name.split(' ')[0]}</div>
                 <div style={{ fontSize: 10, color: '#8a9ab5' }}>{p.relation_type ? p.relation_type.charAt(0) + p.relation_type.slice(1).toLowerCase() : ''}</div>

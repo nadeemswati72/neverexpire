@@ -7,6 +7,15 @@ import Sidebar from '../components/Sidebar'
 import StatCard from '../components/StatCard'
 import StatusBadge from '../components/StatusBadge'
 import DonutChart from '../components/DonutChart'
+import MemberAvatar from '../components/MemberAvatar'
+
+const RELATION_ICONS: Record<string, string> = {
+  SELF: '👤', SPOUSE: '💑', CHILD: '👶', PARENT: '👴', SIBLING: '🧑', OTHER: '🙂',
+}
+const RELATION_COLORS: Record<string, string> = {
+  SELF: '#34c9ba', SPOUSE: '#e879a0', CHILD: '#f6ad55',
+  PARENT: '#68d391', SIBLING: '#76e4f7', OTHER: '#b794f4',
+}
 
 function formatDate(d: string | null) {
   if (!d) return '—'
@@ -311,14 +320,24 @@ export default function DashboardPage() {
                         transition: 'all 0.15s',
                       }}
                     >
-                      <div style={{
-                        width: 36, height: 36, borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #34c9ba22, #34c9ba44)',
-                        border: '2px solid rgba(52,201,186,0.3)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 16, flexShrink: 0,
-                      }}>
-                        {p.full_name?.charAt(0) ?? '?'}
+                      <div style={{ position: 'relative', flexShrink: 0 }}>
+                        <MemberAvatar
+                          personId={p.id}
+                          initials={p.full_name?.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() ?? '?'}
+                          color={RELATION_COLORS[p.relation_type] ?? '#34c9ba'}
+                          size={36}
+                          hasPhoto={!!p.photo_path}
+                          editable={false}
+                        />
+                        <div style={{
+                          position: 'absolute', bottom: -2, right: -3,
+                          width: 14, height: 14, borderRadius: '50%',
+                          background: 'white', border: '1px solid rgba(30,45,80,0.1)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 8, pointerEvents: 'none',
+                        }}>
+                          {RELATION_ICONS[p.relation_type] || '🙂'}
+                        </div>
                       </div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 13, fontWeight: 600, color: '#15203a' }}>{p.full_name}</div>

@@ -34,6 +34,7 @@ export interface Person {
   relation_type: string
   is_primary: boolean
   date_of_birth: string | null
+  photo_path: string | null
 }
 
 export interface DocumentType {

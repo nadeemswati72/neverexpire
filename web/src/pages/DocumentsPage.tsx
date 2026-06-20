@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import api from '../api'
 import type { DocumentBrief, Person } from '../api'
 import StatusBadge from '../components/StatusBadge'
@@ -28,12 +28,15 @@ function daysLabel(days: number | null, status: string) {
 
 export default function DocumentsPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [user, setUser] = useState<User | null>(null)
   const [family, setFamily] = useState<Person[]>([])
   const [docs, setDocs] = useState<DocumentBrief[]>([])
   const [loading, setLoading] = useState(true)
-  const [statusFilter, setStatusFilter] = useState('')
-  const [personFilter, setPersonFilter] = useState<number | null>(null)
+  const [statusFilter, setStatusFilter] = useState(searchParams.get('status') ?? '')
+  const [personFilter, setPersonFilter] = useState<number | null>(
+    searchParams.get('person_id') ? Number(searchParams.get('person_id')) : null
+  )
   const [search, setSearch] = useState('')
 
   useEffect(() => {

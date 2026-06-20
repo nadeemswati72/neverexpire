@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import api from '../api'
 import type { Person, User } from '../api'
 import { fetchMe } from '../auth'
@@ -23,6 +23,7 @@ type Step = 'choose' | 'upload' | 'preview' | 'manual'
 
 export default function AddDocumentPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const fileRef = useRef<HTMLInputElement>(null)
 
   const [step, setStep] = useState<Step>('choose')
@@ -54,7 +55,12 @@ export default function AddDocumentPage() {
       setUser(me)
       setFamily(f.data.data)
       setDocTypes(dt.data.data)
-      if (f.data.data.length > 0) setPersonId(f.data.data[0].id)
+      const preselect = searchParams.get('person_id')
+      if (preselect) {
+        setPersonId(Number(preselect))
+      } else if (f.data.data.length > 0) {
+        setPersonId(f.data.data[0].id)
+      }
     })
   }, [])
 

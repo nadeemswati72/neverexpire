@@ -118,8 +118,39 @@ def update_member(person_id: int):
         if "date_of_birth" in body:
             person.date_of_birth = _parse_dob(body["date_of_birth"])
 
+        # Update relation type on the relationship record
+        if "relation_type" in body and not person.is_primary:
+            new_code = body["relation_type"].strip().upper()
+            rel_type = session.query(FamilyRelationType).filter_by(code=new_code).first()
+            if rel_type:
+                primary = (
+                    session.query(Person)
+                    .filter_by(user_id=g.current_user_id, is_primary=True)
+                    .first()
+                )
+                if primary:
+                    rel = (
+                        session.query(PersonRelationship)
+                        .filter_by(person_id=primary.id, related_person_id=person.id)
+                        .first()
+                    )
+                    if rel:
+                        rel.relation_type_id = rel_type.id
+
         session.commit()
-        return jsonify({"data": person_brief(person), "error": None})
+
+        # Return with updated relation_type
+        primary = session.query(Person).filter_by(user_id=g.current_user_id, is_primary=True).first()
+        relation_code = "OTHER"
+        if primary:
+            rel = session.query(PersonRelationship).options(
+                joinedload(PersonRelationship.relation_type)
+            ).filter_by(person_id=primary.id, related_person_id=person.id).first()
+            if rel and rel.relation_type:
+                relation_code = rel.relation_type.code
+        brief = person_brief(person)
+        brief["relation_type"] = relation_code
+        return jsonify({"data": brief, "error": None})
 
 
 @family_bp.delete("/api/v1/family/<int:person_id>")

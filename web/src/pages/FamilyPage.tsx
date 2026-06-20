@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../api'
 import type { User } from '../api'
@@ -37,17 +37,34 @@ function formatDOB(d: string | null) {
 }
 
 function MemberCard({
-  member, docSummary, onEdit, onDelete, isPrimary,
+  member, docSummary, onEdit, onDelete, onAddDoc, isPrimary,
 }: {
   member: FamilyMember
   docSummary: DocSummary
   onEdit: (m: FamilyMember) => void
   onDelete: (m: FamilyMember) => void
+  onAddDoc: (m: FamilyMember) => void
   isPrimary: boolean
 }) {
+  const navigate = useNavigate()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
   const color = RELATION_COLORS[member.relation_type] ?? '#b794f4'
   const icon = RELATION_ICONS[member.relation_type] ?? '🙂'
   const relation = member.is_primary ? 'Self' : member.relation_type.charAt(0) + member.relation_type.slice(1).toLowerCase()
+  const initials = member.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+
+  // Close menu on outside click
+  useEffect(() => {
+    if (!menuOpen) return
+    function handleClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [menuOpen])
 
   return (
     <div style={{
@@ -55,54 +72,95 @@ function MemberCard({
       backdropFilter: 'blur(16px)',
       WebkitBackdropFilter: 'blur(16px)',
       border: '1px solid rgba(255,255,255,0.6)',
-      borderRadius: 16,
-      padding: '20px 22px',
+      borderRadius: 18,
+      padding: '20px 20px 16px',
       boxShadow: '0 4px 16px rgba(30,45,80,0.07)',
       display: 'flex',
       flexDirection: 'column',
-      gap: 0,
+      position: 'relative',
     }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
-        <div style={{
-          width: 52, height: 52, borderRadius: '50%',
-          background: `${color}22`,
-          border: `2px solid ${color}55`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 24, flexShrink: 0,
-        }}>
-          {icon}
+      {/* 3-dot menu — top right, only for non-primary */}
+      {!isPrimary && (
+        <div ref={menuRef} style={{ position: 'absolute', top: 14, right: 14 }}>
+          <button
+            onClick={() => setMenuOpen(o => !o)}
+            style={{ background: 'rgba(30,45,80,0.06)', border: 'none', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 16, color: '#8a9ab5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >⋮</button>
+          {menuOpen && (
+            <div style={{ position: 'absolute', right: 0, top: 34, background: 'white', borderRadius: 10, boxShadow: '0 8px 24px rgba(30,45,80,0.15)', border: '1px solid rgba(30,45,80,0.08)', minWidth: 150, zIndex: 20, overflow: 'hidden' }}>
+              <button onClick={() => { setMenuOpen(false); onAddDoc(member) }} style={{ display: 'block', width: '100%', padding: '10px 16px', textAlign: 'left', background: 'none', border: 'none', fontSize: 13, color: '#15203a', cursor: 'pointer', fontWeight: 500 }}>📄 Add Document</button>
+              <div style={{ height: 1, background: 'rgba(30,45,80,0.06)' }} />
+              <button onClick={() => { setMenuOpen(false); onEdit(member) }} style={{ display: 'block', width: '100%', padding: '10px 16px', textAlign: 'left', background: 'none', border: 'none', fontSize: 13, color: '#15203a', cursor: 'pointer', fontWeight: 500 }}>✏️ Edit</button>
+              <div style={{ height: 1, background: 'rgba(30,45,80,0.06)' }} />
+              <button onClick={() => { setMenuOpen(false); onDelete(member) }} style={{ display: 'block', width: '100%', padding: '10px 16px', textAlign: 'left', background: 'none', border: 'none', fontSize: 13, color: '#c53030', cursor: 'pointer', fontWeight: 500 }}>🗑 Remove</button>
+            </div>
+          )}
         </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: '#15203a' }}>{member.full_name}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3 }}>
-            <span style={{
-              background: `${color}22`, color, border: `1px solid ${color}44`,
-              borderRadius: 99, padding: '2px 10px', fontSize: 11, fontWeight: 700,
-            }}>{relation}</span>
-            {member.date_of_birth && (
-              <span style={{ fontSize: 12, color: '#8a9ab5' }}>{formatDOB(member.date_of_birth)}</span>
-            )}
+      )}
+
+      {/* Photo + relation icon */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 14 }}>
+        {/* Avatar with relation icon badge */}
+        <div style={{ position: 'relative', flexShrink: 0 }}>
+          {/* Photo placeholder — initials */}
+          <div style={{
+            width: 62, height: 62, borderRadius: '50%',
+            background: `linear-gradient(135deg, ${color}33, ${color}55)`,
+            border: `2px solid ${color}55`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 20, fontWeight: 800, color,
+            letterSpacing: '-0.5px',
+          }}>
+            {initials}
+          </div>
+          {/* Relation icon badge */}
+          <div style={{
+            position: 'absolute', bottom: -2, right: -4,
+            width: 24, height: 24, borderRadius: '50%',
+            background: 'white',
+            border: `2px solid ${color}55`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 12,
+            boxShadow: '0 2px 6px rgba(30,45,80,0.12)',
+          }}>
+            {icon}
           </div>
         </div>
-        {!isPrimary && (
-          <div style={{ display: 'flex', gap: 6 }}>
-            <button onClick={() => onEdit(member)} style={{ background: 'rgba(52,201,186,0.1)', border: '1px solid rgba(52,201,186,0.25)', borderRadius: 8, padding: '6px 12px', fontSize: 12, color: '#22a99c', cursor: 'pointer', fontWeight: 600 }}>Edit</button>
-            <button onClick={() => onDelete(member)} style={{ background: 'rgba(229,62,62,0.08)', border: '1px solid rgba(229,62,62,0.2)', borderRadius: 8, padding: '6px 12px', fontSize: 12, color: '#c53030', cursor: 'pointer', fontWeight: 600 }}>Remove</button>
+
+        {/* Name + relation + DOB */}
+        <div style={{ flex: 1, minWidth: 0, paddingRight: isPrimary ? 0 : 28 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#15203a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {member.full_name}
           </div>
-        )}
+          <span style={{
+            display: 'inline-block', marginTop: 4,
+            background: `${color}22`, color, border: `1px solid ${color}44`,
+            borderRadius: 99, padding: '2px 10px', fontSize: 11, fontWeight: 700,
+          }}>{relation}</span>
+          {member.date_of_birth && (
+            <div style={{ fontSize: 11, color: '#8a9ab5', marginTop: 5 }}>
+              🎂 {formatDOB(member.date_of_birth)}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Doc stats */}
-      <div style={{ display: 'flex', gap: 8, borderTop: '1px solid rgba(30,45,80,0.06)', paddingTop: 14 }}>
+      {/* Doc stats — each tile navigates to filtered documents */}
+      <div style={{ display: 'flex', gap: 6, borderTop: '1px solid rgba(30,45,80,0.06)', paddingTop: 14 }}>
         {[
-          { label: 'Total', value: docSummary.total, color: '#4a5568', bg: 'rgba(30,45,80,0.06)' },
-          { label: 'Expired', value: docSummary.expired, color: '#c53030', bg: 'rgba(229,62,62,0.08)' },
-          { label: 'Expiring', value: docSummary.expiring_soon, color: '#b45309', bg: 'rgba(217,119,6,0.08)' },
-          { label: 'Valid', value: docSummary.valid, color: '#276749', bg: 'rgba(56,161,105,0.08)' },
+          { label: 'Total', value: docSummary.total, color: '#4a5568', bg: 'rgba(30,45,80,0.06)', status: '' },
+          { label: 'Expired', value: docSummary.expired, color: '#c53030', bg: 'rgba(229,62,62,0.08)', status: 'expired' },
+          { label: 'Expiring', value: docSummary.expiring_soon, color: '#b45309', bg: 'rgba(217,119,6,0.08)', status: 'expiring_soon' },
+          { label: 'Valid', value: docSummary.valid, color: '#276749', bg: 'rgba(56,161,105,0.08)', status: 'valid' },
         ].map(s => (
-          <div key={s.label} style={{ flex: 1, background: s.bg, borderRadius: 8, padding: '8px 6px', textAlign: 'center' }}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: s.color }}>{s.value}</div>
+          <div
+            key={s.label}
+            onClick={() => navigate(`/documents?person_id=${member.id}${s.status ? `&status=${s.status}` : ''}`)}
+            style={{ flex: 1, background: s.bg, borderRadius: 8, padding: '8px 4px', textAlign: 'center', cursor: 'pointer', transition: 'opacity 0.15s' }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.75')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+          >
+            <div style={{ fontSize: 17, fontWeight: 800, color: s.color }}>{s.value}</div>
             <div style={{ fontSize: 10, color: '#8a9ab5', fontWeight: 600, marginTop: 1 }}>{s.label}</div>
           </div>
         ))}
@@ -154,16 +212,14 @@ function MemberModal({
             <input {...inp('full_name')} placeholder="e.g. Sarah Johnson" style={{ width: '100%', background: 'rgba(30,45,80,0.04)', border: '1px solid rgba(30,45,80,0.15)', borderRadius: 10, padding: '10px 14px', fontSize: 14, color: '#15203a', outline: 'none' }} />
           </div>
 
-          {!isEdit && (
-            <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#4a5568', marginBottom: 6 }}>Relation</label>
-              <select {...inp('relation_type')} style={{ width: '100%', background: 'rgba(30,45,80,0.04)', border: '1px solid rgba(30,45,80,0.15)', borderRadius: 10, padding: '10px 14px', fontSize: 14, color: '#15203a', outline: 'none', cursor: 'pointer' }}>
-                {RELATION_TYPES.map(r => (
-                  <option key={r} value={r}>{r.charAt(0) + r.slice(1).toLowerCase()}</option>
-                ))}
-              </select>
-            </div>
-          )}
+          <div>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#4a5568', marginBottom: 6 }}>Relation</label>
+            <select {...inp('relation_type')} style={{ width: '100%', background: 'rgba(30,45,80,0.04)', border: '1px solid rgba(30,45,80,0.15)', borderRadius: 10, padding: '10px 14px', fontSize: 14, color: '#15203a', outline: 'none', cursor: 'pointer' }}>
+              {RELATION_TYPES.map(r => (
+                <option key={r} value={r}>{r.charAt(0) + r.slice(1).toLowerCase()}</option>
+              ))}
+            </select>
+          </div>
 
           <div>
             <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#4a5568', marginBottom: 6 }}>Date of Birth <span style={{ color: '#b0bfd0', fontWeight: 400 }}>(optional)</span></label>
@@ -228,6 +284,7 @@ export default function FamilyPage() {
         await api.put(`/family/${editingMember.id}`, {
           full_name: form.full_name.trim(),
           date_of_birth: form.date_of_birth || null,
+          relation_type: form.relation_type,
         })
       } else {
         await api.post('/family', {
@@ -320,6 +377,7 @@ export default function FamilyPage() {
                   isPrimary={member.is_primary}
                   onEdit={m => { setEditingMember(m); setShowModal(true) }}
                   onDelete={m => setDeleteConfirm(m)}
+                  onAddDoc={m => navigate(`/documents/add?person_id=${m.id}`)}
                 />
               ))}
             </div>

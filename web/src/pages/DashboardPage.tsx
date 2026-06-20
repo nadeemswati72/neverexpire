@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../api'
 import type { DashboardSummary, DocumentBrief, Person, User } from '../api'
@@ -15,6 +15,20 @@ const RELATION_ICONS: Record<string, string> = {
 const RELATION_COLORS: Record<string, string> = {
   SELF: '#34c9ba', SPOUSE: '#e879a0', CHILD: '#f6ad55',
   PARENT: '#68d391', SIBLING: '#76e4f7', OTHER: '#b794f4',
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  expired: 'Expired Documents',
+  expiring_soon: 'Expiring Soon',
+  valid: 'Valid Documents',
+  no_expiry: 'No Expiry',
+}
+
+function greeting() {
+  const h = new Date().getHours()
+  if (h < 12) return 'Good morning'
+  if (h < 17) return 'Good afternoon'
+  return 'Good evening'
 }
 
 function formatDate(d: string | null) {
@@ -34,6 +48,9 @@ export default function DashboardPage() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null)
   const [allDocs, setAllDocs] = useState<DocumentBrief[]>([])
   const [selectedPersonId, setSelectedPersonId] = useState<number | null>(null)
+  const [statusFilter, setStatusFilter] = useState<string | null>(null)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
 
@@ -51,9 +68,19 @@ export default function DashboardPage() {
     }).finally(() => setLoading(false))
   }, [])
 
-  const filteredDocs: DocumentBrief[] = selectedPersonId
-    ? allDocs.filter(d => d.person_id === selectedPersonId)
-    : allDocs
+  // Close user menu on outside click
+  useEffect(() => {
+    if (!userMenuOpen) return
+    function handle(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) setUserMenuOpen(false)
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [userMenuOpen])
+
+  const filteredDocs: DocumentBrief[] = allDocs
+    .filter(d => !selectedPersonId || d.person_id === selectedPersonId)
+    .filter(d => !statusFilter || d.status === statusFilter)
 
   const attentionDocs = filteredDocs
     .filter(d => d.status === 'expired' || d.status === 'expiring_soon')
@@ -109,13 +136,50 @@ export default function DashboardPage() {
               {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
           </div>
-          <div style={{
-            background: 'rgba(52,201,186,0.12)',
-            border: '1px solid rgba(52,201,186,0.25)',
-            borderRadius: 99, padding: '5px 14px',
-            fontSize: 12, fontWeight: 600, color: '#22a99c',
-          }}>
-            🇦🇪 UAE
+
+          {/* User menu — top right */}
+          <div ref={userMenuRef} style={{ position: 'relative' }}>
+            <div
+              onClick={() => setUserMenuOpen(o => !o)}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', padding: '6px 10px', borderRadius: 12, background: userMenuOpen ? 'rgba(52,201,186,0.1)' : 'transparent', transition: 'background 0.15s' }}
+            >
+              {user && (
+                <>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#15203a' }}>
+                      {greeting()}, {user.full_name.split(' ')[0]}
+                    </div>
+                    <div style={{ fontSize: 10, color: '#8a9ab5' }}>🇦🇪 UAE</div>
+                  </div>
+                  {(() => {
+                    const primary = family.find(p => p.is_primary)
+                    return primary ? (
+                      <MemberAvatar personId={primary.id} initials={user.full_name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()} color="#34c9ba" size={36} hasPhoto={!!primary.photo_path} editable={false} />
+                    ) : (
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #34c9ba33, #34c9ba55)', border: '2px solid #34c9ba44', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#34c9ba' }}>
+                        {user.full_name.charAt(0)}
+                      </div>
+                    )
+                  })()}
+                  <span style={{ fontSize: 10, color: '#8a9ab5' }}>▾</span>
+                </>
+              )}
+            </div>
+
+            {userMenuOpen && (
+              <div style={{ position: 'absolute', right: 0, top: 50, background: 'white', borderRadius: 12, boxShadow: '0 8px 32px rgba(30,45,80,0.15)', border: '1px solid rgba(30,45,80,0.08)', minWidth: 180, zIndex: 50, overflow: 'hidden' }}>
+                {user && (
+                  <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(30,45,80,0.06)' }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#15203a' }}>{user.full_name}</div>
+                    <div style={{ fontSize: 11, color: '#8a9ab5', marginTop: 2 }}>{user.email}</div>
+                  </div>
+                )}
+                <button onClick={() => { setUserMenuOpen(false); navigate('/family') }} style={{ display: 'block', width: '100%', padding: '10px 16px', textAlign: 'left', background: 'none', border: 'none', fontSize: 13, color: '#15203a', cursor: 'pointer' }}>👥 Family</button>
+                <button onClick={() => { setUserMenuOpen(false); navigate('/documents') }} style={{ display: 'block', width: '100%', padding: '10px 16px', textAlign: 'left', background: 'none', border: 'none', fontSize: 13, color: '#15203a', cursor: 'pointer' }}>📄 Documents</button>
+                <div style={{ height: 1, background: 'rgba(30,45,80,0.06)' }} />
+                <button onClick={() => { import('../auth').then(m => m.logout()) }} style={{ display: 'block', width: '100%', padding: '10px 16px', textAlign: 'left', background: 'none', border: 'none', fontSize: 13, color: '#c53030', cursor: 'pointer', fontWeight: 500 }}>🚪 Sign out</button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -125,13 +189,17 @@ export default function DashboardPage() {
           {summary && (
             <div style={{ display: 'flex', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
               <StatCard label="Total Documents" value={summary.total} icon="📋"
-                color="#15203a" bgColor="rgba(30,45,80,0.08)" borderColor="rgba(30,45,80,0.1)" />
+                color="#15203a" bgColor="rgba(30,45,80,0.08)" borderColor="rgba(30,45,80,0.1)"
+                active={statusFilter === null} onClick={() => setStatusFilter(null)} />
               <StatCard label="Expired" value={summary.expired} icon="🔴"
-                color="#c53030" bgColor="rgba(229,62,62,0.1)" borderColor="rgba(229,62,62,0.2)" />
+                color="#c53030" bgColor="rgba(229,62,62,0.1)" borderColor="rgba(229,62,62,0.2)"
+                active={statusFilter === 'expired'} onClick={() => setStatusFilter(f => f === 'expired' ? null : 'expired')} />
               <StatCard label="Expiring Soon" value={summary.expiring_soon} icon="⚠️"
-                color="#b45309" bgColor="rgba(217,119,6,0.1)" borderColor="rgba(217,119,6,0.2)" />
+                color="#b45309" bgColor="rgba(217,119,6,0.1)" borderColor="rgba(217,119,6,0.2)"
+                active={statusFilter === 'expiring_soon'} onClick={() => setStatusFilter(f => f === 'expiring_soon' ? null : 'expiring_soon')} />
               <StatCard label="Valid" value={summary.valid} icon="✅"
-                color="#276749" bgColor="rgba(56,161,105,0.1)" borderColor="rgba(56,161,105,0.2)" />
+                color="#276749" bgColor="rgba(56,161,105,0.1)" borderColor="rgba(56,161,105,0.2)"
+                active={statusFilter === 'valid'} onClick={() => setStatusFilter(f => f === 'valid' ? null : 'valid')} />
             </div>
           )}
 
@@ -242,7 +310,14 @@ export default function DashboardPage() {
               overflow: 'hidden',
             }}>
               <div style={{ padding: '18px 20px 12px', borderBottom: '1px solid rgba(30,45,80,0.07)' }}>
-                <h3 style={{ fontSize: 14, fontWeight: 700, color: '#15203a', margin: 0 }}>All Documents</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <h3 style={{ fontSize: 14, fontWeight: 700, color: '#15203a', margin: 0 }}>
+                    {statusFilter ? STATUS_LABELS[statusFilter] : 'All Documents'}
+                  </h3>
+                  {statusFilter && (
+                    <button onClick={() => setStatusFilter(null)} style={{ fontSize: 11, background: 'rgba(30,45,80,0.08)', border: 'none', borderRadius: 99, padding: '2px 8px', color: '#8a9ab5', cursor: 'pointer' }}>✕ clear</button>
+                  )}
+                </div>
                 <p style={{ fontSize: 12, color: '#8a9ab5', marginTop: 2 }}>
                   {filteredDocs.length} document{filteredDocs.length !== 1 ? 's' : ''}
                   {selectedPerson ? ` for ${selectedPerson.full_name}` : ' across all members'}

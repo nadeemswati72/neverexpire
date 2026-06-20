@@ -3,7 +3,7 @@ from pathlib import Path
 from flask import Blueprint, abort, send_file
 from sqlalchemy.orm import joinedload
 
-from ...db.models import DocumentFile, Person
+from ...db.models import Document, DocumentFile, Person
 from ...db.session import get_session
 from ...watermark import WATERMARKABLE_EXTENSIONS, apply_watermark, watermarked_path_for
 from ..jwt_utils import jwt_required
@@ -18,7 +18,7 @@ def serve_file(file_id: int):
     with get_session() as session:
         doc_file = (
             session.query(DocumentFile)
-            .options(joinedload(DocumentFile.document).joinedload("person"))
+            .options(joinedload(DocumentFile.document).joinedload(Document.person))
             .filter_by(id=file_id)
             .first()
         )

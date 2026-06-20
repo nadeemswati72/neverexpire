@@ -1,0 +1,160 @@
+import { logout } from '../auth'
+import type { Person, User } from '../api'
+
+
+interface Props {
+  user: User | null
+  family: Person[]
+  selectedPersonId: number | null
+  onSelectPerson: (id: number | null) => void
+}
+
+const NAV_ITEMS = [
+  { label: 'Dashboard', icon: '▦', path: '/' },
+  { label: 'Documents', icon: '📄', path: '/documents', soon: true },
+  { label: 'Family', icon: '👥', path: '/family', soon: true },
+  { label: 'Reminders', icon: '🔔', path: '/reminders', soon: true },
+]
+
+const RELATION_ICONS: Record<string, string> = {
+  SELF: '👤', SPOUSE: '💑', CHILD: '👶', PARENT: '👴', SIBLING: '🧑', OTHER: '🙂',
+}
+
+export default function Sidebar({ user, family, selectedPersonId, onSelectPerson }: Props) {
+  return (
+    <aside style={{
+      width: 240,
+      minHeight: '100vh',
+      background: 'rgba(255,255,255,0.52)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      borderRight: '1px solid rgba(255,255,255,0.55)',
+      display: 'flex',
+      flexDirection: 'column',
+      padding: '0 0 24px',
+      flexShrink: 0,
+      boxShadow: '2px 0 16px rgba(30,45,80,0.06)',
+    }}>
+      {/* Brand */}
+      <div style={{ padding: '22px 20px 18px', borderBottom: '1px solid rgba(30,45,80,0.07)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{
+            width: 38, height: 38, borderRadius: 10,
+            background: 'linear-gradient(135deg, #34c9ba, #22a99c)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 18, boxShadow: '0 3px 10px rgba(52,201,186,0.3)',
+          }}>⏰</div>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 15, color: '#15203a', letterSpacing: '-0.3px' }}>NeverExpire</div>
+            <div style={{ fontSize: 11, color: '#8a9ab5', marginTop: 1 }}>Document Tracker</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Nav */}
+      <nav style={{ padding: '12px 10px' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', color: '#8a9ab5', textTransform: 'uppercase', padding: '4px 10px 8px' }}>
+          Navigation
+        </div>
+        {NAV_ITEMS.map(item => (
+          <div
+            key={item.label}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '9px 10px', borderRadius: 9, marginBottom: 2,
+              cursor: item.soon ? 'default' : 'pointer',
+              background: item.path === '/' ? 'rgba(52,201,186,0.12)' : 'transparent',
+              color: item.path === '/' ? '#15203a' : '#4a5568',
+              fontWeight: item.path === '/' ? 600 : 400,
+              fontSize: 14,
+              opacity: item.soon && item.path !== '/' ? 0.5 : 1,
+              transition: 'background 0.15s',
+            }}
+          >
+            <span style={{ fontSize: 16 }}>{item.icon}</span>
+            <span>{item.label}</span>
+            {item.soon && item.path !== '/' && (
+              <span style={{
+                marginLeft: 'auto', fontSize: 10, background: 'rgba(30,45,80,0.08)',
+                color: '#8a9ab5', padding: '1px 6px', borderRadius: 4, fontWeight: 600,
+              }}>Soon</span>
+            )}
+            {item.path === '/' && (
+              <span style={{
+                marginLeft: 'auto', width: 6, height: 6, borderRadius: '50%',
+                background: '#34c9ba',
+              }} />
+            )}
+          </div>
+        ))}
+      </nav>
+
+      {/* Family members */}
+      {family.length > 0 && (
+        <div style={{ padding: '0 10px', marginTop: 8 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', color: '#8a9ab5', textTransform: 'uppercase', padding: '4px 10px 8px' }}>
+            Family
+          </div>
+          <div
+            onClick={() => onSelectPerson(null)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '8px 10px', borderRadius: 9, marginBottom: 2,
+              cursor: 'pointer', fontSize: 13,
+              background: selectedPersonId === null ? 'rgba(52,201,186,0.1)' : 'transparent',
+              color: selectedPersonId === null ? '#15203a' : '#4a5568',
+              fontWeight: selectedPersonId === null ? 600 : 400,
+            }}
+          >
+            <span style={{ fontSize: 14 }}>👨‍👩‍👧</span>
+            <span>All members</span>
+          </div>
+          {family.map(p => (
+            <div
+              key={p.id}
+              onClick={() => onSelectPerson(p.id)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '8px 10px', borderRadius: 9, marginBottom: 2,
+                cursor: 'pointer', fontSize: 13,
+                background: selectedPersonId === p.id ? 'rgba(52,201,186,0.1)' : 'transparent',
+                color: selectedPersonId === p.id ? '#15203a' : '#4a5568',
+                fontWeight: selectedPersonId === p.id ? 600 : 400,
+                transition: 'background 0.15s',
+              }}
+            >
+              <span style={{ fontSize: 14 }}>{RELATION_ICONS[p.relation_type] || '🙂'}</span>
+              <div>
+                <div>{p.full_name.split(' ')[0]}</div>
+                <div style={{ fontSize: 10, color: '#8a9ab5' }}>{p.relation_type ? p.relation_type.charAt(0) + p.relation_type.slice(1).toLowerCase() : ''}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* User + logout */}
+      <div style={{ marginTop: 'auto', padding: '16px 10px 0', borderTop: '1px solid rgba(30,45,80,0.07)' }}>
+        {user && (
+          <div style={{ padding: '8px 10px', marginBottom: 4 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#15203a' }}>{user.full_name}</div>
+            <div style={{ fontSize: 11, color: '#8a9ab5', marginTop: 2 }}>{user.email}</div>
+          </div>
+        )}
+        <button
+          onClick={logout}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            width: '100%', padding: '9px 10px',
+            background: 'rgba(229,62,62,0.08)',
+            border: '1px solid rgba(229,62,62,0.15)',
+            borderRadius: 9, cursor: 'pointer',
+            fontSize: 13, color: '#c53030', fontWeight: 500,
+          }}
+        >
+          <span>🚪</span> Sign out
+        </button>
+      </div>
+    </aside>
+  )
+}

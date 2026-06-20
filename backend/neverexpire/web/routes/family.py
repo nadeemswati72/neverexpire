@@ -34,7 +34,27 @@ def _owned_by_user(session, person_id: int, user_id: int) -> Person | None:
 def list_family():
     with get_session() as session:
         persons = get_persons_for_user(session, g.current_user_id)
-        return jsonify({"data": [person_brief(p) for p in persons], "error": None})
+
+        # Build relation_type lookup: person_id → code
+        primary = next((p for p in persons if p.is_primary), None)
+        relation_map: dict[int, str] = {}
+        if primary:
+            rels = (
+                session.query(PersonRelationship)
+                .options(joinedload(PersonRelationship.relation_type))
+                .filter_by(person_id=primary.id)
+                .all()
+            )
+            for r in rels:
+                if r.relation_type:
+                    relation_map[r.related_person_id] = r.relation_type.code
+
+        def _brief(p):
+            d = person_brief(p)
+            d["relation_type"] = "SELF" if p.is_primary else relation_map.get(p.id, "OTHER")
+            return d
+
+        return jsonify({"data": [_brief(p) for p in persons], "error": None})
 
 
 @family_bp.post("/api/v1/family")

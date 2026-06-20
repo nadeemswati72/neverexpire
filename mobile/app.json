@@ -18,14 +18,20 @@
       ]
     },
     "plugins": [
+      "expo-secure-store",
       [
         "expo-image-picker",
         {
-          "photosPermission": "NeverExpire needs access to your photos so you can attach a document image.",
-          "cameraPermission": "NeverExpire needs access to your camera so you can capture a document."
+          "photosPermission": "NeverExpire needs access to your photos to attach document images.",
+          "cameraPermission": "NeverExpire needs camera access to scan documents."
         }
       ],
-      "expo-font"
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "NeverExpire needs camera access to scan documents."
+        }
+      ]
     ]
   }
 }

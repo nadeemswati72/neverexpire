@@ -10,6 +10,7 @@ import type { Person } from '../api'
 import * as SecureStore from 'expo-secure-store'
 import { colors, RELATION_ICON } from '../theme'
 import GlassCard from '../components/GlassCard'
+import DatePickerField from '../components/DatePickerField'
 import type { RootStackParamList } from '../navigation'
 
 type Nav = NativeStackNavigationProp<RootStackParamList>
@@ -162,7 +163,7 @@ export default function FamilyScreen() {
                   </TouchableOpacity>
                 ))}
               </View>
-              <TextInput style={styles.input} placeholder="Date of birth (YYYY-MM-DD)" placeholderTextColor={colors.textMuted} value={newDob} onChangeText={setNewDob} />
+              <DatePickerField label="Date of Birth (optional)" value={newDob} onChange={setNewDob} />
               <View style={styles.addBtns}>
                 <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowAdd(false)}><Text style={{ color: colors.textSecondary }}>Cancel</Text></TouchableOpacity>
                 <TouchableOpacity style={[styles.saveBtn, saving && { opacity: 0.6 }]} onPress={handleAdd} disabled={saving}>
@@ -206,7 +207,7 @@ export default function FamilyScreen() {
                 {/* Actions */}
                 {!p.is_primary && (
                   <View style={styles.actions}>
-                    <TouchableOpacity onPress={() => nav.navigate('Documents')} style={styles.actionPill}>
+                    <TouchableOpacity onPress={() => nav.navigate('Documents', { personId: p.id })} style={styles.actionPill}>
                       <Text style={styles.actionPillText}>Docs</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => confirmDelete(p)} style={styles.deletePill}>

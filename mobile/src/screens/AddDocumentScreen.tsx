@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { ActivityIndicator, Alert, Animated, Easing, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, Animated, Easing, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as ImagePicker from 'expo-image-picker'
-import DateTimePicker from '@react-native-community/datetimepicker'
 import { Picker } from '@react-native-picker/picker'
+import DatePickerField from '../components/DatePickerField'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import api from '../api'
@@ -87,9 +87,6 @@ export default function AddDocumentScreen() {
   const [holderName, setHolderName] = useState('')
   const [notes, setNotes] = useState('')
   const [error, setError] = useState('')
-  // Date picker state
-  const [showIssuedPicker, setShowIssuedPicker] = useState(false)
-  const [showExpiryPicker, setShowExpiryPicker] = useState(false)
 
   useEffect(() => {
     Promise.all([api.get('/family'), api.get('/document-types')]).then(([f, dt]) => {
@@ -257,43 +254,8 @@ export default function AddDocumentScreen() {
                 {inp('Title *', title, setTitle, { placeholder: 'e.g. Alice Passport' })}
                 {inp('Document Number', docNumber, setDocNumber, { placeholder: 'e.g. A12345678' })}
 
-                {/* Issued Date — native date picker */}
-                <View style={styles.fieldWrap}>
-                  <Text style={styles.label}>Issued Date</Text>
-                  <TouchableOpacity style={styles.dateBtn} onPress={() => setShowIssuedPicker(true)}>
-                    <Text style={[styles.dateBtnText, !issuedDate && { color: colors.textMuted }]}>
-                      {issuedDate ? new Date(issuedDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Select date…'}
-                    </Text>
-                    <Text style={{ color: colors.brand, fontSize: 13 }}>📅</Text>
-                  </TouchableOpacity>
-                  {showIssuedPicker && (
-                    <DateTimePicker
-                      value={issuedDate ? new Date(issuedDate) : new Date()}
-                      mode="date"
-                      display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                      onChange={(_, d) => { setShowIssuedPicker(Platform.OS === 'ios'); if (d) setIssuedDate(d.toISOString().split('T')[0]) }}
-                    />
-                  )}
-                </View>
-
-                {/* Expiry Date — native date picker */}
-                <View style={styles.fieldWrap}>
-                  <Text style={styles.label}>Expiry Date</Text>
-                  <TouchableOpacity style={styles.dateBtn} onPress={() => setShowExpiryPicker(true)}>
-                    <Text style={[styles.dateBtnText, !expiryDate && { color: colors.textMuted }]}>
-                      {expiryDate ? new Date(expiryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Select date…'}
-                    </Text>
-                    <Text style={{ color: colors.brand, fontSize: 13 }}>📅</Text>
-                  </TouchableOpacity>
-                  {showExpiryPicker && (
-                    <DateTimePicker
-                      value={expiryDate ? new Date(expiryDate) : new Date()}
-                      mode="date"
-                      display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                      onChange={(_, d) => { setShowExpiryPicker(Platform.OS === 'ios'); if (d) setExpiryDate(d.toISOString().split('T')[0]) }}
-                    />
-                  )}
-                </View>
+                <DatePickerField label="Issued Date" value={issuedDate} onChange={setIssuedDate} />
+                <DatePickerField label="Expiry Date" value={expiryDate} onChange={setExpiryDate} />
 
                 {inp('Issuing Authority', issuingAuth, setIssuingAuth)}
                 {inp('Holder Name', holderName, setHolderName)}
@@ -338,9 +300,7 @@ const styles = StyleSheet.create({
   personChipTextActive: { color: 'white', fontWeight: '700' },
   pickerWrap: { backgroundColor: 'rgba(255,255,255,0.7)', borderWidth: 1, borderColor: 'rgba(30,45,80,0.12)', borderRadius: 10, marginBottom: 14, overflow: 'hidden' },
   picker: { height: 44, color: colors.textPrimary },
-  dateBtn: { backgroundColor: 'rgba(255,255,255,0.7)', borderWidth: 1, borderColor: 'rgba(30,45,80,0.12)', borderRadius: 10, padding: 11, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  dateBtnText: { fontSize: 14, color: colors.textPrimary },
-  errorText: { color: '#c53030', fontSize: 13, marginBottom: 10, textAlign: 'center' },
+errorText: { color: '#c53030', fontSize: 13, marginBottom: 10, textAlign: 'center' },
   saveBtn: { borderRadius: 12, overflow: 'hidden' },
   saveBtnGrad: { padding: 15, alignItems: 'center' },
   saveBtnText: { color: 'white', fontWeight: '700', fontSize: 16 },

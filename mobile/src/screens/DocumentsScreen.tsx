@@ -34,12 +34,14 @@ export default function DocumentsScreen() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState(route.params?.statusFilter ?? '')
+  const personIdFilter = route.params?.personId ?? null
 
   useEffect(() => {
     api.get('/documents').then(r => setDocs(r.data.data)).finally(() => setLoading(false))
   }, [])
 
   const filtered = docs.filter(d => {
+    if (personIdFilter && d.person_id !== personIdFilter) return false
     if (statusFilter && d.status !== statusFilter) return false
     if (search && !d.title.toLowerCase().includes(search.toLowerCase()) &&
         !(d.person?.full_name ?? '').toLowerCase().includes(search.toLowerCase())) return false

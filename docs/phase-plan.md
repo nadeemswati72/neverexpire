@@ -133,6 +133,15 @@
 
 ---
 
+## Backlog — Deferred Items
+
+| Item | Notes |
+|------|-------|
+| **AI extraction accuracy for Emirates ID** | Model upgraded to sonnet-4-6 but dates still misread. Need UAE-specific prompt additions: 784-XXXX ID format, DD/MM/YYYY date parsing, card vs residency expiry distinction. Deferred to avoid Railway redeploy on live demo. Research: consider document-type-specific extraction prompts or a specialist UAE document parser. |
+| **Relation types: Mother, Father, Employee** | Current: SELF, SPOUSE, CHILD, PARENT, SIBLING, OTHER. Proposed: add MOTHER (👩), FATHER (👨), EMPLOYEE (💼), keep PARENT hidden in UI (backwards compat). Requires Railway redeploy → deferred until demo review is complete. Existing PARENT records to be migrated to FATHER. |
+
+---
+
 ## Jira
 - Site: neverexpire.atlassian.net
 - V2 Project: TBD (new board — login issue pending resolution)

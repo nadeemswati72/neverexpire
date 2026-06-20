@@ -5,6 +5,7 @@ from .dashboard import dashboard_bp
 from .document_types import doc_types_bp
 from .documents import documents_bp
 from .family import family_bp
+from .files import files_bp
 from .health import health_bp
 
 
@@ -15,3 +16,4 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(family_bp)
     app.register_blueprint(documents_bp)
     app.register_blueprint(dashboard_bp)
+    app.register_blueprint(files_bp)

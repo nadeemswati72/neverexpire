@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import api from '../api'
 import type { DashboardSummary, DocumentBrief, Person, User } from '../api'
 import { fetchMe } from '../auth'
@@ -23,6 +24,7 @@ export default function DashboardPage() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null)
   const [allDocs, setAllDocs] = useState<DocumentBrief[]>([])
   const [selectedPersonId, setSelectedPersonId] = useState<number | null>(null)
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -73,6 +75,7 @@ export default function DashboardPage() {
         family={family}
         selectedPersonId={selectedPersonId}
         onSelectPerson={setSelectedPersonId}
+        activePage="dashboard"
       />
 
       {/* Main content */}
@@ -165,12 +168,16 @@ export default function DashboardPage() {
             {attentionDocs.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {attentionDocs.slice(0, 4).map(doc => (
-                  <div key={doc.id} style={{
+                  <div key={doc.id} onClick={() => navigate(`/documents/${doc.id}`)} style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     background: 'rgba(255,255,255,0.06)',
                     border: '1px solid rgba(255,255,255,0.08)',
                     borderRadius: 10, padding: '12px 16px',
-                  }}>
+                    cursor: 'pointer', transition: 'background 0.15s',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
+                  >
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 14, fontWeight: 600, color: '#e8f0fe', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {doc.title}
@@ -232,7 +239,10 @@ export default function DashboardPage() {
                     </thead>
                     <tbody>
                       {filteredDocs.map((doc, i) => (
-                        <tr key={doc.id} style={{ borderTop: '1px solid rgba(30,45,80,0.05)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,45,80,0.015)' }}>
+                        <tr key={doc.id} onClick={() => navigate(`/documents/${doc.id}`)} style={{ borderTop: '1px solid rgba(30,45,80,0.05)', background: i % 2 === 0 ? 'transparent' : 'rgba(30,45,80,0.015)', cursor: 'pointer' }}
+                          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(52,201,186,0.05)')}
+                          onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 0 ? 'transparent' : 'rgba(30,45,80,0.015)')}
+                        >
                           <td style={{ padding: '11px 16px' }}>
                             <div style={{ fontWeight: 600, color: '#15203a' }}>{doc.title}</div>
                             <div style={{ fontSize: 11, color: '#8a9ab5' }}>{doc.document_type?.name}</div>

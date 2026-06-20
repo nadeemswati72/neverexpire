@@ -31,7 +31,9 @@
         {
           "cameraPermission": "NeverExpire needs camera access to scan documents."
         }
-      ]
+      ],
+      "expo-asset",
+      "expo-font"
     ]
   }
 }

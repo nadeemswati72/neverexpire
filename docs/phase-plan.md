@@ -106,30 +106,44 @@
 
 ---
 
-## Sprint 5 — React Native Mobile ⬜ NOT STARTED
-**Goal:** Expo app — auth, dashboard, documents list.
+## Sprint 5 — React Native Mobile ✅ DONE (device testing in progress)
+**Branch:** `sprint5-mobile` — NOT yet merged to v2-poc
+**Goal:** Expo SDK 54 app with auth, dashboard, documents, family.
 
 | Task | Status |
 |------|--------|
-| Fresh Expo SDK 52+ project in `mobile/` | ⬜ |
-| Auth screens (login) | ⬜ |
-| Mobile dashboard (stat cards + attention list) | ⬜ |
-| Documents list screen | ⬜ |
-| Camera upload + AI extraction flow | ⬜ |
+| Expo SDK 54 (React 19.1, RN 0.81.5, iOS safe area) | ✅ |
+| LoginScreen + RegisterScreen + Forgot password alert | ✅ |
+| Dashboard: profile photo, stat tiles (tap→filter), donut chart, all-attention scroll | ✅ |
+| Dashboard legend: 2-col grid with counts | ✅ |
+| Documents list: search, status filter pills, person filter, FAB | ✅ |
+| Document detail: dark hero card, dates, watermarked file preview | ✅ |
+| Add Document: AI extraction + camera/gallery, animated Claude orb | ✅ |
+| Add Document: ModalPicker (doc type), DatePickerField (iOS Modal pattern) | ✅ |
+| Family: member cards, avatar + photo upload (tap to change), add/remove | ✅ |
+| Family Docs button filters documents by that person | ✅ |
+| Photo picker: fixed deprecated MediaTypeOptions → ['images'] array | ✅ |
+| Web: /register page + Forgot password link + Create account on login | ✅ |
+
+**Still to verify on device:**
+- Document photo preview in detail screen
+- AI extraction end-to-end on mobile (camera → extract → save)
+- Register flow (web + mobile)
+- Android device testing
 
 ---
 
-## Sprint 6 — Mobile Family + Reminders + Deploy ⬜ NOT STARTED
-**Goal:** Complete mobile MVP, reminders, CI/CD, deploy.
+## Sprint 6 — Mobile Polish + Deploy ⬜ NOT STARTED
+**Goal:** Merge mobile, push notifications, TestFlight/Play Store build.
 
 | Task | Status |
 |------|--------|
-| Family management screens | ⬜ |
-| Push notification reminders | ⬜ |
-| GitHub Actions CI (lint + test) | ⬜ |
-| Backend deploy (Railway / Render) | ⬜ |
-| Web deploy (Vercel / Netlify) | ⬜ |
-| Expo build (TestFlight + Play Console internal) | ⬜ |
+| Merge sprint5-mobile → v2-poc after testing complete | ⬜ |
+| Push notification reminders (APNs + FCM) | ⬜ |
+| EID extraction improvement (prompt for UAE docs) | ⬜ |
+| Relation types: Mother, Father, Employee (needs Railway redeploy) | ⬜ |
+| Expo build — TestFlight (iOS) + Play Console internal (Android) | ⬜ |
+| GitHub Actions CI | ⬜ |
 
 ---
 

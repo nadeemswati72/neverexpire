@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { ActivityIndicator, Alert, Animated, Easing, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, Animated, Easing, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as ImagePicker from 'expo-image-picker'
+import DateTimePicker from '@react-native-community/datetimepicker'
+import { Picker } from '@react-native-picker/picker'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import api from '../api'
@@ -85,6 +87,9 @@ export default function AddDocumentScreen() {
   const [holderName, setHolderName] = useState('')
   const [notes, setNotes] = useState('')
   const [error, setError] = useState('')
+  // Date picker state
+  const [showIssuedPicker, setShowIssuedPicker] = useState(false)
+  const [showExpiryPicker, setShowExpiryPicker] = useState(false)
 
   useEffect(() => {
     Promise.all([api.get('/family'), api.get('/document-types')]).then(([f, dt]) => {
@@ -231,7 +236,7 @@ export default function AddDocumentScreen() {
               )}
 
               <GlassCard style={styles.formCard}>
-                {/* Person picker */}
+                {/* Person — horizontal chips (few items) */}
                 <Text style={styles.label}>Family Member *</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 14 }}>
                   {family.map(p => (
@@ -241,20 +246,55 @@ export default function AddDocumentScreen() {
                   ))}
                 </ScrollView>
 
-                {/* Doc type picker */}
+                {/* Document Type — native Picker dropdown */}
                 <Text style={styles.label}>Document Type</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 14 }}>
-                  {docTypes.map(dt => (
-                    <TouchableOpacity key={dt.code} onPress={() => setDocTypeCode(dt.code)} style={[styles.personChip, docTypeCode === dt.code && styles.personChipActive]}>
-                      <Text style={[styles.personChipText, docTypeCode === dt.code && styles.personChipTextActive]}>{dt.name}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
+                <View style={styles.pickerWrap}>
+                  <Picker selectedValue={docTypeCode} onValueChange={v => setDocTypeCode(v)} style={styles.picker} itemStyle={{ fontSize: 14 }}>
+                    {docTypes.map(dt => <Picker.Item key={dt.code} label={dt.name} value={dt.code} />)}
+                  </Picker>
+                </View>
 
                 {inp('Title *', title, setTitle, { placeholder: 'e.g. Alice Passport' })}
                 {inp('Document Number', docNumber, setDocNumber, { placeholder: 'e.g. A12345678' })}
-                {inp('Issued Date', issuedDate, setIssuedDate, { placeholder: 'YYYY-MM-DD' })}
-                {inp('Expiry Date', expiryDate, setExpiryDate, { placeholder: 'YYYY-MM-DD' })}
+
+                {/* Issued Date — native date picker */}
+                <View style={styles.fieldWrap}>
+                  <Text style={styles.label}>Issued Date</Text>
+                  <TouchableOpacity style={styles.dateBtn} onPress={() => setShowIssuedPicker(true)}>
+                    <Text style={[styles.dateBtnText, !issuedDate && { color: colors.textMuted }]}>
+                      {issuedDate ? new Date(issuedDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Select date…'}
+                    </Text>
+                    <Text style={{ color: colors.brand, fontSize: 13 }}>📅</Text>
+                  </TouchableOpacity>
+                  {showIssuedPicker && (
+                    <DateTimePicker
+                      value={issuedDate ? new Date(issuedDate) : new Date()}
+                      mode="date"
+                      display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                      onChange={(_, d) => { setShowIssuedPicker(Platform.OS === 'ios'); if (d) setIssuedDate(d.toISOString().split('T')[0]) }}
+                    />
+                  )}
+                </View>
+
+                {/* Expiry Date — native date picker */}
+                <View style={styles.fieldWrap}>
+                  <Text style={styles.label}>Expiry Date</Text>
+                  <TouchableOpacity style={styles.dateBtn} onPress={() => setShowExpiryPicker(true)}>
+                    <Text style={[styles.dateBtnText, !expiryDate && { color: colors.textMuted }]}>
+                      {expiryDate ? new Date(expiryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Select date…'}
+                    </Text>
+                    <Text style={{ color: colors.brand, fontSize: 13 }}>📅</Text>
+                  </TouchableOpacity>
+                  {showExpiryPicker && (
+                    <DateTimePicker
+                      value={expiryDate ? new Date(expiryDate) : new Date()}
+                      mode="date"
+                      display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                      onChange={(_, d) => { setShowExpiryPicker(Platform.OS === 'ios'); if (d) setExpiryDate(d.toISOString().split('T')[0]) }}
+                    />
+                  )}
+                </View>
+
                 {inp('Issuing Authority', issuingAuth, setIssuingAuth)}
                 {inp('Holder Name', holderName, setHolderName)}
                 {inp('Notes', notes, setNotes)}
@@ -296,6 +336,10 @@ const styles = StyleSheet.create({
   personChipActive: { backgroundColor: colors.brand, borderColor: colors.brand },
   personChipText: { fontSize: 13, color: colors.textSecondary, fontWeight: '500' },
   personChipTextActive: { color: 'white', fontWeight: '700' },
+  pickerWrap: { backgroundColor: 'rgba(255,255,255,0.7)', borderWidth: 1, borderColor: 'rgba(30,45,80,0.12)', borderRadius: 10, marginBottom: 14, overflow: 'hidden' },
+  picker: { height: 44, color: colors.textPrimary },
+  dateBtn: { backgroundColor: 'rgba(255,255,255,0.7)', borderWidth: 1, borderColor: 'rgba(30,45,80,0.12)', borderRadius: 10, padding: 11, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  dateBtnText: { fontSize: 14, color: colors.textPrimary },
   errorText: { color: '#c53030', fontSize: 13, marginBottom: 10, textAlign: 'center' },
   saveBtn: { borderRadius: 12, overflow: 'hidden' },
   saveBtnGrad: { padding: 15, alignItems: 'center' },

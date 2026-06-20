@@ -60,7 +60,7 @@ export const STATUS_LABEL: Record<string, string> = {
 }
 
 export const DOC_ICON: Record<string, string> = {
-  PASSPORT: '🛂', VISA: '✈️', DRIVING_LICENSE: '🚗', VEHICLE_REGISTRATION: '🚙',
+  PASSPORT: '🛂', ID_CARD: '🪪', VISA: '✈️', DRIVING_LICENSE: '🚗', VEHICLE_REGISTRATION: '🚙',
   HEALTH_INSURANCE: '🏥', INSURANCE: '🛡️', WARRANTY: '🔧', MEDICATION: '💊',
   FOOD_ITEM: '🥫', CERTIFICATE: '🎓', SUBSCRIPTION: '📱', OTHER: '📄',
 }

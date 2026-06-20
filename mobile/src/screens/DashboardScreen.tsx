@@ -28,12 +28,12 @@ function daysLabel(days: number | null, status: string) {
   return `${days}d left`
 }
 
-function StatTile({ label, value, color, bg }: { label: string; value: number; color: string; bg: string }) {
+function StatTile({ label, value, color, bg, onPress }: { label: string; value: number; color: string; bg: string; onPress?: () => void }) {
   return (
-    <View style={[styles.statTile, { backgroundColor: bg }]}>
+    <TouchableOpacity style={[styles.statTile, { backgroundColor: bg }]} onPress={onPress} activeOpacity={0.75}>
       <Text style={[styles.statNum, { color }]}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
-    </View>
+    </TouchableOpacity>
   )
 }
 
@@ -90,10 +90,10 @@ export default function DashboardScreen() {
           <>
             {/* Stat tiles */}
             <View style={styles.statsRow}>
-              <StatTile label="Total" value={summary.total} color={colors.textPrimary} bg="rgba(30,45,80,0.07)" />
-              <StatTile label="Expired" value={summary.expired} color={colors.expired} bg={colors.expiredBg} />
-              <StatTile label="Expiring" value={summary.expiring_soon} color={colors.expiring} bg={colors.expiringBg} />
-              <StatTile label="Valid" value={summary.valid} color={colors.valid} bg={colors.validBg} />
+              <StatTile label="Total" value={summary.total} color={colors.textPrimary} bg="rgba(30,45,80,0.07)" onPress={() => nav.navigate('Documents', { statusFilter: '' })} />
+              <StatTile label="Expired" value={summary.expired} color={colors.expired} bg={colors.expiredBg} onPress={() => nav.navigate('Documents', { statusFilter: 'expired' })} />
+              <StatTile label="Expiring" value={summary.expiring_soon} color={colors.expiring} bg={colors.expiringBg} onPress={() => nav.navigate('Documents', { statusFilter: 'expiring_soon' })} />
+              <StatTile label="Valid" value={summary.valid} color={colors.valid} bg={colors.validBg} onPress={() => nav.navigate('Documents', { statusFilter: 'valid' })} />
             </View>
 
             {/* Dark hero card — donut + attention list */}

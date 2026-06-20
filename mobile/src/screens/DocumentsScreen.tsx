@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import api from '../api'
 import type { DocumentBrief } from '../api'
@@ -28,11 +28,12 @@ function daysLabel(days: number | null, status: string) {
 
 export default function DocumentsScreen() {
   const nav = useNavigation<Nav>()
+  const route = useRoute<RouteProp<RootStackParamList, 'Documents'>>()
   const insets = useSafeAreaInsets()
   const [docs, setDocs] = useState<DocumentBrief[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState(route.params?.statusFilter ?? '')
 
   useEffect(() => {
     api.get('/documents').then(r => setDocs(r.data.data)).finally(() => setLoading(false))

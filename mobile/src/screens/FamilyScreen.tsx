@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import * as ImagePicker from 'expo-image-picker'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import api from '../api'
+import api, { API_BASE } from '../api'
 import type { Person } from '../api'
+import * as SecureStore from 'expo-secure-store'
 import { colors, RELATION_ICON } from '../theme'
 import GlassCard from '../components/GlassCard'
 import type { RootStackParamList } from '../navigation'
@@ -21,6 +23,70 @@ function formatAge(dob: string | null) {
   if (!dob) return null
   const age = Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 3600 * 1000))
   return `${age}y`
+}
+
+function MemberAvatarCell({ personId, hasPhoto, initials, color, onUpload }: { personId: number; hasPhoto: boolean; initials: string; color: string; onUpload: () => void }) {
+  const [photoUri, setPhotoUri] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+
+  useEffect(() => {
+    if (!hasPhoto) return
+    let cancelled = false
+    async function fetchPhoto() {
+      try {
+        const token = await SecureStore.getItemAsync('ne_token')
+        const resp = await fetch(`${API_BASE}/api/v1/family/${personId}/photo`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+        if (!resp.ok || cancelled) return
+        const blob = await resp.blob()
+        const reader = new FileReader()
+        reader.onloadend = () => { if (!cancelled) setPhotoUri(reader.result as string) }
+        reader.readAsDataURL(blob)
+      } catch {}
+    }
+    fetchPhoto()
+    return () => { cancelled = true }
+  }, [personId, hasPhoto])
+
+  async function handleUpload() {
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.85 })
+    if (result.canceled) return
+    setUploading(true)
+    const asset = result.assets[0]
+    const fd = new FormData()
+    fd.append('file', { uri: asset.uri, name: 'photo.jpg', type: 'image/jpeg' } as any)
+    const token = await SecureStore.getItemAsync('ne_token')
+    try {
+      await fetch(`${API_BASE}/api/v1/family/${personId}/photo`, {
+        method: 'POST', body: fd,
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      // Reload photo
+      const resp = await fetch(`${API_BASE}/api/v1/family/${personId}/photo`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+      const blob = await resp.blob()
+      const reader = new FileReader()
+      reader.onloadend = () => setPhotoUri(reader.result as string)
+      reader.readAsDataURL(blob)
+      onUpload()
+    } finally { setUploading(false) }
+  }
+
+  return (
+    <TouchableOpacity onPress={handleUpload} activeOpacity={0.8} style={[styles.avatar, { backgroundColor: `${color}33`, borderColor: `${color}55`, overflow: 'hidden' }]}>
+      {photoUri
+        ? <Image source={{ uri: photoUri }} style={{ width: 52, height: 52 }} />
+        : uploading
+          ? <ActivityIndicator size="small" color={color} />
+          : <Text style={[styles.avatarText, { color }]}>{initials}</Text>
+      }
+      {!photoUri && !uploading && (
+        <View style={{ position: 'absolute', bottom: 0, right: 0, backgroundColor: 'rgba(52,201,186,0.8)', borderRadius: 99, width: 16, height: 16, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontSize: 8, color: 'white' }}>📷</Text>
+        </View>
+      )}
+    </TouchableOpacity>
+  )
 }
 
 export default function FamilyScreen() {
@@ -118,11 +184,9 @@ export default function FamilyScreen() {
           return (
             <GlassCard style={styles.memberCard}>
               <View style={styles.memberRow}>
-                {/* Avatar */}
+                {/* Avatar with photo + upload */}
                 <View style={{ position: 'relative' }}>
-                  <View style={[styles.avatar, { backgroundColor: `${color}33`, borderColor: `${color}55` }]}>
-                    <Text style={[styles.avatarText, { color }]}>{initials}</Text>
-                  </View>
+                  <MemberAvatarCell personId={p.id} hasPhoto={!!p.photo_path} initials={initials} color={color} onUpload={load} />
                   <View style={[styles.badge]}>
                     <Text style={{ fontSize: 10 }}>{RELATION_ICON[p.relation_type] ?? '🙂'}</Text>
                   </View>

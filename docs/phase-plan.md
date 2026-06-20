@@ -88,15 +88,21 @@
 
 ---
 
-## Sprint 4 — Web Family + Complete Web MVP 🔄 IN PROGRESS
+## Sprint 4 — Web Family + Complete Web MVP ✅ DONE
 **Goal:** Family management UI, complete web MVP ready for user testing.
 
 | Task | Status |
 |------|--------|
-| Family page (`/family`) — list + add + edit + delete | ⬜ |
-| Empty states and loading skeletons | ⬜ |
-| Responsive layout (tablet support) | ⬜ |
-| Web MVP user testing with demo data | ⬜ |
+| Family page (`/family`) — member cards with initials avatar + relation badge | ✅ |
+| Add member modal — name, relation type, DOB | ✅ |
+| Edit member modal — name, relation type, DOB (backend updates relationship record) | ✅ |
+| Delete member — confirmation dialog, soft-delete (documents preserved) | ✅ |
+| 3-dot menu per card — Edit / Remove / Add Document | ✅ |
+| Menu closes on outside click | ✅ |
+| Doc stat tiles clickable → filtered documents for that person + status | ✅ |
+| Add Document from family card pre-selects the person | ✅ |
+| Dark hero summary strip — total members + all-docs counts | ✅ |
+| Family nav item active in sidebar (removed Soon badge) | ✅ |
 
 ---
 

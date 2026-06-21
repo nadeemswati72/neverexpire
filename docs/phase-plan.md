@@ -147,12 +147,109 @@
 
 ---
 
-## Backlog — Deferred Items
+## Backlog — Deferred / Open Items
+*All discussed items recorded here regardless of accept/reject status.*
 
-| Item | Notes |
-|------|-------|
-| **AI extraction accuracy for Emirates ID** | Model upgraded to sonnet-4-6 but dates still misread. Need UAE-specific prompt additions: 784-XXXX ID format, DD/MM/YYYY date parsing, card vs residency expiry distinction. Deferred to avoid Railway redeploy on live demo. Research: consider document-type-specific extraction prompts or a specialist UAE document parser. |
-| **Relation types: Mother, Father, Employee** | Current: SELF, SPOUSE, CHILD, PARENT, SIBLING, OTHER. Proposed: add MOTHER (👩), FATHER (👨), EMPLOYEE (💼), keep PARENT hidden in UI (backwards compat). Requires Railway redeploy → deferred until demo review is complete. Existing PARENT records to be migrated to FATHER. |
+### Deferred (do not implement during PoC phase)
+
+| Item | Status | Notes |
+|------|--------|-------|
+| **Railway redeploy** | 🚫 Blocked | Do NOT redeploy Railway until PoC phase is closed. Demo data must be preserved. All backend changes requiring redeploy are blocked. |
+| **Relation types: Mother, Father, Employee** | ⏸ Deferred | Requires Railway redeploy. Proposed: MOTHER 👩, FATHER 👨, EMPLOYEE 💼. Keep PARENT in DB, hide in UI. Migrate existing PARENT→FATHER. |
+| **Email reminders** | ⏸ Deferred | Needs APScheduler + Resend/SMTP setup. Reminder rules already seeded in DB. |
+| **EID extraction prompt improvement** | ⏸ Deferred | Discussed, not yet implemented. See EID Analysis section below. |
+| **Model revert to haiku** | ⏸ Blocked | Requested but blocked by Railway redeploy freeze. Currently on claude-sonnet-4-6. |
+
+### Open Items — Under Discussion
+
+| Item | Status | Notes |
+|------|--------|-------|
+| **E2E Testing Plan** | 📋 Created | See `docs/testing-plan.md`. Covers web, iOS, Android, API. Review before Sprint 6 merge. |
+| **Document photo upload (manual entry)** | 💬 Discussed | In manual entry, allow attaching a photo without AI extraction. No backend change needed — reuse upload-and-create without extraction call. |
+| **Web mobile responsiveness** | 💬 Discussed | Web dashboard not tested on mobile browsers. May be broken on narrow screens. |
+| **App icon + splash screen** | 💬 Discussed | Currently using clock emoji. Proper PNG icons needed before App Store submission. |
+| **Privacy policy URL** | 💬 Discussed | Required by App Store + Play Store before submission. |
+| **Database persistence for production** | 💬 Discussed | Railway SQLite is ephemeral (data lost on redeploy). Need persistent volume or PostgreSQL before production launch. Fine for PoC. |
+| **Multiple account cache on device** | 💬 Discussed | If user signs out and in as different user, cached photos may show wrong data. Needs investigation. |
+| **Offline behaviour** | 💬 Discussed | No offline handling. Friendly error message at minimum. |
+| **Navigation architecture review** | 💬 Discussed | Before adding Budgeting/Games features, review mobile navigation (bottom tabs vs stack). |
+| **MRZ parsing for passports** | 💬 Discussed | Passports have MRZ (2 lines of OCR-B at bottom). Python `mrz` library could parse reliably. Emirates ID does NOT have MRZ — has PDF417 barcode on back instead. |
+
+### Future Features (noted, not planned)
+
+| Feature | Notes |
+|---------|-------|
+| Budgeting | Separate module, own DB tables, new nav section |
+| Expense Tracking | Could integrate with Budgeting |
+| Daily Puzzle Games | Completely different domain — review architecture impact before committing |
+| Document Sharing | Share document details with another person (embassy, employer) |
+| Multiple logins per family | Primary + family member accounts with access levels |
+| NFC chip reading for Emirates ID | Newer EIDs (post-2017) have NFC chip. Requires native Expo module. High effort. |
+
+---
+
+## EID Analysis — Open Item (Detailed)
+
+**Card analysed:** UAE Resident Identity Card belonging to Nadeem Ahmad Muhammad Anwar
+
+**Fields extracted manually (ground truth):**
+| Field | Value | Format |
+|---|---|---|
+| ID Number | 784-1972-0313816-5 | 784-{birth year}-{sequence}-{check} |
+| Name | Nadeem Ahmad Muhammad Anwar | English |
+| Date of Birth | 03/08/1972 | DD/MM/YYYY = 3 Aug 1972 |
+| Nationality | Pakistan | |
+| Issuing Date | 08/08/2025 | DD/MM/YYYY = 8 Aug 2025 |
+| Expiry Date | 07/08/2027 | DD/MM/YYYY = 7 Aug 2027 ← **must get this right** |
+| Sex | M | |
+
+**Does Emirates ID have MRZ?**
+**No.** Emirates ID uses a **PDF417 2D barcode** on the back (not standard ICAO MRZ). Newer cards (post-2017) have an NFC chip readable by NFC-enabled phones via the ICA UAE app. The MRZ approach that works for passports cannot be applied here.
+
+**Why AI misreads this card — root causes identified:**
+1. **Holographic starburst** — gold/rainbow security element sits directly over the Expiry Date text bottom-left. Highest-impact interference.
+2. **Date ambiguity** — 03/08/1972 and 07/08/2027 are both DD/MM/YYYY. AI may assume MM/DD/YYYY and swap day/month.
+3. **Two dates problem** — AI must choose between Issuing Date and Expiry Date. The label is small and close to another date (DOB).
+4. **Arabic text proximity** — Arabic equivalents of each field printed immediately adjacent, confusing field-to-value mapping.
+5. **Security background** — Pink guilloche geometric pattern reduces text contrast.
+6. **Perspective distortion** — Card photographed at slight angle.
+
+**Proposed prompt fix (to discuss and implement after PoC):**
+```
+"This is a UAE Emirates ID (Resident Identity Card) issued by the 
+Federal Authority for Identity, Citizenship, Customs & Port Security.
+- ALL dates are in DD/MM/YYYY format (day first, then month, then year)
+- The ID number format is 784-YYYY-XXXXXXX-X where YYYY is the birth year
+- There are THREE dates: Date of Birth, Issuing Date, Expiry Date
+- Extract ONLY the Expiry Date (labelled 'Expiry Date / تاريخ الانتهاء')
+- Use the ENGLISH text only — ignore the Arabic text on the right side
+- The expiry date will be in the future (after today)"
+```
+
+**Improvement tiers (discussed, not yet prioritised):**
+- Tier 1: UAE-specific prompt additions (above) — no code change, highest ROI
+- Tier 2: Image pre-processing (Pillow contrast/sharpen/deskew) + per-field confidence
+- Tier 3: Dedicated OCR pre-step (Google Vision/AWS Textract) + document classification
+
+---
+
+## Sprint 6 — Mobile Polish + Deploy ⬜ NOT STARTED
+**Goal:** Merge mobile, push notifications, TestFlight/Play Store build.
+**Prerequisite:** Complete E2E testing (see testing-plan.md), close PoC phase.
+
+| Task | Status |
+|------|--------|
+| Complete E2E testing on iOS, Android, Web | ⬜ |
+| Merge sprint5-mobile → v2-poc | ⬜ |
+| Android device testing and fixes | ⬜ |
+| Push notification reminders (APNs + FCM) | ⬜ |
+| EID extraction prompt improvement | ⬜ |
+| Relation types: Mother, Father, Employee (Railway redeploy OK after PoC) | ⬜ |
+| Expo build — TestFlight (iOS) + Play Console internal (Android) | ⬜ |
+| App icon + splash screen (proper PNG) | ⬜ |
+| Privacy policy URL | ⬜ |
+| Database persistence (persistent volume or PostgreSQL) | ⬜ |
+| GitHub Actions CI | ⬜ |
 
 ---
 
@@ -166,4 +263,6 @@
 - Web first, then mobile
 - AI extraction: MVP must-have (already working in backend)
 - Auth: Email + password only (no social login for V2)
-- Backend URL: `http://localhost:5000` (dev), TBD (prod)
+- Backend URL: `http://localhost:5000` (dev), `https://neverexpire-backend-production.up.railway.app` (prod)
+- **Railway redeploy BLOCKED during PoC phase** — demo data must be preserved
+- All discussed items logged in phase-plan.md regardless of accept/reject status

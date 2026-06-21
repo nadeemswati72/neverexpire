@@ -49,6 +49,8 @@ export default function AddDocumentPage() {
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [manualPhoto, setManualPhoto] = useState<File | null>(null)
+  const manualPhotoRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     Promise.all([fetchMe(), api.get('/family'), api.get('/document-types')]).then(([me, f, dt]) => {
@@ -126,6 +128,12 @@ export default function AddDocumentPage() {
           holder_name: holderName || null,
           notes: notes || null,
         })
+        // Manual flow: attach photo separately if provided
+        if (manualPhoto) {
+          const fd = new FormData()
+          fd.append('file', manualPhoto)
+          await api.post(`/documents/${r.data.data.id}/attach`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+        }
       }
       navigate(`/documents/${r.data.data.id}`)
     } catch (e: any) {
@@ -268,6 +276,29 @@ export default function AddDocumentPage() {
               <div style={{ gridColumn: '1 / -1' }}>
                 <label style={labelStyle}>Notes</label>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} placeholder="Any additional notes…" style={{ ...inputStyle, resize: 'none' }} />
+              </div>
+
+              {/* Photo upload — no AI extraction */}
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={labelStyle}>Attach Photo <span style={{ fontWeight: 400, color: '#b0bfd0' }}>(optional — no AI extraction)</span></label>
+                <input ref={manualPhotoRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }} onChange={e => setManualPhoto(e.target.files?.[0] ?? null)} />
+                <div
+                  onClick={() => manualPhotoRef.current?.click()}
+                  style={{ border: `1.5px dashed ${manualPhoto ? 'rgba(52,201,186,0.5)' : 'rgba(30,45,80,0.15)'}`, borderRadius: 10, padding: '14px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, background: manualPhoto ? 'rgba(52,201,186,0.05)' : 'transparent', transition: 'all 0.15s' }}
+                >
+                  <span style={{ fontSize: 20 }}>{manualPhoto ? '📎' : '🖼️'}</span>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: manualPhoto ? '#22a99c' : '#4a5568' }}>
+                      {manualPhoto ? manualPhoto.name : 'Click to attach a photo or PDF'}
+                    </div>
+                    <div style={{ fontSize: 11, color: '#8a9ab5', marginTop: 2 }}>
+                      {manualPhoto ? `${(manualPhoto.size / 1024).toFixed(0)} KB` : 'JPG, PNG, PDF · Max 16MB'}
+                    </div>
+                  </div>
+                  {manualPhoto && (
+                    <button onClick={e => { e.stopPropagation(); setManualPhoto(null) }} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#c53030', cursor: 'pointer', fontSize: 16 }}>✕</button>
+                  )}
+                </div>
               </div>
             </div>
 

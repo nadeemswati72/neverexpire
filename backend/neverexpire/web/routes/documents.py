@@ -140,6 +140,53 @@ def delete_doc(doc_id: int):
         return jsonify({"data": {"deleted": True}, "error": None})
 
 
+@documents_bp.post("/api/v1/documents/<int:doc_id>/attach")
+@jwt_required
+def attach_file(doc_id: int):
+    """Attach a photo/file to an existing document WITHOUT running AI extraction.
+    Used for manual entry with optional photo upload."""
+    if "file" not in request.files:
+        return jsonify({"data": None, "error": "file is required"}), 400
+
+    with get_session() as session:
+        doc = _doc_owned_by_user(session, doc_id, g.current_user_id)
+        if doc is None:
+            return jsonify({"data": None, "error": "Not found"}), 404
+
+        file = request.files["file"]
+        suffix = Path(file.filename or "").suffix.lower()
+        if suffix not in ALLOWED_UPLOAD_EXTENSIONS:
+            return jsonify({"data": None, "error": f"Unsupported file type: {suffix}"}), 400
+
+        config.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+        dest_path = config.UPLOAD_DIR / f"{uuid.uuid4().hex}{suffix}"
+        file.save(dest_path)
+
+        # Apply watermark if image
+        from ...watermark import WATERMARKABLE_EXTENSIONS, apply_watermark
+        watermarked_path = None
+        if suffix in WATERMARKABLE_EXTENSIONS:
+            watermarked_path = apply_watermark(dest_path)
+
+        from ...db.models import DocumentFile
+        from ...extractor import EXTENSION_MEDIA_TYPES as _EXT
+        _, mime_type = _EXT.get(suffix, (None, None))
+        doc_file = DocumentFile(
+            document_id=doc.id,
+            file_path=str(dest_path),
+            watermarked_file_path=str(watermarked_path) if watermarked_path else None,
+            original_filename=file.filename or dest_path.name,
+            mime_type=mime_type,
+            file_size_bytes=dest_path.stat().st_size,
+        )
+        session.add(doc_file)
+        session.commit()
+
+        today, horizon = _today_horizon()
+        doc = get_document(session, doc_id)
+        return jsonify({"data": document_detail(doc, today, horizon), "error": None}), 201
+
+
 @documents_bp.post("/api/v1/documents/extract")
 @jwt_required
 def extract_only():

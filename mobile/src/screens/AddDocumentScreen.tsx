@@ -154,6 +154,16 @@ export default function AddDocumentScreen() {
     setStep('form')
   }
 
+  const [manualPhoto, setManualPhoto] = useState<{ uri: string; name: string; type: string } | null>(null)
+
+  async function pickManualPhoto() {
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'] as any, quality: 0.85 })
+    if (!result.canceled) {
+      const asset = result.assets[0]
+      setManualPhoto({ uri: asset.uri, name: asset.fileName ?? 'photo.jpg', type: asset.mimeType ?? 'image/jpeg' })
+    }
+  }
+
   async function handleSave() {
     if (!personId || !title.trim()) { setError('Person and title are required.'); return }
     setSaving(true); setError('')
@@ -174,6 +184,12 @@ export default function AddDocumentScreen() {
         r = await api.post('/documents/upload-and-create', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       } else {
         r = await api.post('/documents', { person_id: personId, document_type_code: docTypeCode, title: title.trim(), document_number: docNumber || null, issued_date: issuedDate || null, expiry_date: expiryDate || null, issuing_authority: issuingAuth || null, holder_name: holderName || null, notes: notes || null })
+        // Attach manual photo if provided (no extraction)
+        if (manualPhoto) {
+          const fd = new FormData()
+          fd.append('file', manualPhoto as any)
+          await api.post(`/documents/${r.data.data.id}/attach`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+        }
       }
       nav.replace('DocumentDetail', { id: r.data.data.id })
     } catch (e: any) {
@@ -259,6 +275,28 @@ export default function AddDocumentScreen() {
                 {inp('Issuing Authority', issuingAuth, setIssuingAuth)}
                 {inp('Holder Name', holderName, setHolderName)}
                 {inp('Notes', notes, setNotes)}
+
+                {/* Photo attach — no AI extraction */}
+                <View style={{ marginTop: 6 }}>
+                  <Text style={styles.label}>Attach Photo <Text style={{ fontWeight: '400', color: colors.textMuted }}>(optional)</Text></Text>
+                  <TouchableOpacity
+                    onPress={pickManualPhoto}
+                    style={[styles.photoBtn, manualPhoto && styles.photoBtnActive]}
+                    activeOpacity={0.75}
+                  >
+                    <Text style={{ fontSize: 20 }}>{manualPhoto ? '📎' : '🖼️'}</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.photoBtnText, manualPhoto && { color: colors.brand }]}>
+                        {manualPhoto ? manualPhoto.name : 'Attach a photo (no AI extraction)'}
+                      </Text>
+                    </View>
+                    {manualPhoto && (
+                      <TouchableOpacity onPress={() => setManualPhoto(null)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                        <Text style={{ color: '#c53030', fontSize: 16 }}>✕</Text>
+                      </TouchableOpacity>
+                    )}
+                  </TouchableOpacity>
+                </View>
               </GlassCard>
 
               {!!error && <Text style={styles.errorText}>{error}</Text>}
@@ -297,6 +335,9 @@ const styles = StyleSheet.create({
   personChipActive: { backgroundColor: colors.brand, borderColor: colors.brand },
   personChipText: { fontSize: 13, color: colors.textSecondary, fontWeight: '500' },
   personChipTextActive: { color: 'white', fontWeight: '700' },
+  photoBtn: { flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1.5, borderColor: 'rgba(30,45,80,0.15)', borderStyle: 'dashed', borderRadius: 10, padding: 12 },
+  photoBtnActive: { borderColor: 'rgba(52,201,186,0.5)', backgroundColor: 'rgba(52,201,186,0.05)' },
+  photoBtnText: { fontSize: 13, color: colors.textSecondary },
   errorText: { color: '#c53030', fontSize: 13, marginBottom: 10, textAlign: 'center' },
   saveBtn: { borderRadius: 12, overflow: 'hidden' },
   saveBtnGrad: { padding: 15, alignItems: 'center' },

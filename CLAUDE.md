@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # NeverExpire V2 — Claude Code Project Bible
 
 ## What this project is
@@ -71,8 +75,68 @@ Both glassmorphic design specs live in `docs/designs/`:
 
 Open in a browser to interact with them.
 
+## Development Commands
+
+### Backend (Flask)
+```powershell
+cd backend
+# Activate venv (Windows)
+.\venv\Scripts\Activate.ps1
+# Install deps
+pip install -r requirements.txt
+# Init/seed DB (first time or after schema changes)
+python -m neverexpire.db.init_db
+python -m neverexpire.db.seed_demo
+# Run dev server (port 5000)
+flask --app neverexpire run --debug
+```
+Env vars needed: `ANTHROPIC_API_KEY`, `SECRET_KEY` (optional in dev — defaults exist in `config.py`).
+
+### Web (React + Vite)
+```powershell
+cd web
+npm install
+npm run dev        # http://localhost:5173
+npm run build      # tsc -b && vite build
+npm run lint       # eslint .
+```
+Set `VITE_API_URL=http://localhost:5000` or use the Vite proxy. JWT token stored in `localStorage` as `ne_token`.
+
+### Mobile (Expo)
+```powershell
+cd mobile
+npx expo start          # opens Expo DevTools
+npx expo start --android
+npx expo start --ios
+```
+No native build needed — managed Expo workflow. Dependencies already installed (`node_modules/` present).
+
+## Runtime Architecture
+
+### Auth flow
+Both web and mobile use JWT. Login → `POST /api/v1/auth/login` → `{ data: { token, user } }`. Token attached via `Authorization: Bearer <token>` on every subsequent request. `@jwt_required` decorator in `backend/neverexpire/web/jwt_utils.py` validates and sets `g.current_user_id`.
+
+### Backend layers
+- `neverexpire/web/routes/` — Flask blueprints, thin HTTP layer only; all blueprints registered in `routes/__init__.py`
+- `neverexpire/db/repository.py` — all CRUD; `db/queries.py` — dashboard/status aggregation
+- `neverexpire/db/session.py` — `get_session()` context manager (SQLAlchemy session lifecycle)
+- `neverexpire/pipeline.py` + `extractor.py` — AI extraction pipeline using `claude-haiku-4-5` (set in `config.py` as `EXTRACTION_MODEL`)
+- `neverexpire/config.py` — all config; `REMINDER_DAYS_THRESHOLD = 90` (must stay in sync with mobile's `EXPIRING_SOON_THRESHOLD_DAYS` in `src/utils/dateUtils.js`)
+
+### Web layers (`web/src/`)
+- `api.ts` — axios instance; auto-attaches Bearer token; redirects to `/login` on 401; defines all shared TypeScript types (`User`, `Person`, `DocumentBrief`, `DashboardSummary`, etc.)
+- `apiBase.ts` — base URL resolution (`VITE_API_URL` or `/api/v1`)
+- `auth.ts` — `isLoggedIn()` check used by `RequireAuth` guard in `App.tsx`
+- `pages/` — route-level components; `components/` — reusable UI
+
+### Mobile architecture
+See `mobile/CLAUDE.md` for the full guide. Key points:
+- Demo-mode only: all data in AsyncStorage, seeded from `src/data/mock*.js`; no backend calls yet
+- 3-layer rule: screens → context hooks → services → AsyncStorage (never skip layers)
+- All colors/spacing from `src/constants/theme.js`; all route strings from `src/navigation/routes.js`
+
 ## Conventions
-- Branch naming: `v2-poc/<phase>/<short-description>`
+- Branch naming: `sprint<N>-<short-description>` (current: `sprint5-mobile`)
 - Commit style: imperative, present tense ("Add JWT auth endpoint")
 - No Jinja templates — all UI is React/React Native
 - All API responses: `{ "data": ..., "error": null }` or `{ "data": null, "error": "message" }`

@@ -24,5 +24,47 @@
     "github",
     "sqlite",
     "playwright"
-  ]
+  ],
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -Command \"Write-Host ''; Write-Host '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' -ForegroundColor DarkCyan; Write-Host '  📋 JIRA REMINDER' -ForegroundColor Cyan; Write-Host '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' -ForegroundColor DarkCyan; Write-Host '  Did you close all Jira tickets for work done this session?' -ForegroundColor Yellow; Write-Host '  Every completed task → transition to Done immediately.' -ForegroundColor White; Write-Host '  Every ticket needs: Platforms: Web ✓ | iOS ✓ | Android ✓' -ForegroundColor White; Write-Host '  Board: neverexpire.atlassian.net/jira/software/projects/SCRUM' -ForegroundColor DarkGray; Write-Host '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' -ForegroundColor DarkCyan; Write-Host ''\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -Command \"$json = $input | Out-String; if ($json -match 'git push' -and $json -notmatch 'push --dry-run') { $branch = (git branch --show-current 2>$null); Write-Host ''; Write-Host '⚠️  GIT PUSH DETECTED' -ForegroundColor Yellow; Write-Host \"   Branch: $branch\" -ForegroundColor Cyan; if ($branch -eq 'main' -or $branch -eq 'master') { Write-Host '   🔴 PUSHING DIRECTLY TO MAIN — are you sure?' -ForegroundColor Red } else { Write-Host '   Pushing to: ' -NoNewline -ForegroundColor White; Write-Host $branch -ForegroundColor Green }; Write-Host '   Review the branch above before confirming.' -ForegroundColor DarkGray; Write-Host '' }\""
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -Command \"$json = $input | Out-String; if ($json -match 'web[\\\\/\\\\\\\\]src[\\\\/\\\\\\\\]') { Write-Host ''; Write-Host '🔨 WEB FILE CHANGED' -ForegroundColor DarkYellow; Write-Host '   Remember to run: cd web && npm run build' -ForegroundColor Yellow; Write-Host '   Then open http://localhost:5173 and check the browser console.' -ForegroundColor DarkGray; Write-Host '   A clean build with a blank page = runtime ReferenceError.' -ForegroundColor Red; Write-Host '' }\""
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -Command \"$json = $input | Out-String; if ($json -match 'web[\\\\/\\\\\\\\]src[\\\\/\\\\\\\\]') { Write-Host ''; Write-Host '🔨 WEB FILE CHANGED' -ForegroundColor DarkYellow; Write-Host '   Remember to run: cd web && npm run build' -ForegroundColor Yellow; Write-Host '   Then open http://localhost:5173 and check the browser console.' -ForegroundColor DarkGray; Write-Host '   A clean build with a blank page = runtime ReferenceError.' -ForegroundColor Red; Write-Host '' }\""
+          }
+        ]
+      }
+    ]
+  }
 }

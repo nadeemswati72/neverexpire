@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NeverExpire — Product Roadmap &amp; Feature Overview</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #08081a;
+      --bg2:         #0f0f28;
+      --card:        rgba(255,255,255,0.04);
+      --card-border: rgba(255,255,255,0.09);
+      --teal:        #0d9488;
+      --teal-light:  #14b8a6;
+      --cyan:        #06b6d4;
+      --text:        #e2e8f0;
+      --muted:       #94a3b8;
+      --done:        #22c55e;
+      --active:      #f59e0b;
+      --planned:     #3b82f6;
+      --future:      #a78bfa;
+      --red:         #f87171;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    /* ── CONFIDENTIAL BANNER ── */
+    .confidential-bar {
+      background: rgba(245,158,11,0.15);
+      border-bottom: 1px solid rgba(245,158,11,0.3);
+      text-align: center;
+      padding: 8px 20px;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #f59e0b;
+      font-weight: 600;
+    }
+
+    /* ── HEADER ── */
+    .hero {
+      background: linear-gradient(135deg, #0a0a22 0%, #0d1a2e 50%, #0a1a1a 100%);
+      border-bottom: 1px solid var(--card-border);
+      padding: 60px 40px 50px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(13,148,136,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -100px; left: -60px;
+      width: 350px; height: 350px;
+      background: radial-gradient(circle, rgba(6,182,212,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .logo-icon {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, var(--teal), var(--cyan));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 0 30px rgba(13,148,136,0.4);
+    }
+    .logo-name {
+      font-size: 26px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #e2e8f0, var(--teal-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero h1 {
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, #ffffff 0%, var(--teal-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero .tagline {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 680px;
+      margin-bottom: 36px;
+    }
+    .hero-meta {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .hero-meta-item { font-size: 13px; color: var(--muted); }
+    .hero-meta-item strong { color: var(--text); display: block; font-size: 15px; }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+
+    section { padding: 56px 0; border-bottom: 1px solid var(--card-border); }
+    section:last-child { border-bottom: none; }
+
+    .section-label {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--teal-light);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+    .section-sub {
+      color: var(--muted);
+      max-width: 680px;
+      margin-bottom: 36px;
+      font-size: 15px;
+    }
+
+    /* ── BADGES ── */
+    .badge {
+      display: inline-block;
+      padding: 3px 11px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .badge-done    { background: rgba(34,197,94,0.15);  color: var(--done);    border: 1px solid rgba(34,197,94,0.3); }
+    .badge-active  { background: rgba(245,158,11,0.15); color: var(--active);  border: 1px solid rgba(245,158,11,0.3); }
+    .badge-planned { background: rgba(59,130,246,0.15); color: var(--planned); border: 1px solid rgba(59,130,246,0.3); }
+    .badge-future  { background: rgba(167,139,250,0.15);color: var(--future);  border: 1px solid rgba(167,139,250,0.3); }
+    .badge-note    { background: rgba(148,163,184,0.12);color: var(--muted);   border: 1px solid rgba(148,163,184,0.2); }
+
+    /* ── STAT STRIP ── */
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 22px 20px;
+      text-align: center;
+    }
+    .stat-card .stat-num {
+      font-size: 36px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, var(--teal-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-card .stat-lbl { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+    /* ── FEATURE GRID ── */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 22px 24px;
+      transition: border-color 0.2s;
+    }
+    .feature-card:hover { border-color: rgba(13,148,136,0.4); }
+    .feature-card .fc-icon {
+      font-size: 26px;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .feature-card h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+    .feature-card p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .feature-card .fc-note {
+      margin-top: 10px;
+      font-size: 11.5px;
+      color: rgba(167,139,250,0.8);
+      background: rgba(167,139,250,0.08);
+      border: 1px solid rgba(167,139,250,0.2);
+      border-radius: 6px;
+      padding: 6px 10px;
+    }
+
+    /* ── SPRINT BLOCKS ── */
+    .sprint-block {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 30px 32px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .sprint-block.is-done   { border-left: 4px solid var(--done); }
+    .sprint-block.is-active { border-left: 4px solid var(--active); }
+    .sprint-block.is-plan   { border-left: 4px solid var(--planned); }
+    .sprint-block.is-future { border-left: 4px solid var(--future); }
+
+    .sprint-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .sprint-title { font-size: 19px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .sprint-goal  { font-size: 13px; color: var(--muted); }
+
+    .feat-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .feat-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13.5px;
+      color: var(--text);
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 9px 12px;
+    }
+    .feat-item .fi-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .done-dot   { background: var(--done); }
+    .active-dot { background: var(--active); }
+    .plan-dot   { background: var(--planned); }
+
+    /* ── FUTURE RELEASE CARDS ── */
+    .future-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 18px;
+    }
+    .future-card {
+      background: linear-gradient(135deg, rgba(167,139,250,0.05), rgba(13,148,136,0.03));
+      border: 1px solid rgba(167,139,250,0.2);
+      border-radius: 16px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .future-card::before {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 100px; height: 100px;
+      background: radial-gradient(circle, rgba(167,139,250,0.12) 0%, transparent 70%);
+    }
+    .future-card .fv-num {
+      font-size: 11px;
+      color: var(--future);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .future-card h4 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .future-card p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .future-card .fv-note {
+      margin-top: 12px;
+      font-size: 11.5px;
+      color: rgba(13,148,136,0.9);
+      background: rgba(13,148,136,0.08);
+      border: 1px solid rgba(13,148,136,0.2);
+      border-radius: 6px;
+      padding: 7px 10px;
+      line-height: 1.5;
+    }
+
+    /* ── PLATFORM TABLE ── */
+    .platform-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .platform-table th {
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--card-border);
+    }
+    .platform-table td {
+      padding: 11px 14px;
+      font-size: 13.5px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: var(--text);
+    }
+    .platform-table tr:last-child td { border-bottom: none; }
+    .platform-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .check { color: var(--done); font-size: 16px; }
+    .cross { color: var(--red); font-size: 16px; }
+    .warn  { color: var(--active); font-size: 14px; }
+
+    /* ── TIMELINE ── */
+    .timeline { position: relative; padding-left: 28px; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 7px; top: 6px; bottom: 6px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--done), var(--active), var(--planned), var(--future));
+      border-radius: 2px;
+    }
+    .tl-item { position: relative; margin-bottom: 20px; }
+    .tl-dot {
+      position: absolute;
+      left: -24px; top: 4px;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--bg);
+    }
+    .tl-done   .tl-dot { background: var(--done); }
+    .tl-active .tl-dot { background: var(--active); box-shadow: 0 0 8px var(--active); }
+    .tl-plan   .tl-dot { background: var(--planned); }
+    .tl-future .tl-dot { background: var(--future); }
+    .tl-row {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 4px;
+    }
+    .tl-name { font-size: 15px; font-weight: 700; color: #fff; }
+    .tl-desc { font-size: 13px; color: var(--muted); }
+
+    /* ── NOTE BOX ── */
+    .note-box {
+      background: rgba(167,139,250,0.07);
+      border: 1px solid rgba(167,139,250,0.2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 13px;
+      color: rgba(167,139,250,0.9);
+      margin-top: 16px;
+    }
+    .note-box strong { color: var(--future); }
+
+    .info-box {
+      background: rgba(13,148,136,0.07);
+      border: 1px solid rgba(13,148,136,0.25);
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 13px;
+      color: rgba(20,184,166,0.9);
+      margin-top: 16px;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--card-border);
+      padding: 32px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-left { font-size: 13px; color: var(--muted); }
+    .footer-right { font-size: 12px; color: rgba(148,163,184,0.5); }
+
+    /* ── TWO-COL ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* ── DIVIDER ── */
+    .divider { height: 1px; background: var(--card-border); margin: 32px 0; }
+
+    /* ── PRINT ── */
+    @media print {
+      body { background: #fff; color: #111; }
+      .hero { background: #f0f9ff; border-bottom: 2px solid #0d9488; }
+      .hero h1, .logo-name { -webkit-text-fill-color: #0d9488; }
+      .stat-card, .feature-card, .sprint-block, .future-card {
+        background: #f9fafb; border: 1px solid #e2e8f0;
+      }
+      .sprint-block.is-done   { border-left: 4px solid #22c55e; }
+      .sprint-block.is-active { border-left: 4px solid #f59e0b; }
+      .sprint-block.is-plan   { border-left: 4px solid #3b82f6; }
+      .sprint-block.is-future { border-left: 4px solid #8b5cf6; }
+      .section-title { color: #0f172a; }
+      .feat-item { background: #f1f5f9; border-color: #e2e8f0; color: #1e293b; }
+      .muted, .sprint-goal, .feature-card p, .future-card p, .tl-desc { color: #64748b !important; }
+      .footer { background: #f8fafc; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Confidential Banner -->
+<div class="confidential-bar">⚠ Confidential — Internal Use Only &nbsp;|&nbsp; NeverExpire V2 &nbsp;|&nbsp; July 2026</div>
+
+<!-- ═══════════════════════ HERO ═══════════════════════ -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="logo-row">
+      <div class="logo-icon">⏰</div>
+      <div class="logo-name">NeverExpire</div>
+    </div>
+    <h1>Product Roadmap &amp; Feature Overview</h1>
+    <p class="tagline">
+      AI-powered document expiry tracker for families and businesses.
+      Never miss a passport renewal, visa deadline, or licence expiry again.
+    </p>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><strong>Current Version</strong>V2.0 — Sprint 5 Complete</div>
+      <div class="hero-meta-item"><strong>Platforms</strong>Web · iOS · Android</div>
+      <div class="hero-meta-item"><strong>Market</strong>UAE-first · Family &amp; SMB</div>
+      <div class="hero-meta-item"><strong>AI Engine</strong>Anthropic Claude</div>
+      <div class="hero-meta-item"><strong>Document Date</strong>July 2026</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ EXECUTIVE SUMMARY ═══════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">Overview</div>
+    <h2 class="section-title">What is NeverExpire?</h2>
+    <p class="section-sub">
+      NeverExpire is a smart document management platform that tracks expiry dates for passports, visas, driving licences, Emirates IDs, insurance policies, and any other time-sensitive document — for every member of a family or business team. The AI reads your documents automatically so there is almost no manual data entry.
+    </p>
+
+    <div class="stat-strip">
+      <div class="stat-card">
+        <div class="stat-num">12</div>
+        <div class="stat-lbl">Document Types</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">7</div>
+        <div class="stat-lbl">Web Screens</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">7</div>
+        <div class="stat-lbl">Mobile Screens</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">25+</div>
+        <div class="stat-lbl">API Endpoints</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">5</div>
+        <div class="stat-lbl">Sprints Done</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">10+</div>
+        <div class="stat-lbl">Future Releases</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="feature-card">
+        <span class="fc-icon">👨‍👩‍👧‍👦</span>
+        <h4>For Families</h4>
+        <p>Track every family member's documents in one place. The dashboard shows you exactly what is expired, what is expiring soon, and what is valid — across your entire household.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">🏢</span>
+        <h4>For Small Businesses</h4>
+        <p>Track employee visas, work permits, company licences, and trade documents. HR managers get team-wide visibility and alerts before any document lapses. <em style="color:var(--muted)">(Roadmap — Sprint 8)</em></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ CURRENT FEATURES ═══════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">Current Release</div>
+    <h2 class="section-title">What Is Built &amp; Working Today</h2>
+    <p class="section-sub">Sprints 0 through 5 are complete. The full web application is live on the backend. The mobile app is built and in device testing on the sprint5-mobile branch.</p>
+
+    <!-- AI Extraction -->
+    <h3 style="font-size:18px;font-weight:700;color:#fff;margin-bottom:16px;">🤖 AI Document Extraction — Core Differentiator</h3>
+    <div class="feature-card" style="margin-bottom:28px;border-color:rgba(13,148,136,0.4);background:rgba(13,148,136,0.05);">
+      <p style="font-size:14px;line-height:1.75;">
+        Users take a photo or upload a PDF of any document. <strong style="color:var(--teal-light);">Claude AI reads the document automatically</strong> and extracts: title, document number, issuing authority, holder name, issue date, and expiry date — with a confidence score. The user reviews the extracted fields, corrects anything if needed, and saves. This eliminates almost all manual data entry. The feature works on both web and mobile (camera or gallery). Supported formats: JPG, PNG, WebP, PDF.
+      </p>
+      <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
+        <span class="badge badge-done">✓ Live on Web</span>
+        <span class="badge badge-active">⚠ Mobile — Device Testing</span>
+        <span class="badge badge-note">Powered by Anthropic Claude</span>
+      </div>
+    </div>
+
+    <!-- Feature categories -->
+    <h3 style="font-size:18px;font-weight:700;color:#fff;margin-bottom:16px;">🔐 Authentication &amp; Security</h3>
+    <div class="feature-grid" style="margin-bottom:32px;">
+      <div class="feature-card">
+        <span class="fc-icon">🔑</span>
+        <h4>Email + Password Login</h4>
+        <p>Secure registration and login with email and password. Passwords hashed with bcrypt. Minimum 8 characters enforced.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">🎟️</span>
+        <h4>JWT Session Tokens</h4>
+        <p>All API requests use Bearer token authentication. Tokens expire automatically. Auto-logout on expiry on both web and mobile.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">🛡️</span>
+        <h4>Cross-User Data Protection</h4>
+        <p>Every endpoint verifies ownership. User A cannot access, view, or modify User B's documents, family members, or files — enforced at the API layer.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">💧</span>
+        <h4>Watermarked File Serving</h4>
+        <p>Every uploaded document image is automatically watermarked with a tiled pattern before being stored. Documents served only to the owner via authenticated requests.</p>
+      </div>
+    </div>
+
+    <h3 style="font-size:18px;font-weight:700;color:#fff;margin-bottom:16px;">📄 Document Management</h3>
+    <div class="feature-grid" style="margin-bottom:32px;">
+      <div class="feature-card">
+        <span class="fc-icon">📋</span>
+        <h4>12 Document Types</h4>
+        <p>Passport · Visa · Driving Licence · Emirates ID · Insurance · Certificate · Vaccination Card · Birth Certificate · Marriage Certificate · Bank Statement · Utility Bill · Other</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">✏️</span>
+        <h4>Manual Entry Mode</h4>
+        <p>Add any document without uploading a file. Enter title, dates, document number, issuing authority, holder name, and notes manually. No scan required.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">📎</span>
+        <h4>Photo Attachment</h4>
+        <p>Attach a photo to a manually-entered document without running AI extraction. Useful for physical documents where only the dates are needed.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">🔄</span>
+        <h4>Full CRUD</h4>
+        <p>Add, view, edit, and delete any document. All changes take effect immediately. Deleted documents remove all associated files.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">🔍</span>
+        <h4>Search &amp; Filter</h4>
+        <p>Search documents by name. Filter by status (Expired / Expiring Soon / Valid / No Expiry) and by family member. Filters work in combination.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">🟢</span>
+        <h4>Status Tracking</h4>
+        <p><strong>Expired</strong> · <strong>Expiring Soon</strong> (within 90 days) · <strong>Valid</strong> · <strong>No Expiry</strong>. Countdown timers show exact days remaining or days since expiry.</p>
+      </div>
+    </div>
+
+    <h3 style="font-size:18px;font-weight:700;color:#fff;margin-bottom:16px;">👨‍👩‍👧 Family Management</h3>
+    <div class="feature-grid" style="margin-bottom:32px;">
+      <div class="feature-card">
+        <span class="fc-icon">➕</span>
+        <h4>Add Family Members</h4>
+        <p>Add unlimited family members with name, relation type, and date of birth. Relation types: Self, Spouse, Child, Parent, Other.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">📸</span>
+        <h4>Profile Photos</h4>
+        <p>Upload a profile photo for each family member. Photos are auto-resized to 200×200 pixels and served securely. Tap to change on mobile.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">📊</span>
+        <h4>Per-Person Document Summary</h4>
+        <p>Each family member card shows their total documents, how many are expired, expiring soon, and valid. Click to filter to their documents only.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">🗑️</span>
+        <h4>Safe Member Removal</h4>
+        <p>Remove a family member with confirmation. Their documents are preserved in the system — soft-delete protects data integrity.</p>
+      </div>
+    </div>
+
+    <div class="note-box">
+      <strong>📝 Note — Household Staff &amp; Vehicles Today:</strong> Users can already track household staff (maids, drivers, nannies) by adding them as "Other" family members. Vehicles and subscriptions can be tracked by creating a manual document entry with the relevant dates. Dedicated modules for these categories are planned in future sprints.
+    </div>
+
+    <h3 style="font-size:18px;font-weight:700;color:#fff;margin-top:32px;margin-bottom:16px;">📊 Dashboard</h3>
+    <div class="feature-grid" style="margin-bottom:32px;">
+      <div class="feature-card">
+        <span class="fc-icon">🔢</span>
+        <h4>Status Summary Cards</h4>
+        <p>Live counts: Total Documents · Expired · Expiring Soon · Valid. Updated in real time from the backend. Tap any card to filter the list below.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">⚠️</span>
+        <h4>Attention Strip</h4>
+        <p>The top 5 most urgent documents shown prominently. Sorted by soonest expiry. Shows person name, document type, and exact countdown.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">🍩</span>
+        <h4>Donut Chart (Mobile)</h4>
+        <p>Visual breakdown of document status distribution. Animated, colour-coded. Tapping a segment filters the document list to that status.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">👥</span>
+        <h4>Family Overview</h4>
+        <p>All family member cards on the dashboard, each showing their document counts by status. Click a member to filter the entire view to their documents.</p>
+      </div>
+    </div>
+
+    <!-- Platform support table -->
+    <h3 style="font-size:18px;font-weight:700;color:#fff;margin-bottom:16px;">📱 Platform Support</h3>
+    <div class="feature-card" style="padding:0;overflow:hidden;">
+      <table class="platform-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Web</th>
+            <th>iOS</th>
+            <th>Android</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Login &amp; Register</td><td><span class="check">✓</span> Live</td><td><span class="warn">⚠</span> Testing</td><td><span class="warn">⚠</span> Testing</td></tr>
+          <tr><td>Dashboard &amp; Status Cards</td><td><span class="check">✓</span> Live</td><td><span class="warn">⚠</span> Testing</td><td><span class="warn">⚠</span> Testing</td></tr>
+          <tr><td>Document List + Search + Filter</td><td><span class="check">✓</span> Live</td><td><span class="warn">⚠</span> Testing</td><td><span class="warn">⚠</span> Testing</td></tr>
+          <tr><td>Document Detail + File Preview</td><td><span class="check">✓</span> Live</td><td><span class="warn">⚠</span> Testing</td><td><span class="warn">⚠</span> Testing</td></tr>
+          <tr><td>AI Document Extraction</td><td><span class="check">✓</span> Live</td><td><span class="warn">⚠</span> Testing</td><td><span class="warn">⚠</span> Testing</td></tr>
+          <tr><td>Manual Document Entry</td><td><span class="check">✓</span> Live</td><td><span class="warn">⚠</span> Testing</td><td><span class="warn">⚠</span> Testing</td></tr>
+          <tr><td>Camera / Gallery Photo Picker</td><td><span class="cross">–</span> N/A</td><td><span class="warn">⚠</span> Testing</td><td><span class="warn">⚠</span> Testing</td></tr>
+          <tr><td>Family Management</td><td><span class="check">✓</span> Live</td><td><span class="warn">⚠</span> Testing</td><td><span class="warn">⚠</span> Testing</td></tr>
+          <tr><td>Profile Photos</td><td><span class="check">✓</span> Live</td><td><span class="warn">⚠</span> Testing</td><td><span class="warn">⚠</span> Testing</td></tr>
+          <tr><td>Donut Chart Dashboard</td><td><span class="cross">–</span> N/A</td><td><span class="warn">⚠</span> Testing</td><td><span class="warn">⚠</span> Testing</td></tr>
+          <tr><td>Watermarked File Serving</td><td><span class="check">✓</span> Live</td><td><span class="warn">⚠</span> Testing</td><td><span class="warn">⚠</span> Testing</td></tr>
+          <tr><td>Push Notifications</td><td><span class="cross">–</span> Sprint 6</td><td><span class="cross">–</span> Sprint 6</td><td><span class="cross">–</span> Sprint 6</td></tr>
+          <tr><td>Email Reminders</td><td><span class="cross">–</span> Sprint 7</td><td><span class="cross">–</span> Sprint 7</td><td><span class="cross">–</span> Sprint 7</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ ROADMAP TIMELINE ═══════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">Roadmap at a Glance</div>
+    <h2 class="section-title">Sprint Timeline</h2>
+    <p class="section-sub">Ten planned sprints taking NeverExpire from foundation to a full-featured platform.</p>
+
+    <div class="timeline">
+      <div class="tl-item tl-done">
+        <div class="tl-dot"></div>
+        <div class="tl-row"><span class="tl-name">Sprint 0–1 — Backend Foundation &amp; API</span><span class="badge badge-done">Done</span></div>
+        <div class="tl-desc">Flask REST API, JWT auth, database, 12 document types, AI extraction, family CRUD, dashboard aggregation</div>
+      </div>
+      <div class="tl-item tl-done">
+        <div class="tl-dot"></div>
+        <div class="tl-row"><span class="tl-name">Sprint 2–4 — Web Application</span><span class="badge badge-done">Done</span></div>
+        <div class="tl-desc">7-screen React web app with glassmorphic design, AI extraction flow, family management, file preview</div>
+      </div>
+      <div class="tl-item tl-done">
+        <div class="tl-dot"></div>
+        <div class="tl-row"><span class="tl-name">Sprint 5 — Mobile App</span><span class="badge badge-done">Done</span></div>
+        <div class="tl-desc">Expo SDK 54 React Native app for iOS &amp; Android, camera extraction, donut chart dashboard</div>
+      </div>
+      <div class="tl-item tl-active">
+        <div class="tl-dot"></div>
+        <div class="tl-row"><span class="tl-name">Sprint 6 — Mobile Launch</span><span class="badge badge-active">Active</span></div>
+        <div class="tl-desc">Device testing, bug fixes, TestFlight + Play Store builds, push notifications, CI/CD</div>
+      </div>
+      <div class="tl-item tl-plan">
+        <div class="tl-dot"></div>
+        <div class="tl-row"><span class="tl-name">Sprint 7 — Smart Reminders &amp; Scheduling</span><span class="badge badge-planned">Planned</span></div>
+        <div class="tl-desc">Recurring reminders (not tied to documents), WhatsApp alerts, email, calendar export</div>
+      </div>
+      <div class="tl-item tl-plan">
+        <div class="tl-dot"></div>
+        <div class="tl-row"><span class="tl-name">Sprint 8 — Business Edition</span><span class="badge badge-planned">Planned</span></div>
+        <div class="tl-desc">Employee roster, company documents, role-based access, bulk upload, HR reports</div>
+      </div>
+      <div class="tl-item tl-plan">
+        <div class="tl-dot"></div>
+        <div class="tl-row"><span class="tl-name">Sprint 9 — Admin Panel</span><span class="badge badge-planned">Planned</span></div>
+        <div class="tl-desc">Manage document types, custom fields per type, user management, extraction monitoring</div>
+      </div>
+      <div class="tl-item tl-plan">
+        <div class="tl-dot"></div>
+        <div class="tl-row"><span class="tl-name">Sprint 10 — Compliance &amp; Security</span><span class="badge badge-planned">Planned</span></div>
+        <div class="tl-desc">2FA, audit logging, GDPR/PDPL data export, encryption at rest, account deletion</div>
+      </div>
+      <div class="tl-item tl-future">
+        <div class="tl-dot"></div>
+        <div class="tl-row"><span class="tl-name">Future Vision</span><span class="badge badge-future">Future</span></div>
+        <div class="tl-desc">Travel readiness, WhatsApp bot, vehicle tracker, property tracker, offline wallet, subscription wallet, AI renewal guide, SaaS business tier, Arabic support &amp; more</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SPRINT 6 ═══════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">Sprint 6 — Active</div>
+    <h2 class="section-title">Mobile Launch</h2>
+    <p class="section-sub">Completing device testing, merging the mobile branch, building production apps, and shipping to TestFlight and the Play Store.</p>
+
+    <div class="sprint-block is-active">
+      <div class="sprint-header">
+        <div>
+          <div class="sprint-title">Sprint 6 — Mobile Polish &amp; Deploy</div>
+          <div class="sprint-goal">Goal: NeverExpire available for download on iOS and Android.</div>
+        </div>
+        <span class="badge badge-active">In Progress</span>
+      </div>
+      <div class="feat-list">
+        <div class="feat-item"><div class="fi-dot active-dot"></div>Complete E2E device testing (iOS + Android)</div>
+        <div class="feat-item"><div class="fi-dot active-dot"></div>Merge mobile branch → main codebase</div>
+        <div class="feat-item"><div class="fi-dot active-dot"></div>Expo production build — TestFlight (iOS)</div>
+        <div class="feat-item"><div class="fi-dot active-dot"></div>Play Store internal track (Android)</div>
+        <div class="feat-item"><div class="fi-dot active-dot"></div>Push notification infrastructure (APNs + FCM)</div>
+        <div class="feat-item"><div class="fi-dot active-dot"></div>App icon + splash screen (brand assets)</div>
+        <div class="feat-item"><div class="fi-dot active-dot"></div>GitHub Actions CI/CD pipeline</div>
+        <div class="feat-item"><div class="fi-dot active-dot"></div>Production database persistence</div>
+        <div class="feat-item"><div class="fi-dot active-dot"></div>Privacy policy URL (App Store requirement)</div>
+        <div class="feat-item"><div class="fi-dot active-dot"></div>Expanded relation types: Mother, Father, Employee</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SPRINT 7 ═══════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">Sprint 7 — Planned</div>
+    <h2 class="section-title">Smart Reminders &amp; Scheduling</h2>
+    <p class="section-sub">
+      This sprint introduces a new category of reminders that are <strong style="color:#fff;">not tied to any document</strong>. Think of it as a smart scheduler built into NeverExpire — for recurring payments, appointments, and any deadline that matters to you.
+    </p>
+
+    <div class="sprint-block is-plan">
+      <div class="sprint-header">
+        <div>
+          <div class="sprint-title">Sprint 7 — Smart Reminders &amp; Scheduling</div>
+          <div class="sprint-goal">Goal: NeverExpire becomes the single place for all expiry- and deadline-related alerts in a person's life.</div>
+        </div>
+        <span class="badge badge-planned">Planned</span>
+      </div>
+
+      <h4 style="font-size:14px;color:var(--teal-light);margin:16px 0 10px;">Recurring &amp; Standalone Reminders</h4>
+      <div class="feat-list">
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Monthly recurring reminders (e.g. credit card payment due)</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>One-off appointment reminders (doctor, dentist, car service)</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Custom reminder without a document (no upload required)</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Configurable advance notice: 1 day / 3 days / 1 week / 2 weeks / 1 month</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Reminder history: what was sent, when, for what</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Snooze and dismiss controls in notification</div>
+      </div>
+
+      <h4 style="font-size:14px;color:var(--teal-light);margin:20px 0 10px;">Notification Channels</h4>
+      <div class="feat-list">
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Push notification (iOS + Android)</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Email reminders (via Resend / SMTP)</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>WhatsApp Business API reminders (UAE-native channel)</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>User chooses preferred channel per reminder</div>
+      </div>
+
+      <h4 style="font-size:14px;color:var(--teal-light);margin:20px 0 10px;">Calendar Integration</h4>
+      <div class="feat-list">
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Export any document expiry as a calendar event (iCal)</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Compatible with Google Calendar, Apple Calendar, Outlook</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>"Export All Expiries" — bulk iCal file for entire family</div>
+      </div>
+
+      <div class="info-box" style="margin-top:20px;">
+        <strong>📌 Examples of standalone reminders users will create:</strong><br/>
+        Credit card payment due on the 15th every month · Doctor appointment on 20 Aug · Gym subscription renews in February · Car service every 6 months · School fee due in September
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SPRINT 8 ═══════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">Sprint 8 — Planned</div>
+    <h2 class="section-title">Business Edition</h2>
+    <p class="section-sub">Extending NeverExpire to serve small and medium businesses in the UAE — where managing employee visas, work permits, and company documents is a major operational pain point for HR teams.</p>
+
+    <div class="sprint-block is-plan">
+      <div class="sprint-header">
+        <div>
+          <div class="sprint-title">Sprint 8 — Business Edition</div>
+          <div class="sprint-goal">Goal: HR managers can track all employee documents in one dashboard, with role-based access and automated expiry alerts routed to the right people.</div>
+        </div>
+        <span class="badge badge-planned">Planned</span>
+      </div>
+
+      <h4 style="font-size:14px;color:var(--teal-light);margin:16px 0 10px;">Employee &amp; Team Management</h4>
+      <div class="feat-list">
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Employee roster (add/edit/remove employees)</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Department grouping (Sales, Operations, Finance…)</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Bulk document upload (process 20 passports in one session)</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>AI extraction works for all employee documents</div>
+      </div>
+
+      <h4 style="font-size:14px;color:var(--teal-light);margin:20px 0 10px;">Company Documents</h4>
+      <div class="feat-list">
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Trade licence (DED / free zone)</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Commercial registration certificate</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Company insurance policies</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Office lease / EJARI</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>ISO and compliance certificates</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Bank account documentation</div>
+      </div>
+
+      <h4 style="font-size:14px;color:var(--teal-light);margin:20px 0 10px;">Role-Based Access</h4>
+      <div class="feat-list">
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Super Admin — full access, user management</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>HR Manager — view all, add/edit documents</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Viewer — read-only access to assigned employees</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Employee — can only view their own documents</div>
+      </div>
+
+      <h4 style="font-size:14px;color:var(--teal-light);margin:20px 0 10px;">Reports &amp; Alerts</h4>
+      <div class="feat-list">
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Expiry report: "All employees with visa expiring in 60 days"</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Export reports to Excel / PDF</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Notifications routed to HR manager, not just the employee</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Company admin dashboard with team-level stats</div>
+      </div>
+
+      <div class="note-box">
+        <strong>📝 Note — Business Use Today:</strong> Businesses can already use NeverExpire today. Add employees as "Other" family members and track their documents the same way. The Business Edition formalises this with dedicated team features, roles, and reporting.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SPRINT 9 ═══════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">Sprint 9 — Planned</div>
+    <h2 class="section-title">Admin Panel</h2>
+    <p class="section-sub">A dedicated administration interface for managing the platform's master data — document types, custom fields, users, and system health.</p>
+
+    <div class="sprint-block is-plan">
+      <div class="sprint-header">
+        <div>
+          <div class="sprint-title">Sprint 9 — Admin Panel</div>
+          <div class="sprint-goal">Goal: Platform administrators can configure document types, define custom fields, manage users, and monitor AI extraction health — without touching code.</div>
+        </div>
+        <span class="badge badge-planned">Planned</span>
+      </div>
+      <div class="feat-list">
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Document type management — add, rename, activate/deactivate</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Custom field definitions per document type</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Field data types: text, number, date, boolean</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Mark fields as required or optional</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Control which fields feed into AI extraction</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Family relation type management (add custom types)</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>User management — view all users, roles, active status</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Extraction monitoring — success/failure counts, error review</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Reminder queue monitoring</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>System health dashboard</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SPRINT 10 ═══════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">Sprint 10 — Planned</div>
+    <h2 class="section-title">Compliance &amp; Security</h2>
+    <p class="section-sub">Meeting data protection standards and adding enterprise-grade security features required for regulated markets and business customers.</p>
+
+    <div class="sprint-block is-plan">
+      <div class="sprint-header">
+        <div>
+          <div class="sprint-title">Sprint 10 — Compliance &amp; Security</div>
+          <div class="sprint-goal">Goal: NeverExpire meets PDPL (UAE), GDPR, and enterprise security requirements. Business customers can comply with their own data governance policies.</div>
+        </div>
+        <span class="badge badge-planned">Planned</span>
+      </div>
+      <div class="feat-list">
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Two-Factor Authentication (TOTP app + SMS)</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Audit log — who did what and when (view, edit, delete)</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Data export — download all data as ZIP (GDPR/PDPL right to data)</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Account deletion with full data purge</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Encryption at rest for stored document files</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Consent tracking and management</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>PDPL compliance tooling (UAE Personal Data Protection Law)</div>
+        <div class="feat-item"><div class="fi-dot plan-dot"></div>Session management — view and revoke active sessions</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ FUTURE VISION ═══════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">Future Vision</div>
+    <h2 class="section-title">Horizon Features</h2>
+    <p class="section-sub">
+      Creative extensions that transform NeverExpire from a document tracker into an indispensable life management platform. These are discussed and recorded — timelines and prioritisation to be decided.
+    </p>
+
+    <div class="future-grid">
+
+      <div class="future-card">
+        <div class="fv-num">Future Release 01</div>
+        <h4>✈️ Travel Readiness Check</h4>
+        <p>Planning a family trip? NeverExpire checks all family members' passports, visas, vaccination cards, and travel insurance against the destination country's requirements. Shows a clear "Ready to Travel" or "Action Needed" status per person. Highlights passport validity gaps — most countries require 6 months remaining validity.</p>
+        <div class="fv-note">🇦🇪 UAE-specific: UAE expats travel 3–5 times per year internationally. This feature is uniquely relevant to the market.</div>
+      </div>
+
+      <div class="future-card">
+        <div class="fv-num">Future Release 02</div>
+        <h4>💬 WhatsApp Reminder Bot</h4>
+        <p>Reminders delivered via WhatsApp Business API. "Your Emirates ID expires in 30 days. Tap to see renewal steps." Users reply to snooze, dismiss, or get the full guide. WhatsApp has 95%+ penetration in the UAE and achieves far higher open rates than push notifications or email.</p>
+        <div class="fv-note">🇦🇪 UAE differentiator: No other document management app in the region offers WhatsApp-native reminders.</div>
+      </div>
+
+      <div class="future-card">
+        <div class="fv-num">Future Release 03</div>
+        <h4>🏠 Household Staff Module</h4>
+        <p>Dedicated management for maids, drivers, nannies, and gardeners. Each staff member needs an employment visa, health card, medical fitness certificate, and labour card tracked separately. Bulk tracking and group notifications alert the employer when any staff member's document is expiring. Premium plan feature.</p>
+        <div class="fv-note">📝 Already possible today: Add staff as "Other" family members and track documents normally. This sprint formalises it with bulk tools and employer-specific alerts.</div>
+      </div>
+
+      <div class="future-card">
+        <div class="fv-num">Future Release 04</div>
+        <h4>🚗 Vehicle Health Tracker</h4>
+        <p>UAE-specific: Mulkiya (car registration), RTA vehicle inspection certificate, car insurance, Salik toll tag balance alerts, and car service interval reminders (every 10,000 km or 6 months). The existing AI extraction pipeline can already read a Mulkiya card — this sprint builds the vehicle category around it.</p>
+        <div class="fv-note">📝 Already possible today: Vehicles can be tracked manually by creating a document entry with the relevant expiry dates.</div>
+      </div>
+
+      <div class="future-card">
+        <div class="fv-num">Future Release 05</div>
+        <h4>🤖 Smart Renewal Guide</h4>
+        <p>When a document is 60 days from expiry, NeverExpire generates a step-by-step renewal guide. "Your UAE Residence Visa expires in 45 days. Steps: 1. Book GDRFA appointment, 2. Prepare these 6 documents, 3. Fee: AED 2,800, 4. Processing time: 5 working days." AI-generated, specific to document type and nationality. Turns NeverExpire from a passive tracker into an active action platform.</p>
+      </div>
+
+      <div class="future-card">
+        <div class="fv-num">Future Release 06</div>
+        <h4>🆘 Emergency Document Access</h4>
+        <p>Designate a trusted emergency contact — a spouse, parent, or sibling. If the account holder is hospitalised or unreachable, the designated contact receives a one-time 4-hour access code to view critical documents: passport number, insurance policy, emergency contact, blood type card. Fully audited, time-limited, and no permanent access granted.</p>
+      </div>
+
+      <div class="future-card">
+        <div class="fv-num">Future Release 07</div>
+        <h4>📵 Offline Document Wallet</h4>
+        <p>Download encrypted copies of selected documents to your phone. No internet required to view. Unlock with Face ID or fingerprint. Critical for border crossings, hospital visits, and areas with poor connectivity. Documents are AES-encrypted on the device. When you get signal, the wallet syncs and updates automatically.</p>
+      </div>
+
+      <div class="future-card">
+        <div class="fv-num">Future Release 08</div>
+        <h4>🏠 Property &amp; Lease Tracker</h4>
+        <p>Track EJARI (UAE tenancy contract registration), building service charge schedule, maintenance contracts, utility deposit receipts, and mortgage paperwork. UAE expats move every 2–3 years — EJARI renewal is mandatory and a common missed deadline. AI reads the lease document and extracts dates automatically.</p>
+        <div class="fv-note">📝 Already possible today: Properties and leases can be tracked manually as document entries.</div>
+      </div>
+
+      <div class="future-card">
+        <div class="fv-num">Future Release 09</div>
+        <h4>🎒 Children's School Document Hub</h4>
+        <p>Each academic year, schools require: vaccination records, health insurance card, passport copy, birth certificate, medical fitness form, and emergency contact form. NeverExpire alerts parents in July and August — weeks before school registration — with a checklist of what is missing or expired for each child. Eliminates last-minute scrambles before the school year.</p>
+      </div>
+
+      <div class="future-card">
+        <div class="fv-num">Future Release 10</div>
+        <h4>🎬 Subscription &amp; Warranty Wallet</h4>
+        <p>Extend beyond government documents: gym membership, streaming services (Netflix, Spotify), software licences, car warranty, home appliance warranties (AC, refrigerator), building maintenance contracts. Same expiry pattern — different everyday use case. Makes NeverExpire genuinely useful for users without complex document portfolios, dramatically broadening the market.</p>
+        <div class="fv-note">📝 Already possible today: Subscriptions and warranties can be tracked manually as document entries without uploading a file.</div>
+      </div>
+
+      <div class="future-card">
+        <div class="fv-num">Future Release 11</div>
+        <h4>🌐 Arabic Language Support</h4>
+        <p>Full right-to-left (RTL) interface in Arabic. UAE government documents are bilingual — the AI extraction already sees Arabic text. An Arabic interface unlocks a major user segment in the UAE, Saudi Arabia, and wider GCC market that current competitors entirely ignore. Includes translated UI, Arabic field labels, and RTL layout across web and mobile.</p>
+        <div class="fv-note">🇦🇪 GCC market: Arabic is the first language for a significant share of UAE residents and the primary language in all neighbouring markets.</div>
+      </div>
+
+      <div class="future-card">
+        <div class="fv-num">Future Release 12</div>
+        <h4>☁️ SaaS Business Tier</h4>
+        <p>Multi-tenant architecture with subscription billing. Businesses pay per seat (e.g. AED 15/employee/month). HR managers get a company dashboard. API access for enterprise integrations with HRMS and payroll systems. White-label option for PRO typing centres, legal firms, and PRO service companies to offer NeverExpire as their own branded product.</p>
+        <div class="fv-note">💼 Revenue model: Business SaaS subscriptions, white-label licensing, and premium feature tiers.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ TECH ═══════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">Technical</div>
+    <h2 class="section-title">Architecture at a Glance</h2>
+    <p class="section-sub">Built for reliability and scale from the first day. Ready to migrate from SQLite to PostgreSQL and from Railway to any cloud provider without architectural changes.</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="fc-icon">⚙️</span>
+        <h4>Backend — Flask REST API</h4>
+        <p>Python Flask with SQLAlchemy ORM. Pure REST — no server-side rendering. JWT authentication. SQLite for development, PostgreSQL-ready for production. Deployed on Railway.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">🌐</span>
+        <h4>Web — React + Vite</h4>
+        <p>TypeScript React application. Tailwind CSS with glassmorphic design system. Axios API client with automatic JWT injection. Vite for fast builds and development.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">📱</span>
+        <h4>Mobile — React Native (Expo)</h4>
+        <p>Managed Expo SDK 54 workflow. No native build configuration needed. React Navigation v6. Compatible with Expo Go for testing. iOS + Android from a single codebase.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">🤖</span>
+        <h4>AI — Anthropic Claude</h4>
+        <p>Claude AI reads document photos and PDFs to extract structured data. Configurable model (currently claude-sonnet-4-6). Confidence scoring returned with every extraction.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">🖼️</span>
+        <h4>File Processing — Pillow</h4>
+        <p>Automatic watermarking of all uploaded document images. Tiled pattern applied server-side. File ownership verified before serving. Avatars resized to 200×200 automatically.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon">🔒</span>
+        <h4>Security</h4>
+        <p>Ownership-checked endpoints (cross-user access denied). bcrypt password hashing. JWT tokens with configurable expiry. CORS configured for web and mobile clients.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<div class="footer">
+  <div class="footer-left">
+    <strong style="color:var(--teal-light);">NeverExpire</strong> — AI-Powered Document Expiry Management<br/>
+    <span style="font-size:12px;">V2.0 Product Roadmap &amp; Feature Overview · July 2026</span>
+  </div>
+  <div class="footer-right">
+    Confidential — Internal Use Only<br/>
+    Not for external distribution
+  </div>
+</div>
+
+</body>
+</html>

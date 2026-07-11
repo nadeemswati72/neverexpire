@@ -39,31 +39,36 @@ def run() -> None:
             print("No document types found — run seed.py first.")
             return
 
-        # Admin
-        admin_user, admin_person = register_user(session, "demoadmin@neverexpire.test", DEMO_PASSWORD, "Demo Admin")
-        promote_to_admin(session, admin_user.email)
-        _doc(session, types, admin_person, "OTHER", "Software License", -100, 365)
-
-        # Alice's family
+        # ========== USER 1: ALICE ==========
         alice_user, alice = register_user(session, "alice@neverexpire.test", DEMO_PASSWORD, "Alice Johnson", date(1990, 4, 12))
         _doc(session, types, alice, "PASSPORT", "Alice Passport", -365*3, 365*7,
              document_number="A12345678", issuing_authority="UAE ICA", holder_name="Alice Johnson")
         _doc(session, types, alice, "DRIVING_LICENSE", "Alice Driving License", -365, 365*4,
              document_number="DL-9988776")
-        _doc(session, types, alice, "HEALTH_INSURANCE", "Family Health Insurance", -180, 60)
-        _doc(session, types, alice, "VEHICLE_REGISTRATION", "Car Registration", -300, 15)
+        _doc(session, types, alice, "HEALTH_INSURANCE", "Alice Health Insurance", -180, 60)
+        _doc(session, types, alice, "VEHICLE_REGISTRATION", "Alice Car Registration", -300, 15)
 
-        bob, _ = add_family_member(session, alice.id, "Bob Johnson", "SPOUSE", date(1988, 7, 20))
+        # ========== USER 2: BOB (Independent User, not family) ==========
+        bob_user, bob = register_user(session, "bob@neverexpire.test", DEMO_PASSWORD, "Bob Smith", date(1988, 7, 20))
         _doc(session, types, bob, "PASSPORT", "Bob Passport", -365*2, -10,
-             document_number="B98765432", issuing_authority="UAE ICA", holder_name="Bob Johnson")
-        _doc(session, types, bob, "VISA", "UAE Residence Visa", -365, 80)
+             document_number="B98765432", issuing_authority="UAE ICA", holder_name="Bob Smith")
+        _doc(session, types, bob, "VISA", "Bob UAE Residence Visa", -365, 80)
+        _doc(session, types, bob, "DRIVING_LICENSE", "Bob Driving License", -200, 365*3,
+             document_number="DL-5544332")
+        _doc(session, types, bob, "HEALTH_INSURANCE", "Bob Health Insurance", -150, 90)
 
-        emma, _ = add_family_member(session, alice.id, "Emma Johnson", "CHILD", date(2015, 3, 5))
-        _doc(session, types, emma, "PASSPORT", "Emma Passport", -365, 365*4,
-             document_number="E11223344", holder_name="Emma Johnson")
+        # ========== USER 3: CAROL (Independent User) ==========
+        carol_user, carol = register_user(session, "carol@neverexpire.test", DEMO_PASSWORD, "Carol Davis", date(1995, 11, 8))
+        _doc(session, types, carol, "PASSPORT", "Carol Passport", -365, 365*5,
+             document_number="C55667788", issuing_authority="UAE ICA", holder_name="Carol Davis")
+        _doc(session, types, carol, "HEALTH_INSURANCE", "Carol Health Insurance", -100, 150)
+        _doc(session, types, carol, "VEHICLE_REGISTRATION", "Carol Car Registration", -250, 200)
 
         session.commit()
-        print("Demo data seeded: alice@neverexpire.test / Demo@1234")
+        print("Demo data seeded with 3 independent users:")
+        print("  1. alice@neverexpire.test / Demo@1234 (ID: 1)")
+        print("  2. bob@neverexpire.test / Demo@1234 (ID: 2)")
+        print("  3. carol@neverexpire.test / Demo@1234 (ID: 3)")
 
 
 if __name__ == "__main__":

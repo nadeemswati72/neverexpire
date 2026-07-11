@@ -1,5 +1,6 @@
 from .audit import AuditLog
 from .document import Document, DocumentExtractionRun, DocumentFile
+from .document_share import DocumentShare, PersonShareGrant
 from .document_type import DocumentFieldDefinition, DocumentType, DocumentTypeTranslation
 from .language import Language
 from .person import FamilyRelationType, Person, PersonRelationship
@@ -12,6 +13,7 @@ __all__ = [
     "DocumentExtractionRun",
     "DocumentFieldDefinition",
     "DocumentFile",
+    "DocumentShare",
     "DocumentType",
     "DocumentTypeTranslation",
     "DocumentReminder",
@@ -19,6 +21,7 @@ __all__ = [
     "Language",
     "Person",
     "PersonRelationship",
+    "PersonShareGrant",
     "ReminderRule",
     "User",
 ]

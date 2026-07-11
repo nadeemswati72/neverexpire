@@ -8,6 +8,7 @@ from ..base import Base, TimestampMixin
 
 if TYPE_CHECKING:
     from .document import Document
+    from .document_share import PersonShareGrant
     from .user import User
 
 
@@ -31,6 +32,9 @@ class Person(Base, TimestampMixin):
     relationships_to: Mapped[list["PersonRelationship"]] = relationship(
         back_populates="related_person",
         foreign_keys="PersonRelationship.related_person_id",
+    )
+    share_grants: Mapped[list["PersonShareGrant"]] = relationship(
+        back_populates="person", cascade="all, delete-orphan"
     )
 
 

@@ -7,6 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ..base import Base, TimestampMixin
 
 if TYPE_CHECKING:
+    from .document_share import DocumentShare
     from .document_type import DocumentType
     from .person import Person
     from .reminder import DocumentReminder
@@ -44,6 +45,9 @@ class Document(Base, TimestampMixin):
         back_populates="document", cascade="all, delete-orphan"
     )
     reminders: Mapped[list["DocumentReminder"]] = relationship(
+        back_populates="document", cascade="all, delete-orphan"
+    )
+    shares: Mapped[list["DocumentShare"]] = relationship(
         back_populates="document", cascade="all, delete-orphan"
     )
 

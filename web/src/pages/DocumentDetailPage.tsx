@@ -6,6 +6,7 @@ import StatusBadge from '../components/StatusBadge'
 import Sidebar from '../components/Sidebar'
 import AuthenticatedImage from '../components/AuthenticatedImage'
 import { fetchMe } from '../auth'
+import { ShareModal } from '../components/ShareModal'
 
 interface DocFile {
   id: number
@@ -88,6 +89,7 @@ export default function DocumentDetailPage() {
   const [editNotes, setEditNotes] = useState('')
   const [saving, setSaving] = useState(false)
   const [previewFile, setPreviewFile] = useState<DocFile | null>(null)
+  const [showShareModal, setShowShareModal] = useState(false)
 
   useEffect(() => {
     Promise.all([
@@ -169,6 +171,7 @@ export default function DocumentDetailPage() {
                 <button onClick={handleDelete} disabled={deleting} style={{ background: 'rgba(229,62,62,0.08)', border: '1px solid rgba(229,62,62,0.2)', borderRadius: 8, padding: '7px 14px', fontSize: 13, color: '#c53030', cursor: 'pointer' }}>
                   {deleting ? 'Deleting…' : '🗑 Delete'}
                 </button>
+                <button onClick={() => setShowShareModal(true)} style={{ background: 'rgba(52,201,186,0.1)', border: '1px solid rgba(52,201,186,0.3)', borderRadius: 8, padding: '7px 16px', fontSize: 13, color: '#22a99c', cursor: 'pointer', fontWeight: 600 }}>👥 Share</button>
                 <button onClick={() => setEditing(true)} style={{ background: 'linear-gradient(135deg, #34c9ba, #22a99c)', color: 'white', border: 'none', borderRadius: 8, padding: '7px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>✏️ Edit</button>
               </>
             )}
@@ -285,6 +288,13 @@ export default function DocumentDetailPage() {
           </div>
         </div>
       </div>
+
+      <ShareModal
+        documentId={doc.id}
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        onShareSuccess={() => {}}
+      />
     </div>
   )
 }

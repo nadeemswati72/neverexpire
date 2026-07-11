@@ -39,10 +39,16 @@ def apply_watermark(source_path: str | Path) -> Path | None:
 
     tile = Image.new("RGBA", (tile_w, tile_h), (0, 0, 0, 0))
     td = ImageDraw.Draw(tile)
-    # Main text
-    td.text((font_size, font_size // 2), WATERMARK_TEXT, font=font, fill=(255, 255, 255, 110))
-    # Sub text
-    td.text((font_size, font_size // 2 + (bb1[3] - bb1[1]) + 4), WATERMARK_SUBTEXT, font=sub_font, fill=(255, 255, 255, 90))
+    # Draw semi-opaque background box for better contrast
+    box_padding = font_size // 2
+    td.rectangle(
+        [(0, 0), (tile_w, tile_h)],
+        fill=(0, 0, 0, 120)
+    )
+    # Main text (increased opacity from 110 to 220 for better visibility)
+    td.text((font_size, font_size // 2), WATERMARK_TEXT, font=font, fill=(255, 255, 255, 220))
+    # Sub text (increased opacity from 90 to 190)
+    td.text((font_size, font_size // 2 + (bb1[3] - bb1[1]) + 4), WATERMARK_SUBTEXT, font=sub_font, fill=(255, 255, 255, 190))
 
     # Rotate tile ~30 degrees
     angle = 25

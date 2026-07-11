@@ -8,6 +8,7 @@ from .documents import documents_bp
 from .family import family_bp
 from .files import files_bp
 from .health import health_bp
+from .sharing import sharing_bp
 
 
 def register_blueprints(app: Flask) -> None:
@@ -19,3 +20,4 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(documents_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(files_bp)
+    app.register_blueprint(sharing_bp)

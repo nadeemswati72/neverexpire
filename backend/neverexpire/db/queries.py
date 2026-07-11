@@ -25,6 +25,11 @@ def get_persons_for_user(session: Session, user_id: int) -> list[Person]:
     )
 
 
+def get_person(session: Session, person_id: int) -> Person | None:
+    """Get a single person by ID."""
+    return session.query(Person).filter_by(id=person_id, is_active=True).first()
+
+
 def _apply_status_filter(query, status_filter: str | None, today: date, horizon: date):
     if status_filter == "expiring_soon":
         return query.filter(

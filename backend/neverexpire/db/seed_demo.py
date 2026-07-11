@@ -30,9 +30,16 @@ def _doc(session, types, person, code, title, issued_offset, expiry_offset, **kw
 def run() -> None:
     init_engine()
     with get_session() as session:
-        if session.query(User).filter_by(email="alice@neverexpire.test").first():
-            print("Demo data already seeded. Aborting.")
-            return
+        # Delete old demo data if it exists
+        old_alice = session.query(User).filter_by(email="alice@neverexpire.test").first()
+        if old_alice:
+            # Delete users and cascade to related data
+            for email in ["alice@neverexpire.test", "bob@neverexpire.test", "carol@neverexpire.test", "demoadmin@neverexpire.test"]:
+                user = session.query(User).filter_by(email=email).first()
+                if user:
+                    session.delete(user)
+            session.commit()
+            print("Cleared old demo data.")
 
         types = {dt.code: dt for dt in session.query(DocumentType).all()}
         if not types:

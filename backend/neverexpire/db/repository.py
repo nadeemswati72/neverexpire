@@ -5,11 +5,35 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from ..extractor import EXTENSION_MEDIA_TYPES, ExpiryExtraction
+from ..storage import (
+    LocalStorageBackend,
+    gdrive_cache_path,
+    get_storage_backend,
+    get_storage_backend_for_id,
+)
 from .models import Document, DocumentExtractionRun, DocumentFile, DocumentType
 
 # Sentinel distinguishing "no confirmed value supplied" (fall back to the
 # extracted value) from "user confirmed an empty/blank value" (use None).
 _UNSET: Any = object()
+
+
+def _persist_uploaded_file(local_path: Path) -> tuple[str, int | None]:
+    """
+    Hand a freshly-saved local file off to the configured storage backend.
+
+    Local backend: no-op, the path already IS the storage location.
+    Google Drive backend: uploads the encrypted file to Drive and deletes
+    the local temp copy, returning a "gdrive:<file_id>" reference instead.
+    """
+    size = local_path.stat().st_size if local_path.exists() else None
+    backend = get_storage_backend()
+    if isinstance(backend, LocalStorageBackend):
+        return str(local_path), size
+
+    storage_id = backend.save_file(str(local_path), local_path.name)
+    local_path.unlink(missing_ok=True)
+    return storage_id, size
 
 
 def parse_date(value: str | None) -> date | None:
@@ -81,13 +105,15 @@ def create_document_from_extraction(
     session.flush()
 
     _, mime_type = EXTENSION_MEDIA_TYPES.get(path.suffix.lower(), (None, None))
+    original_name = path.name
+    stored_path, size = _persist_uploaded_file(path)
     document_file = DocumentFile(
         document_id=document.id,
-        file_path=str(path),
+        file_path=stored_path,
         watermarked_file_path=str(watermarked_file_path) if watermarked_file_path else None,
-        original_filename=path.name,
+        original_filename=original_name,
         mime_type=mime_type,
-        file_size_bytes=path.stat().st_size if path.exists() else None,
+        file_size_bytes=size,
     )
     session.add(document_file)
     session.flush()
@@ -110,11 +136,42 @@ def create_document_from_extraction(
     return document
 
 
+def add_document_file(session: Session, document_id: int, file_path: str | Path) -> DocumentFile:
+    """Attach a plain file (photo/scan) to an existing document, without AI extraction."""
+    path = Path(file_path)
+    _, mime_type = EXTENSION_MEDIA_TYPES.get(path.suffix.lower(), (None, None))
+    original_name = path.name
+    stored_path, size = _persist_uploaded_file(path)
+    document_file = DocumentFile(
+        document_id=document_id,
+        file_path=stored_path,
+        original_filename=original_name,
+        mime_type=mime_type,
+        file_size_bytes=size,
+    )
+    session.add(document_file)
+    session.commit()
+    session.refresh(document_file)
+    return document_file
+
+
 def delete_document(session: Session, document: Document) -> None:
     for file in document.files:
+        if file.file_path.startswith("gdrive:"):
+            get_storage_backend_for_id(file.file_path).delete_file(file.file_path)
+            # Clean up any local decrypted working copy + its watermark variants.
+            cache_source = gdrive_cache_path(file.file_path, Path(file.original_filename).suffix)
+            for cache_variant in cache_source.parent.glob(f"{cache_source.stem}*{cache_source.suffix}"):
+                cache_variant.unlink(missing_ok=True)
+            continue
+
         for path_str in (file.file_path, file.watermarked_file_path):
             if path_str:
                 Path(path_str).unlink(missing_ok=True)
+        # Also clean up personalized per-recipient watermark variants (_wm_<tag>).
+        source = Path(file.file_path)
+        for wm_variant in source.parent.glob(f"{source.stem}_wm*{source.suffix}"):
+            wm_variant.unlink(missing_ok=True)
     session.delete(document)
     session.commit()
 

@@ -25,3 +25,19 @@ CORS_ORIGINS = os.getenv(
     "CORS_ORIGINS",
     "http://localhost:5173,http://localhost:8081,https://neverexpire-poc.vercel.app"
 ).split(",")
+
+# Gmail SMTP (PoC email reminders) — App Password, not the account password.
+GMAIL_ADDRESS = os.getenv("GMAIL_ADDRESS", "")
+GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD", "")
+
+# PoC safety: demo accounts use fake @neverexpire.test addresses that can't
+# receive real mail, so every reminder email is redirected here instead.
+REMINDER_TEST_RECIPIENT = GMAIL_ADDRESS
+
+# Google Drive storage (new uploads only — existing local files are untouched).
+STORAGE_BACKEND = os.getenv("STORAGE_BACKEND", "local")
+ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", "")
+GOOGLE_CLIENT_SECRET_PATH = DATA_DIR / "google_client_secret.json"
+GOOGLE_TOKEN_PATH = DATA_DIR / "google_token.json"
+GOOGLE_DRIVE_FOLDER_NAME = "NeverExpire Documents"
+GOOGLE_DRIVE_SCOPES = ["https://www.googleapis.com/auth/drive.file"]

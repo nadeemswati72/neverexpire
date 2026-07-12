@@ -79,7 +79,12 @@ export default function MyDocumentsScreen() {
         />
       </View>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.filterScroll}
+        contentContainerStyle={styles.filterRow}
+      >
         {FILTERS.map((filter) => {
           const active = activeFilter === filter.key;
           return (
@@ -95,7 +100,7 @@ export default function MyDocumentsScreen() {
         })}
       </ScrollView>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.listScroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {filteredDocuments.length === 0 ? (
           <EmptyState
             icon="document-text-outline"
@@ -131,10 +136,20 @@ const styles = StyleSheet.create({
   searchInput: {
     marginBottom: SPACING.md,
   },
+  // flexGrow: 0 stops the horizontal chip strip from flexing against the
+  // document list below — without it the strip's height varies with how
+  // many documents the list holds.
+  filterScroll: {
+    flexGrow: 0,
+  },
   filterRow: {
     paddingHorizontal: SPACING.lg,
     paddingBottom: SPACING.md,
     gap: SPACING.sm,
+    alignItems: "center",
+  },
+  listScroll: {
+    flex: 1,
   },
   filterChip: {
     borderWidth: 1,

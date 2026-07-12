@@ -12,9 +12,10 @@ import { DEMO_USERS, DEMO_PASSWORD } from "../../data/mockUsers";
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOW } from "../../constants/theme";
 
 /**
- * Demo-mode login. Validates input locally, then calls AuthContext.login,
- * which checks the email/password against DEMO_USERS (see AuthService).
- * The "Demo accounts" card lets testers autofill either seeded account.
+ * Login against the real Flask backend. Validates input locally, then calls
+ * AuthContext.login, which POSTs to /api/v1/auth/login (see AuthService).
+ * The "Demo accounts" card autofills one of the real seeded accounts from
+ * backend/seed_rich_demo.py.
  */
 export default function LoginScreen() {
   const { login } = useAuth();

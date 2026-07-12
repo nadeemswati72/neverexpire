@@ -9,6 +9,8 @@ import Avatar from "../../components/common/Avatar";
 import AppTextInput from "../../components/common/AppTextInput";
 import AppButton from "../../components/common/AppButton";
 import { useAppData } from "../../context/DataContext";
+import { useAuth } from "../../context/AuthContext";
+import { authHeader } from "../../services/ApiService";
 import { DOCUMENT_TYPE_LIST, mapExtractedDocumentType } from "../../constants/documentTypes";
 import { extractDocumentDetails, ExtractionError } from "../../services/ExtractionService";
 import { validateDocumentForm, isValidISODate } from "../../utils/validators";
@@ -26,6 +28,7 @@ export default function DocumentFormScreen() {
   const route = useRoute();
   const { imageUri: pickedImageUri, documentId, familyMemberId: preselectedFamilyMemberId } = route.params || {};
   const { familyMembers, getDocumentById, saveDocument } = useAppData();
+  const { token } = useAuth();
 
   const existingDocument = documentId ? getDocumentById(documentId) : null;
   const isEditing = !!existingDocument;
@@ -89,7 +92,7 @@ export default function DocumentFormScreen() {
 
     setIsSaving(true);
     try {
-      const updatedList = await saveDocument({
+      const savedDocument = await saveDocument({
         id: existingDocument?.id,
         familyMemberId,
         documentType,
@@ -103,10 +106,6 @@ export default function DocumentFormScreen() {
         dateOfBirth: existingDocument?.dateOfBirth ?? null,
       });
 
-      const savedDocument = isEditing
-        ? updatedList.find((doc) => doc.id === existingDocument.id)
-        : updatedList[0];
-
       navigation.replace(ROUTES.DOCUMENT_DETAILS, { documentId: savedDocument.id });
     } finally {
       setIsSaving(false);
@@ -118,7 +117,7 @@ export default function DocumentFormScreen() {
       <Header variant="back" title={isEditing ? "Edit Document" : "Add Document"} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {imageUri ? (
-          <Image source={{ uri: imageUri }} style={styles.image} />
+          <Image source={{ uri: imageUri, headers: authHeader(token) }} style={styles.image} />
         ) : (
           <View style={styles.imagePlaceholder}>
             <Ionicons name="image-outline" size={32} color={COLORS.textMuted} />

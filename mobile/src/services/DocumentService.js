@@ -1,55 +1,121 @@
-import { DEFAULT_DOCUMENTS } from "../data/mockDocuments";
+import { API_V1_URL } from "../constants/api";
 import { EXPIRY_STATUS, getExpiryStatus } from "../utils/dateUtils";
-import * as StorageService from "./StorageService";
+import * as ApiService from "./ApiService";
 
 /**
- * Document CRUD against AsyncStorage, seeded from DEFAULT_DOCUMENTS on first
- * run. Documents from every demo account live in the same array; callers
- * (DataContext) filter by `userId`.
+ * Document CRUD against the real Flask backend (was AsyncStorage). Backend
+ * field names are translated to/from the shape screens already expect
+ * (documentType, familyMemberId, fullName, etc.) so screens don't need to
+ * change — except image rendering, which now needs an Authorization header
+ * (see imageUrlFor below) since files are served from an authenticated
+ * endpoint rather than a local device URI.
  */
 
-export async function getAllDocuments() {
-  const stored = await StorageService.getItem(StorageService.STORAGE_KEYS.DOCUMENTS);
-  if (stored && stored.length) return stored;
+// Mobile's DOCUMENT_TYPES uses "EMIRATES_ID"; the backend's document_types
+// table uses "ID_CARD". Everything else lines up 1:1.
+const TYPE_MOBILE_TO_BACKEND = { EMIRATES_ID: "ID_CARD" };
+const TYPE_BACKEND_TO_MOBILE = { ID_CARD: "EMIRATES_ID" };
 
-  await StorageService.setItem(StorageService.STORAGE_KEYS.DOCUMENTS, DEFAULT_DOCUMENTS);
-  return DEFAULT_DOCUMENTS;
+function toBackendType(mobileCode) {
+  return TYPE_MOBILE_TO_BACKEND[mobileCode] || mobileCode || "OTHER";
+}
+
+function toMobileType(backendCode) {
+  return TYPE_BACKEND_TO_MOBILE[backendCode] || backendCode || "OTHER";
+}
+
+/** Authenticated file URL — pair with { headers: authHeader } on <Image source>. */
+export function imageUrlFor(fileId) {
+  return `${API_V1_URL}/files/${fileId}`;
+}
+
+function toAppDocument(backendDoc) {
+  const firstFile = backendDoc.files?.[0];
+  return {
+    id: backendDoc.id,
+    familyMemberId: backendDoc.person_id,
+    documentType: toMobileType(backendDoc.document_type?.code),
+    fullName: backendDoc.holder_name || backendDoc.person?.full_name || "",
+    documentNumber: backendDoc.document_number,
+    dateOfBirth: backendDoc.person?.date_of_birth || null,
+    issuedDate: backendDoc.issued_date,
+    expiryDate: backendDoc.expiry_date,
+    issuedBy: backendDoc.issuing_authority,
+    notes: backendDoc.notes,
+    imageUri: firstFile ? imageUrlFor(firstFile.id) : null,
+    imageFileId: firstFile?.id || null,
+    createdAt: backendDoc.created_at,
+  };
+}
+
+export async function getAllDocuments() {
+  const docs = await ApiService.get("/documents");
+  return docs.map(toAppDocument);
+}
+
+export async function getDocument(documentId) {
+  const doc = await ApiService.get(`/documents/${documentId}`);
+  return toAppDocument(doc);
+}
+
+async function uploadDocumentImage(documentId, imageUri) {
+  const filename = imageUri.split("/").pop() || "document.jpg";
+  const extension = filename.split(".").pop()?.toLowerCase();
+  const type = extension === "png" ? "image/png" : extension === "pdf" ? "application/pdf" : "image/jpeg";
+
+  const formData = new FormData();
+  formData.append("file", { uri: imageUri, name: filename, type });
+  await ApiService.postForm(`/documents/${documentId}/files`, formData);
 }
 
 /**
  * Creates a new document (when `document.id` is absent) or updates an
- * existing one in place. Returns the full updated list.
+ * existing one. Returns { documents, saved } — the full refreshed list plus
+ * the single document that was just created/updated (callers should
+ * navigate using `saved.id` rather than assuming list order).
  */
 export async function saveDocument(document) {
-  const documents = await getAllDocuments();
+  const isNewLocalImage = document.imageUri && !document.imageUri.startsWith("http");
 
-  let updated;
+  const payload = {
+    document_type_code: toBackendType(document.documentType),
+    title: document.fullName || "Untitled Document",
+    document_number: document.documentNumber || null,
+    issued_date: document.issuedDate || null,
+    expiry_date: document.expiryDate || null,
+    issuing_authority: document.issuedBy || null,
+    holder_name: document.fullName || null,
+    notes: document.notes || null,
+  };
+
+  let savedId = document.id;
   if (document.id) {
-    updated = documents.map((doc) => (doc.id === document.id ? { ...doc, ...document } : doc));
+    await ApiService.put(`/documents/${document.id}`, payload);
   } else {
-    const newDocument = {
-      ...document,
-      id: `doc-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-    };
-    updated = [newDocument, ...documents];
+    const created = await ApiService.post("/documents", {
+      ...payload,
+      person_id: document.familyMemberId,
+    });
+    savedId = created.id;
   }
 
-  await StorageService.setItem(StorageService.STORAGE_KEYS.DOCUMENTS, updated);
-  return updated;
+  if (isNewLocalImage) {
+    await uploadDocumentImage(savedId, document.imageUri);
+  }
+
+  const [documents, saved] = await Promise.all([getAllDocuments(), getDocument(savedId)]);
+  return { documents, saved };
 }
 
 export async function deleteDocument(documentId) {
-  const documents = await getAllDocuments();
-  const updated = documents.filter((doc) => doc.id !== documentId);
-  await StorageService.setItem(StorageService.STORAGE_KEYS.DOCUMENTS, updated);
-  return updated;
+  await ApiService.del(`/documents/${documentId}`);
+  return getAllDocuments();
 }
 
 /**
  * Dashboard summary counts. "Expiring Soon" counts anything that needs
- * attention now — already expired or due within the 30-day threshold —
- * matching the "Needs Attention" filter on the NeverExpire web dashboard.
+ * attention now — already expired or due within the threshold — matching
+ * the "Needs Attention" filter on the NeverExpire web dashboard.
  */
 export function getDashboardSummary(documents) {
   const totalCount = documents.length;

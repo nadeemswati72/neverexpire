@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, Modal, StyleSheet } from "react-native";
+import { View, Text, ScrollView, Modal, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
@@ -9,10 +9,9 @@ import AppTextInput from "../../components/common/AppTextInput";
 import AppButton from "../../components/common/AppButton";
 import EmptyState from "../../components/common/EmptyState";
 import { useAppData } from "../../context/DataContext";
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOW } from "../../constants/theme";
+import { RELATION_TYPES } from "../../services/FamilyService";
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOW, withOpacity } from "../../constants/theme";
 import { ROUTES } from "../../navigation/routes";
-
-const AVATAR_COLORS = ["#4F8EF7", "#8B5CF6", "#34C38F", "#EF5DA8", "#F2994A", "#22B8CF"];
 
 /** Family Members list (Mobile.jpg screen 5) with an inline "add member" modal. */
 export default function FamilyMembersScreen() {
@@ -21,13 +20,13 @@ export default function FamilyMembersScreen() {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [name, setName] = useState("");
-  const [relationship, setRelationship] = useState("");
+  const [relationshipCode, setRelationshipCode] = useState(RELATION_TYPES[0].code);
   const [error, setError] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
 
   const openModal = () => {
     setName("");
-    setRelationship("");
+    setRelationshipCode(RELATION_TYPES[0].code);
     setError(null);
     setIsModalVisible(true);
   };
@@ -35,20 +34,14 @@ export default function FamilyMembersScreen() {
   const closeModal = () => setIsModalVisible(false);
 
   const handleAddMember = async () => {
-    if (!name.trim() || !relationship.trim()) {
-      setError("Both name and relationship are required.");
+    if (!name.trim()) {
+      setError("Name is required.");
       return;
     }
 
     setIsSaving(true);
     try {
-      const avatarColor = AVATAR_COLORS[familyMembers.length % AVATAR_COLORS.length];
-      await addFamilyMember({
-        name: name.trim(),
-        relationship: relationship.trim(),
-        avatarColor,
-        isSelf: false,
-      });
+      await addFamilyMember({ name: name.trim(), relationshipCode });
       closeModal();
     } finally {
       setIsSaving(false);
@@ -93,13 +86,26 @@ export default function FamilyMembersScreen() {
               onChangeText={setName}
               autoCapitalize="words"
             />
-            <AppTextInput
-              label="Relationship"
-              placeholder="e.g. Wife, Son, Daughter"
-              value={relationship}
-              onChangeText={setRelationship}
-              autoCapitalize="words"
-            />
+
+            <Text style={styles.pickerLabel}>Relationship</Text>
+            <View style={styles.chipRow}>
+              {RELATION_TYPES.map((type) => {
+                const selected = relationshipCode === type.code;
+                return (
+                  <TouchableOpacity
+                    key={type.code}
+                    style={[
+                      styles.relationChip,
+                      selected && { borderColor: type.color, backgroundColor: withOpacity(type.color, 0.1) },
+                    ]}
+                    onPress={() => setRelationshipCode(type.code)}
+                    activeOpacity={0.85}
+                  >
+                    <Text style={[styles.relationChipText, selected && { color: type.color }]}>{type.label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
 
             {error ? <Text style={styles.modalError}>{error}</Text> : null}
 
@@ -138,6 +144,30 @@ const styles = StyleSheet.create({
     fontWeight: FONT_WEIGHTS.semibold,
     color: COLORS.textPrimary,
     marginBottom: SPACING.lg,
+  },
+  pickerLabel: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: FONT_WEIGHTS.medium,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.sm,
+  },
+  chipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: SPACING.sm,
+    marginBottom: SPACING.md,
+  },
+  relationChip: {
+    paddingVertical: SPACING.xs,
+    paddingHorizontal: SPACING.md,
+    borderRadius: RADIUS.pill,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  relationChipText: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: FONT_WEIGHTS.medium,
+    color: COLORS.textSecondary,
   },
   modalError: {
     fontSize: FONT_SIZES.xs,

@@ -1,32 +1,52 @@
-import React, { useMemo } from "react";
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import React, { useMemo, useState } from "react";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
 import Header from "../../components/common/Header";
 import Card from "../../components/common/Card";
+import Avatar from "../../components/common/Avatar";
 import SectionHeader from "../../components/common/SectionHeader";
 import SummaryCard from "../../components/documents/SummaryCard";
+import StatusOverview from "../../components/documents/StatusOverview";
 import DocumentListItem from "../../components/documents/DocumentListItem";
 import EmptyState from "../../components/common/EmptyState";
 import { useAuth } from "../../context/AuthContext";
 import { useAppData } from "../../context/DataContext";
-import { daysRemaining } from "../../utils/dateUtils";
-import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS } from "../../constants/theme";
+import { EXPIRY_STATUS, getExpiryStatus, daysRemaining } from "../../utils/dateUtils";
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, withOpacity } from "../../constants/theme";
 import { ROUTES } from "../../navigation/routes";
 
 const RECENT_LIMIT = 5;
 
-/** Dashboard / "My Documents" home screen (Mobile.jpg screen 2). */
+/**
+ * Dashboard home screen. Tapping a family member chip narrows the summary
+ * cards, donut chart, and recent list to that member — mirroring the web
+ * dashboard's sidebar person filter.
+ */
 export default function DashboardScreen() {
   const navigation = useNavigation();
   const { user } = useAuth();
-  const { documents, summary, getFamilyMemberById } = useAppData();
+  const { documents, familyMembers, getFamilyMemberById } = useAppData();
+  const [selectedMemberId, setSelectedMemberId] = useState(null);
 
   const firstName = (user?.name || "").split(" ")[0];
 
+  const visibleDocuments = useMemo(
+    () => (selectedMemberId ? documents.filter((doc) => doc.familyMemberId === selectedMemberId) : documents),
+    [documents, selectedMemberId]
+  );
+
+  const summary = useMemo(() => {
+    const expiringSoonCount = visibleDocuments.filter((doc) => {
+      const status = getExpiryStatus(doc.expiryDate);
+      return status === EXPIRY_STATUS.EXPIRING_SOON || status === EXPIRY_STATUS.EXPIRED;
+    }).length;
+    return { totalCount: visibleDocuments.length, expiringSoonCount };
+  }, [visibleDocuments]);
+
   const recentDocuments = useMemo(() => {
-    return [...documents]
+    return [...visibleDocuments]
       .sort((a, b) => {
         const daysA = daysRemaining(a.expiryDate);
         const daysB = daysRemaining(b.expiryDate);
@@ -35,7 +55,9 @@ export default function DashboardScreen() {
         return daysA - daysB;
       })
       .slice(0, RECENT_LIMIT);
-  }, [documents]);
+  }, [visibleDocuments]);
+
+  const selectedMember = selectedMemberId ? getFamilyMemberById(selectedMemberId) : null;
 
   const openDocument = (documentId) => {
     navigation.navigate(ROUTES.DOCUMENT_DETAILS, { documentId });
@@ -57,8 +79,45 @@ export default function DashboardScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.greeting}>
           <Text style={styles.greetingTitle}>Hello, {firstName} 👋</Text>
-          <Text style={styles.greetingSubtitle}>Here's your document overview</Text>
+          <Text style={styles.greetingSubtitle}>
+            {selectedMember ? `Showing ${selectedMember.name}'s documents` : "Here's your document overview"}
+          </Text>
         </View>
+
+        {familyMembers.length > 1 ? (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.memberScroll}
+            contentContainerStyle={styles.memberRow}
+          >
+            <TouchableOpacity
+              style={[styles.memberChip, selectedMemberId === null && styles.memberChipActive]}
+              onPress={() => setSelectedMemberId(null)}
+              activeOpacity={0.85}
+            >
+              <Text style={[styles.memberChipText, selectedMemberId === null && styles.memberChipTextActive]}>
+                All
+              </Text>
+            </TouchableOpacity>
+            {familyMembers.map((member) => {
+              const active = selectedMemberId === member.id;
+              return (
+                <TouchableOpacity
+                  key={member.id}
+                  style={[styles.memberChip, active && styles.memberChipActive]}
+                  onPress={() => setSelectedMemberId(active ? null : member.id)}
+                  activeOpacity={0.85}
+                >
+                  <Avatar name={member.name} color={member.avatarColor} size={22} />
+                  <Text style={[styles.memberChipText, active && styles.memberChipTextActive]} numberOfLines={1}>
+                    {member.isSelf ? "Me" : member.name.split(" ")[0]}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        ) : null}
 
         <View style={styles.summaryRow}>
           <SummaryCard
@@ -77,6 +136,11 @@ export default function DashboardScreen() {
             onPress={() => openAllDocuments("all")}
           />
         </View>
+
+        <StatusOverview
+          documents={visibleDocuments}
+          title={selectedMember ? `${selectedMember.name}'s Status` : "Family Status Overview"}
+        />
 
         <SectionHeader
           title="Recent Documents"
@@ -118,7 +182,7 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.xxxl,
   },
   greeting: {
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.lg,
   },
   greetingTitle: {
     fontSize: FONT_SIZES.xxl,
@@ -129,6 +193,39 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.md,
     color: COLORS.textSecondary,
     marginTop: SPACING.xs,
+  },
+  memberScroll: {
+    flexGrow: 0,
+    marginBottom: SPACING.lg,
+  },
+  memberRow: {
+    gap: SPACING.sm,
+    alignItems: "center",
+  },
+  memberChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: RADIUS.pill,
+    paddingVertical: 6,
+    paddingHorizontal: SPACING.md,
+    backgroundColor: COLORS.surface,
+  },
+  memberChipActive: {
+    borderColor: COLORS.accent,
+    backgroundColor: withOpacity(COLORS.accent, 0.12),
+  },
+  memberChipText: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: FONT_WEIGHTS.medium,
+    color: COLORS.textSecondary,
+    maxWidth: 90,
+  },
+  memberChipTextActive: {
+    color: COLORS.accentDark,
+    fontWeight: FONT_WEIGHTS.semibold,
   },
   summaryRow: {
     flexDirection: "row",

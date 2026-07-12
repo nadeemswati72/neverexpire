@@ -12,6 +12,7 @@ export const STORAGE_KEYS = {
   CURRENT_USER: `${NAMESPACE}:currentUser`,
   FAMILY_MEMBERS: `${NAMESPACE}:familyMembers`,
   DOCUMENTS: `${NAMESPACE}:documents`,
+  AUTH_TOKEN: `${NAMESPACE}:authToken`,
 };
 
 export async function getItem(key, fallback = null) {

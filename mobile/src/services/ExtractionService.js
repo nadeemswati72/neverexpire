@@ -1,9 +1,11 @@
-import { API_BASE_URL } from "../constants/api";
+import { API_V1_URL } from "../constants/api";
+import * as ApiService from "./ApiService";
 
 /**
- * AI document extraction via the Flask backend's /api/extract endpoint
- * (wraps neverexpire/extractor.py). No auth — requires the phone and the
- * dev machine to be on the same Wi-Fi network as the Flask dev server.
+ * AI document extraction via the real Flask backend's
+ * POST /api/v1/documents/extract (wraps neverexpire/extractor.py). Requires
+ * auth (JWT) and requires the phone and dev machine to be on the same Wi-Fi
+ * network as the Flask dev server.
  */
 
 export class ExtractionError extends Error {}
@@ -25,12 +27,14 @@ export async function extractDocumentDetails(fileUri) {
   const formData = new FormData();
   formData.append("file", { uri: fileUri, name: filename, type });
 
+  const token = await ApiService.getAuthToken();
+
   let response;
   try {
-    response = await fetch(`${API_BASE_URL}/api/extract`, {
+    response = await fetch(`${API_V1_URL}/documents/extract`, {
       method: "POST",
       body: formData,
-      headers: { Accept: "application/json" },
+      headers: { Accept: "application/json", ...ApiService.authHeader(token) },
     });
   } catch (err) {
     throw new ExtractionError(
@@ -38,9 +42,12 @@ export async function extractDocumentDetails(fileUri) {
     );
   }
 
-  const data = await response.json().catch(() => null);
+  const payload = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new ExtractionError(data?.error || "AI extraction failed.");
+    throw new ExtractionError(payload?.error || "AI extraction failed.");
   }
-  return data;
+
+  const data = payload?.data || {};
+  // Normalize to the field names DocumentFormScreen already expects.
+  return { ...data, additional_notes: data.notes };
 }

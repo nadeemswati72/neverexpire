@@ -7,67 +7,57 @@ import { useAuth } from "./AuthContext";
 const DataContext = createContext(null);
 
 /**
- * Family members + documents for the *current* user, backed by AsyncStorage
- * via FamilyService/DocumentService. Must be rendered inside AuthProvider —
- * everything is filtered by `user.id` so the two demo accounts never see
- * each other's data.
+ * Family members + documents for the *current* user, backed by the real
+ * Flask backend via FamilyService/DocumentService. The backend already
+ * scopes everything to the authenticated user (JWT), so — unlike the old
+ * AsyncStorage version — no client-side userId filtering is needed here.
  */
 export function DataProvider({ children }) {
   const { user } = useAuth();
-  const [allFamilyMembers, setAllFamilyMembers] = useState([]);
-  const [allDocuments, setAllDocuments] = useState([]);
+  const [familyMembers, setFamilyMembers] = useState([]);
+  const [documents, setDocuments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const reload = useCallback(async () => {
+    if (!user) {
+      setFamilyMembers([]);
+      setDocuments([]);
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
-    const [members, documents] = await Promise.all([
+    const [members, docs] = await Promise.all([
       FamilyService.getAllFamilyMembers(),
       DocumentService.getAllDocuments(),
     ]);
-    setAllFamilyMembers(members);
-    setAllDocuments(documents);
+    setFamilyMembers(members);
+    setDocuments(docs);
     setIsLoading(false);
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     reload();
   }, [reload]);
 
-  const familyMembers = useMemo(
-    () => (user ? allFamilyMembers.filter((member) => member.userId === user.id) : []),
-    [allFamilyMembers, user]
-  );
-
-  const documents = useMemo(
-    () => (user ? allDocuments.filter((doc) => doc.userId === user.id) : []),
-    [allDocuments, user]
-  );
-
   const summary = useMemo(() => DocumentService.getDashboardSummary(documents), [documents]);
 
-  const saveDocument = useCallback(
-    async (document) => {
-      const updated = await DocumentService.saveDocument({ ...document, userId: user.id });
-      setAllDocuments(updated);
-      return updated;
-    },
-    [user]
-  );
+  const saveDocument = useCallback(async (document) => {
+    const { documents: updated, saved } = await DocumentService.saveDocument(document);
+    setDocuments(updated);
+    return saved;
+  }, []);
 
   const deleteDocument = useCallback(async (documentId) => {
     const updated = await DocumentService.deleteDocument(documentId);
-    setAllDocuments(updated);
+    setDocuments(updated);
     return updated;
   }, []);
 
-  const addFamilyMember = useCallback(
-    async (member) => {
-      const updated = await FamilyService.addFamilyMember({ ...member, userId: user.id });
-      setAllFamilyMembers(updated);
-      return updated;
-    },
-    [user]
-  );
+  const addFamilyMember = useCallback(async (member) => {
+    const updated = await FamilyService.addFamilyMember(member);
+    setFamilyMembers(updated);
+    return updated;
+  }, []);
 
   const getDocumentsForMember = useCallback(
     (familyMemberId) => documents.filter((doc) => doc.familyMemberId === familyMemberId),

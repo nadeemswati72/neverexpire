@@ -1,22 +1,36 @@
 /**
- * Predefined demo accounts for mock authentication (see
- * src/services/AuthService.js). No backend — any of these emails plus
- * DEMO_PASSWORD logs in.
+ * Demo account shortcuts shown on the Login screen's "Demo accounts" card.
+ * These are real registered accounts on the Flask backend (see
+ * backend/seed_rich_demo.py) — NOT mock/local auth. LoginScreen just
+ * autofills the email + password; AuthService.login() does a real
+ * POST /api/v1/auth/login.
  */
 
 export const DEMO_PASSWORD = "Demo@1234";
 
 export const DEMO_USERS = [
   {
-    id: "user-nadeem",
-    name: "Nadeem Ahmad",
-    email: "nadeem.ahmad@neverexpire.test",
-    avatarColor: "#4F8EF7",
+    id: "ahmed",
+    name: "Ahmed Al Rashid",
+    email: "ahmed.alrashid@neverexpire.test",
+    avatarColor: "#34c9ba",
   },
   {
-    id: "user-aisha",
-    name: "Aisha Khan",
-    email: "aisha.khan@neverexpire.test",
-    avatarColor: "#8B5CF6",
+    id: "fatima",
+    name: "Fatima Al Rashid",
+    email: "fatima.alrashid@neverexpire.test",
+    avatarColor: "#e879a0",
+  },
+  {
+    id: "imran",
+    name: "Imran Khan",
+    email: "imran.khan@neverexpire.test",
+    avatarColor: "#3182ce",
+  },
+  {
+    id: "sara",
+    name: "Sara Khan",
+    email: "sara.khan@neverexpire.test",
+    avatarColor: "#d53f8c",
   },
 ];

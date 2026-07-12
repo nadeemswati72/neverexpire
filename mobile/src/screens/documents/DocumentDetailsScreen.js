@@ -11,6 +11,8 @@ import IconBox from "../../components/common/IconBox";
 import AppButton from "../../components/common/AppButton";
 import EmptyState from "../../components/common/EmptyState";
 import { useAppData } from "../../context/DataContext";
+import { useAuth } from "../../context/AuthContext";
+import { authHeader } from "../../services/ApiService";
 import { getDocumentTypeMeta } from "../../constants/documentTypes";
 import { getExpiryStatus, formatDaysLabel, formatExpiresOn, formatDate } from "../../utils/dateUtils";
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, withOpacity } from "../../constants/theme";
@@ -22,6 +24,7 @@ export default function DocumentDetailsScreen() {
   const route = useRoute();
   const { documentId } = route.params || {};
   const { getDocumentById, getFamilyMemberById, deleteDocument } = useAppData();
+  const { token } = useAuth();
 
   const document = getDocumentById(documentId);
 
@@ -78,7 +81,11 @@ export default function DocumentDetailsScreen() {
       <Header variant="back" title="Document Details" rightIcon="create-outline" onRightPress={handleEdit} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {document.imageUri ? (
-          <Image source={{ uri: document.imageUri }} style={styles.image} />
+          <Image
+            source={{ uri: document.imageUri, headers: authHeader(token) }}
+            style={styles.image}
+            resizeMode="contain"
+          />
         ) : (
           <View style={[styles.imagePlaceholder, { backgroundColor: withOpacity(typeMeta.color, 0.08) }]}>
             <MaterialCommunityIcons name={typeMeta.icon} size={48} color={typeMeta.color} />
@@ -141,7 +148,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "100%",
-    height: 200,
+    height: 260,
     borderRadius: RADIUS.lg,
     marginBottom: SPACING.lg,
     backgroundColor: COLORS.border,

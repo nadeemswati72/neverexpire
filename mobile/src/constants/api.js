@@ -15,3 +15,4 @@ function resolveHost() {
 }
 
 export const API_BASE_URL = `http://${resolveHost()}:${FLASK_PORT}`;
+export const API_V1_URL = `${API_BASE_URL}/api/v1`;

@@ -6,6 +6,7 @@ import ScreenContainer from "../../components/common/ScreenContainer";
 import Header from "../../components/common/Header";
 import Card from "../../components/common/Card";
 import Avatar from "../../components/common/Avatar";
+import StatusOverview from "../../components/documents/StatusOverview";
 import DocumentListItem from "../../components/documents/DocumentListItem";
 import EmptyState from "../../components/common/EmptyState";
 import { useAppData } from "../../context/DataContext";
@@ -58,6 +59,8 @@ export default function FamilyMemberDocumentsScreen() {
             <Text style={styles.relationship}>{member.isSelf ? "Me" : member.relationship}</Text>
           </View>
         </View>
+
+        {documents.length > 0 ? <StatusOverview documents={documents} title="Status Overview" /> : null}
 
         {documents.length === 0 ? (
           <EmptyState

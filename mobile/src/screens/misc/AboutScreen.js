@@ -1,10 +1,10 @@
 import React from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
 import Header from "../../components/common/Header";
 import Card from "../../components/common/Card";
+import EmojiIcon from "../../components/common/EmojiIcon";
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOW } from "../../constants/theme";
 
 const APP_VERSION = "1.0.0";
@@ -24,7 +24,7 @@ export default function AboutScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.brand}>
           <View style={styles.logoCircle}>
-            <Ionicons name="shield-checkmark" size={32} color={COLORS.white} />
+            <EmojiIcon name="shield-checkmark" size={30} />
           </View>
           <Text style={styles.brandTitle}>NeverExpire</Text>
           <Text style={styles.brandVersion}>Version {APP_VERSION}</Text>
@@ -41,7 +41,7 @@ export default function AboutScreen() {
           <Text style={styles.sectionTitle}>Features</Text>
           {FEATURES.map((feature) => (
             <View key={feature} style={styles.featureRow}>
-              <Ionicons name="checkmark-circle" size={18} color={COLORS.success} />
+              <EmojiIcon name="checkmark-circle" size={16} color={COLORS.success} />
               <Text style={styles.featureText}>{feature}</Text>
             </View>
           ))}

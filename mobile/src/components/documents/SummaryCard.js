@@ -1,7 +1,7 @@
 import React from "react";
 import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
+import EmojiIcon from "../common/EmojiIcon";
 import { COLORS, RADIUS, SPACING, FONT_SIZES, FONT_WEIGHTS, withOpacity } from "../../constants/theme";
 
 /**
@@ -16,7 +16,7 @@ export default function SummaryCard({ icon, label, count, color, onPress }) {
       activeOpacity={0.85}
     >
       <View style={[styles.iconWrap, { backgroundColor: withOpacity(color, 0.18) }]}>
-        <Ionicons name={icon} size={20} color={color} />
+        <EmojiIcon name={icon} size={18} color={color} />
       </View>
       <Text style={styles.count}>{count}</Text>
       <Text style={[styles.label, { color }]}>{label}</Text>

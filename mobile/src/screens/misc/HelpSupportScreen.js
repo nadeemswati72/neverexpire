@@ -1,11 +1,11 @@
 import React from "react";
 import { View, Text, ScrollView, Linking, TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
 import Header from "../../components/common/Header";
 import Card from "../../components/common/Card";
 import SectionHeader from "../../components/common/SectionHeader";
+import EmojiIcon from "../../components/common/EmojiIcon";
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, withOpacity } from "../../constants/theme";
 
 const FAQ_ITEMS = [
@@ -67,13 +67,13 @@ export default function HelpSupportScreen() {
             <View key={option.label}>
               <TouchableOpacity style={styles.contactRow} onPress={option.action} activeOpacity={0.85}>
                 <View style={styles.contactIcon}>
-                  <Ionicons name={option.icon} size={20} color={COLORS.accent} />
+                  <EmojiIcon name={option.icon} size={18} color={COLORS.accent} />
                 </View>
                 <View style={styles.contactText}>
                   <Text style={styles.contactLabel}>{option.label}</Text>
                   <Text style={styles.contactValue}>{option.value}</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={18} color={COLORS.textMuted} />
+                <EmojiIcon name="chevron-forward" size={18} color={COLORS.textMuted} />
               </TouchableOpacity>
               {index < CONTACT_OPTIONS.length - 1 ? <View style={styles.separator} /> : null}
             </View>

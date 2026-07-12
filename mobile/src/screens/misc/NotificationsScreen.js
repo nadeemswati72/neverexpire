@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
@@ -8,6 +7,7 @@ import Header from "../../components/common/Header";
 import Card from "../../components/common/Card";
 import IconBox from "../../components/common/IconBox";
 import EmptyState from "../../components/common/EmptyState";
+import EmojiIcon from "../../components/common/EmojiIcon";
 import { useAppData } from "../../context/DataContext";
 import * as NotificationService from "../../services/NotificationService";
 import { getDocumentTypeMeta } from "../../constants/documentTypes";
@@ -117,9 +117,9 @@ export default function NotificationsScreen() {
                     onPress={() => handleNotificationPress(notification)}
                   >
                     <View style={[styles.shareIcon, !notification.is_read && styles.shareIconUnread]}>
-                      <Ionicons
+                      <EmojiIcon
                         name="share-social-outline"
-                        size={16}
+                        size={15}
                         color={notification.is_read ? COLORS.textSecondary : COLORS.accentDark}
                       />
                     </View>

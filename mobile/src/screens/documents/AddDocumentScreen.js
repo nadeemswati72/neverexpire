@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Alert, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
 import Header from "../../components/common/Header";
 import SourceOptionCard from "../../components/documents/SourceOptionCard";
+import EmojiIcon from "../../components/common/EmojiIcon";
 import { ensureCameraPermission, ensureMediaLibraryPermission } from "../../services/PermissionService";
 import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS, withOpacity } from "../../constants/theme";
 import { ROUTES } from "../../navigation/routes";
@@ -89,7 +89,7 @@ export default function AddDocumentScreen({ navigation, route }) {
       <View style={styles.content}>
         <View style={styles.illustrationWrap}>
           <View style={styles.illustrationCircle}>
-            <Ionicons name="document-attach-outline" size={40} color={COLORS.accent} />
+            <EmojiIcon name="document-attach-outline" size={36} color={COLORS.accent} />
           </View>
         </View>
 

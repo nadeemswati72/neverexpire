@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, Image, ScrollView, Alert, TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
@@ -8,6 +7,7 @@ import Header from "../../components/common/Header";
 import Card from "../../components/common/Card";
 import Badge from "../../components/common/Badge";
 import IconBox from "../../components/common/IconBox";
+import EmojiIcon from "../../components/common/EmojiIcon";
 import AppButton from "../../components/common/AppButton";
 import EmptyState from "../../components/common/EmptyState";
 import ShareModal from "../../components/documents/ShareModal";
@@ -148,7 +148,7 @@ export default function DocumentDetailsScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {!isOwner ? (
           <View style={styles.sharedBanner}>
-            <Ionicons name="people-outline" size={16} color={COLORS.accentDark} />
+            <EmojiIcon name="people-outline" size={15} color={COLORS.accentDark} />
             <Text style={styles.sharedBannerText} numberOfLines={2}>
               Shared by {document.sharedByEmail || "another user"}
               {document.userPermission ? ` · ${PERMISSION_LABELS[document.userPermission] || document.userPermission}` : ""}
@@ -164,7 +164,7 @@ export default function DocumentDetailsScreen() {
           />
         ) : (
           <View style={[styles.imagePlaceholder, { backgroundColor: withOpacity(typeMeta.color, 0.08) }]}>
-            <MaterialCommunityIcons name={typeMeta.icon} size={48} color={typeMeta.color} />
+            <Text style={styles.placeholderEmoji}>{typeMeta.icon}</Text>
           </View>
         )}
 
@@ -203,7 +203,7 @@ export default function DocumentDetailsScreen() {
             <View style={styles.sectionHeaderRow}>
               <Text style={styles.sectionLabel}>Shared With</Text>
               <TouchableOpacity onPress={() => setShareVisible(true)} activeOpacity={0.8} style={styles.shareLink}>
-                <Ionicons name="share-social-outline" size={14} color={COLORS.accentDark} />
+                <EmojiIcon name="share-social-outline" size={13} color={COLORS.accentDark} />
                 <Text style={styles.shareLinkText}>Share</Text>
               </TouchableOpacity>
             </View>
@@ -238,9 +238,9 @@ export default function DocumentDetailsScreen() {
             {accessLog.slice(0, 10).map((entry, index) => (
               <View key={entry.id}>
                 <View style={styles.logRow}>
-                  <Ionicons
+                  <EmojiIcon
                     name={entry.action === "download" ? "download-outline" : "eye-outline"}
-                    size={15}
+                    size={14}
                     color={COLORS.textSecondary}
                     style={styles.logIcon}
                   />
@@ -330,6 +330,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: SPACING.lg,
+  },
+  placeholderEmoji: {
+    fontSize: 48,
   },
   titleRow: {
     flexDirection: "row",

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity, ActivityIndicator, Alert, StyleSheet } from "react-native";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
@@ -8,6 +7,7 @@ import Header from "../../components/common/Header";
 import Avatar from "../../components/common/Avatar";
 import AppTextInput from "../../components/common/AppTextInput";
 import AppButton from "../../components/common/AppButton";
+import EmojiIcon from "../../components/common/EmojiIcon";
 import { useAppData } from "../../context/DataContext";
 import { useAuth } from "../../context/AuthContext";
 import { authHeader } from "../../services/ApiService";
@@ -128,7 +128,7 @@ export default function DocumentFormScreen() {
           <Image source={{ uri: imageUri, headers: authHeader(token) }} style={styles.image} />
         ) : (
           <View style={styles.imagePlaceholder}>
-            <Ionicons name="image-outline" size={32} color={COLORS.textMuted} />
+            <EmojiIcon name="image-outline" size={30} color={COLORS.textMuted} />
             <Text style={styles.imagePlaceholderText}>No image attached</Text>
           </View>
         )}
@@ -156,11 +156,7 @@ export default function DocumentFormScreen() {
                 onPress={() => setDocumentType(type.code)}
                 activeOpacity={0.85}
               >
-                <MaterialCommunityIcons
-                  name={type.icon}
-                  size={18}
-                  color={selected ? type.color : COLORS.textSecondary}
-                />
+                <Text style={styles.typeChipEmoji}>{type.icon}</Text>
                 <Text style={[styles.typeChipText, selected && { color: type.color }]}>{type.label}</Text>
               </TouchableOpacity>
             );
@@ -304,6 +300,9 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm,
     paddingHorizontal: SPACING.md,
     backgroundColor: COLORS.surface,
+  },
+  typeChipEmoji: {
+    fontSize: 16,
   },
   typeChipText: {
     marginLeft: SPACING.xs,

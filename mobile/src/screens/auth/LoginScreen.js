@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
 import AppTextInput from "../../components/common/AppTextInput";
 import AppButton from "../../components/common/AppButton";
+import EmojiIcon from "../../components/common/EmojiIcon";
 import { useAuth } from "../../context/AuthContext";
 import { AuthError } from "../../services/AuthService";
 import { validateLoginForm } from "../../utils/validators";
@@ -59,7 +59,7 @@ export default function LoginScreen() {
       >
         <View style={styles.brand}>
           <View style={styles.logoCircle}>
-            <Ionicons name="shield-checkmark" size={32} color={COLORS.white} />
+            <EmojiIcon name="shield-checkmark" size={30} />
           </View>
           <Text style={styles.brandTitle}>NeverExpire</Text>
           <Text style={styles.brandTagline}>Never miss a renewal again</Text>
@@ -121,7 +121,7 @@ export default function LoginScreen() {
                 <Text style={styles.demoName}>{demoUser.name}</Text>
                 <Text style={styles.demoEmail}>{demoUser.email}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={18} color={COLORS.textMuted} />
+              <EmojiIcon name="chevron-forward" size={18} color={COLORS.textMuted} />
             </TouchableOpacity>
           ))}
 

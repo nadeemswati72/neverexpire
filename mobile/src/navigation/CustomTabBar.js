@@ -1,8 +1,8 @@
 import React from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import EmojiIcon from "../components/common/EmojiIcon";
 import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS, SHADOW } from "../constants/theme";
 import { ROUTES } from "./routes";
 
@@ -32,7 +32,7 @@ export default function CustomTabBar({ state, navigation }) {
                 onPress={() => navigation.getParent()?.navigate(ROUTES.ADD_DOCUMENT)}
                 accessibilityLabel="Add document"
               >
-                <Ionicons name="add" size={28} color={COLORS.white} />
+                <EmojiIcon name="add" size={24} />
               </TouchableOpacity>
             </View>
           );
@@ -50,9 +50,9 @@ export default function CustomTabBar({ state, navigation }) {
             onPress={() => navigation.navigate(route.name)}
             accessibilityLabel={meta.label}
           >
-            <Ionicons
+            <EmojiIcon
               name={isFocused ? meta.activeIcon : meta.inactiveIcon}
-              size={22}
+              size={20}
               color={isFocused ? COLORS.primary : COLORS.textMuted}
             />
             <Text style={[styles.label, { color: isFocused ? COLORS.primary : COLORS.textMuted }]}>

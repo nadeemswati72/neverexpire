@@ -1,11 +1,11 @@
 import React, { useRef, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
 import Header from "../../components/common/Header";
 import AppButton from "../../components/common/AppButton";
+import EmojiIcon from "../../components/common/EmojiIcon";
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, withOpacity } from "../../constants/theme";
 import { ROUTES } from "../../navigation/routes";
 
@@ -42,7 +42,7 @@ export default function VoiceReminderScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
         <View style={styles.content}>
           <View style={styles.iconWrap}>
-            <Ionicons name="mic-outline" size={32} color={COLORS.accent} />
+            <EmojiIcon name="mic-outline" size={30} color={COLORS.accent} />
           </View>
           <Text style={styles.heading}>Describe your document</Text>
           <Text style={styles.subheading}>

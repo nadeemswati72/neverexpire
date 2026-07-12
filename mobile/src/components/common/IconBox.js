@@ -1,13 +1,13 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { View, Text, StyleSheet } from "react-native";
 
 import { RADIUS, withOpacity } from "../../constants/theme";
 
 /**
- * Rounded square with a tinted background and a MaterialCommunityIcons
- * glyph — used for document-type icons in list rows and the icon options
- * on the Add Document screen.
+ * Rounded square with a tinted background showing a document-type emoji
+ * (see constants/documentTypes.js) — used for document-type icons in list
+ * rows and the icon options on the Add Document screen. `icon` is the raw
+ * emoji character itself, not an icon-font name.
  */
 export default function IconBox({ icon, color, size = 44, iconSize, style }) {
   return (
@@ -18,7 +18,7 @@ export default function IconBox({ icon, color, size = 44, iconSize, style }) {
         style,
       ]}
     >
-      <MaterialCommunityIcons name={icon} size={iconSize || size * 0.5} color={color} />
+      <Text style={{ fontSize: iconSize || size * 0.5, lineHeight: (iconSize || size * 0.5) * 1.15 }}>{icon}</Text>
     </View>
   );
 }

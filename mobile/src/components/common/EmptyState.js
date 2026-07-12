@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
+import EmojiIcon from "./EmojiIcon";
 import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS, withOpacity } from "../../constants/theme";
 
 /**
@@ -12,7 +12,7 @@ export default function EmptyState({ icon = "document-text-outline", title, mess
   return (
     <View style={[styles.container, style]}>
       <View style={styles.iconWrap}>
-        <Ionicons name={icon} size={36} color={COLORS.accent} />
+        <EmojiIcon name={icon} size={32} color={COLORS.accent} />
       </View>
       {title ? <Text style={styles.title}>{title}</Text> : null}
       {message ? <Text style={styles.message}>{message}</Text> : null}

@@ -1,11 +1,11 @@
 import React from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
 import Header from "../../components/common/Header";
 import Card from "../../components/common/Card";
 import SectionHeader from "../../components/common/SectionHeader";
+import EmojiIcon from "../../components/common/EmojiIcon";
 import { DEMO_USERS, DEMO_PASSWORD } from "../../data/mockUsers";
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, withOpacity } from "../../constants/theme";
 
@@ -43,12 +43,12 @@ export default function TestingGuideScreen() {
       <Header variant="back" title="Testing Guide" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.banner}>
-          <Ionicons name="construct" size={18} color={COLORS.warning} />
+          <EmojiIcon name="construct" size={16} color={COLORS.warning} />
           <Text style={styles.bannerText}>Temporary screen for this testing round only.</Text>
         </View>
 
         <View style={[styles.banner, styles.bannerInfo]}>
-          <Ionicons name="globe-outline" size={18} color={COLORS.primary} />
+          <EmojiIcon name="globe-outline" size={16} color={COLORS.primary} />
           <Text style={styles.bannerText}>
             For combined website + mobile instructions, ask the developer for the website's
             "Testing Guide" page (/testing).
@@ -85,7 +85,7 @@ export default function TestingGuideScreen() {
           <SectionHeader title="Known Limitations" />
           {KNOWN_LIMITATIONS.map((item) => (
             <View key={item} style={styles.limitationRow}>
-              <Ionicons name="information-circle" size={16} color={COLORS.textSecondary} />
+              <EmojiIcon name="information-circle" size={15} color={COLORS.textSecondary} />
               <Text style={styles.limitationText}>{item}</Text>
             </View>
           ))}

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
 import AppTextInput from "../../components/common/AppTextInput";
 import AppButton from "../../components/common/AppButton";
+import EmojiIcon from "../../components/common/EmojiIcon";
 import { useAuth } from "../../context/AuthContext";
 import { AuthError } from "../../services/AuthService";
 import { isValidEmail } from "../../utils/validators";
@@ -58,7 +58,7 @@ export default function RegisterScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
         <View style={styles.brand}>
           <View style={styles.logoCircle}>
-            <Ionicons name="shield-checkmark" size={32} color={COLORS.white} />
+            <EmojiIcon name="shield-checkmark" size={30} />
           </View>
           <Text style={styles.brandTitle}>NeverExpire</Text>
           <Text style={styles.brandTagline}>Never miss a renewal again</Text>

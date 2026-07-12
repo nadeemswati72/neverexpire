@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { View, Text, Modal, TouchableOpacity, Switch, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
 import AppTextInput from "../common/AppTextInput";
 import AppButton from "../common/AppButton";
+import EmojiIcon from "../common/EmojiIcon";
 import * as SharingService from "../../services/SharingService";
 import { PERMISSION_LEVELS, EXPIRY_OPTIONS } from "../../services/SharingService";
 import { isValidEmail } from "../../utils/validators";
@@ -79,7 +79,7 @@ export default function ShareModal({ visible, onClose, onShared, documentId, per
               {isPersonMode ? `Share All of ${personName}'s Documents` : "Share Document"}
             </Text>
             <TouchableOpacity onPress={handleClose} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <Ionicons name="close" size={22} color={COLORS.textSecondary} />
+              <EmojiIcon name="close" size={18} color={COLORS.textSecondary} />
             </TouchableOpacity>
           </View>
 
@@ -103,11 +103,7 @@ export default function ShareModal({ visible, onClose, onShared, documentId, per
                   onPress={() => setPermission(level.code)}
                   activeOpacity={0.85}
                 >
-                  <Ionicons
-                    name={level.icon}
-                    size={14}
-                    color={active ? COLORS.accentDark : COLORS.textSecondary}
-                  />
+                  <EmojiIcon name={level.icon} size={13} color={active ? COLORS.accentDark : COLORS.textSecondary} />
                   <Text style={[styles.chipText, active && styles.chipTextActive]}>{level.label}</Text>
                 </TouchableOpacity>
               );

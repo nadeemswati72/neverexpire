@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
 import Header from "../../components/common/Header";
 import Card from "../../components/common/Card";
 import EmptyState from "../../components/common/EmptyState";
+import EmojiIcon from "../../components/common/EmojiIcon";
 import * as SharingService from "../../services/SharingService";
 import { PERMISSION_LEVELS } from "../../services/SharingService";
 import { useAppData } from "../../context/DataContext";
@@ -116,9 +116,9 @@ export default function SharingScreen() {
                   activeOpacity={0.85}
                 >
                   <View style={[styles.iconWrap, share.is_expired && styles.iconWrapExpired]}>
-                    <Ionicons
+                    <EmojiIcon
                       name={activeTab === "incoming" ? "arrow-down-outline" : "arrow-up-outline"}
-                      size={16}
+                      size={15}
                       color={share.is_expired ? COLORS.textMuted : COLORS.accentDark}
                     />
                   </View>
@@ -144,7 +144,7 @@ export default function SharingScreen() {
                       <Text style={styles.revokeText}>Revoke</Text>
                     </TouchableOpacity>
                   ) : (
-                    <Ionicons name="chevron-forward" size={18} color={COLORS.textMuted} />
+                    <EmojiIcon name="chevron-forward" size={18} color={COLORS.textMuted} />
                   )}
                 </TouchableOpacity>
                 {index < rows.length - 1 ? <View style={styles.separator} /> : null}

@@ -1,8 +1,8 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, DrawerActions } from "@react-navigation/native";
 
+import EmojiIcon from "./EmojiIcon";
 import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS } from "../../constants/theme";
 
 /**
@@ -42,11 +42,7 @@ export default function Header({
             style={styles.iconButton}
             accessibilityLabel={variant === "back" ? "Go back" : "Open menu"}
           >
-            <Ionicons
-              name={variant === "back" ? "arrow-back" : "menu"}
-              size={24}
-              color={COLORS.textPrimary}
-            />
+            <EmojiIcon name={variant === "back" ? "arrow-back" : "menu"} size={22} color={COLORS.textPrimary} />
           </TouchableOpacity>
         )}
       </View>
@@ -55,7 +51,7 @@ export default function Header({
         {brand ? (
           <View style={styles.brandRow}>
             <View style={styles.brandMark}>
-              <Ionicons name="shield-checkmark" size={16} color={COLORS.white} />
+              <EmojiIcon name="shield-checkmark" size={14} />
             </View>
             <Text style={styles.brandText}>NeverExpire</Text>
           </View>
@@ -73,7 +69,7 @@ export default function Header({
             style={styles.iconButton}
             accessibilityLabel="Header action"
           >
-            <Ionicons name={rightIcon} size={22} color={COLORS.textPrimary} />
+            <EmojiIcon name={rightIcon} size={20} color={COLORS.textPrimary} />
             {rightBadge && <View style={styles.badgeDot} />}
           </TouchableOpacity>
         ) : null}

@@ -1,7 +1,7 @@
 import React from "react";
 import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
+import EmojiIcon from "../common/EmojiIcon";
 import { COLORS, RADIUS, SPACING, FONT_SIZES, FONT_WEIGHTS, SHADOW, withOpacity } from "../../constants/theme";
 
 /**
@@ -12,13 +12,13 @@ export default function SourceOptionCard({ icon, title, subtitle, onPress, color
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
       <View style={[styles.iconWrap, { backgroundColor: withOpacity(color, 0.12) }]}>
-        <Ionicons name={icon} size={22} color={color} />
+        <EmojiIcon name={icon} size={20} color={color} />
       </View>
       <View style={styles.textWrap}>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.subtitle}>{subtitle}</Text>
       </View>
-      <Ionicons name="chevron-forward" size={20} color={COLORS.textMuted} />
+      <EmojiIcon name="chevron-forward" size={20} color={COLORS.textMuted} />
     </TouchableOpacity>
   );
 }

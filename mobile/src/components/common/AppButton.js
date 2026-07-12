@@ -1,7 +1,7 @@
 import React from "react";
 import { TouchableOpacity, Text, ActivityIndicator, View, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
+import EmojiIcon from "./EmojiIcon";
 import { COLORS, RADIUS, SPACING, FONT_SIZES, FONT_WEIGHTS } from "../../constants/theme";
 
 const VARIANTS = {
@@ -63,14 +63,7 @@ export default function AppButton({
         <ActivityIndicator color={palette.textColor} />
       ) : (
         <View style={styles.content}>
-          {icon ? (
-            <Ionicons
-              name={icon}
-              size={18}
-              color={palette.textColor}
-              style={styles.icon}
-            />
-          ) : null}
+          {icon ? <EmojiIcon name={icon} size={18} color={palette.textColor} style={styles.icon} /> : null}
           <Text style={[styles.label, { color: palette.textColor }]}>{label}</Text>
         </View>
       )}

@@ -1,8 +1,8 @@
 import React from "react";
 import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
 import Avatar from "../common/Avatar";
+import EmojiIcon from "../common/EmojiIcon";
 import { COLORS, RADIUS, SPACING, FONT_SIZES, FONT_WEIGHTS, SHADOW } from "../../constants/theme";
 
 /**
@@ -32,10 +32,10 @@ export default function FamilyMemberCard({ member, documentCount = 0, onPress, o
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           style={styles.shareButton}
         >
-          <Ionicons name="share-social-outline" size={18} color={COLORS.textSecondary} />
+          <EmojiIcon name="share-social-outline" size={16} color={COLORS.textSecondary} />
         </TouchableOpacity>
       ) : null}
-      <Ionicons name="chevron-forward" size={20} color={COLORS.textMuted} />
+      <EmojiIcon name="chevron-forward" size={20} color={COLORS.textMuted} />
     </TouchableOpacity>
   );
 }

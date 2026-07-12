@@ -3,49 +3,51 @@
  * the "Choose Document Type" picker on the Add Document form, and the
  * "Document Type" field on Document Details.
  *
- * `icon` names refer to @expo/vector-icons MaterialCommunityIcons glyphs.
+ * `icon` is the raw emoji glyph rendered directly by IconBox — part of the
+ * app-wide "Emoji Nav" icon set (see constants/emojiIcons.js for the
+ * Ionicons-derived counterpart used by shared chrome components).
  */
 export const DOCUMENT_TYPES = {
   PASSPORT: {
     code: "PASSPORT",
     label: "Passport",
-    icon: "passport",
+    icon: "🛂",
     color: "#4F8EF7",
   },
   EMIRATES_ID: {
     code: "EMIRATES_ID",
     label: "Emirates ID",
-    icon: "card-account-details",
+    icon: "🪪",
     color: "#34C38F",
   },
   DRIVING_LICENSE: {
     code: "DRIVING_LICENSE",
     label: "Driving License",
-    icon: "car",
+    icon: "🚗",
     color: "#EF5DA8",
   },
   VISA: {
     code: "VISA",
     label: "Visa",
-    icon: "ticket-confirmation",
+    icon: "🎫",
     color: "#8B5CF6",
   },
   INSURANCE: {
     code: "INSURANCE",
     label: "Insurance",
-    icon: "shield-check",
+    icon: "🛡️",
     color: "#22B8CF",
   },
   CERTIFICATE: {
     code: "CERTIFICATE",
     label: "Certificate",
-    icon: "certificate",
+    icon: "📜",
     color: "#F2994A",
   },
   OTHER: {
     code: "OTHER",
     label: "Other Document",
-    icon: "file-document-outline",
+    icon: "📄",
     color: "#9CA3AF",
   },
 };

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
+import EmojiIcon from "./EmojiIcon";
 import { COLORS, RADIUS, SPACING, FONT_SIZES, FONT_WEIGHTS } from "../../constants/theme";
 
 /**
@@ -37,9 +37,7 @@ export default function AppTextInput({
           !editable && styles.inputWrapperDisabled,
         ]}
       >
-        {leftIcon ? (
-          <Ionicons name={leftIcon} size={18} color={COLORS.textSecondary} style={styles.leftIcon} />
-        ) : null}
+        {leftIcon ? <EmojiIcon name={leftIcon} size={16} color={COLORS.textSecondary} style={styles.leftIcon} /> : null}
         <TextInput
           style={[styles.input, multiline && styles.inputMultiline]}
           value={value}
@@ -54,11 +52,7 @@ export default function AppTextInput({
         />
         {showToggle ? (
           <TouchableOpacity onPress={() => setIsVisible((prev) => !prev)} accessibilityLabel="Toggle password visibility">
-            <Ionicons
-              name={isVisible ? "eye-off-outline" : "eye-outline"}
-              size={20}
-              color={COLORS.textSecondary}
-            />
+            <EmojiIcon name={isVisible ? "eye-off-outline" : "eye-outline"} size={18} color={COLORS.textSecondary} />
           </TouchableOpacity>
         ) : null}
       </View>

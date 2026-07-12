@@ -15,6 +15,7 @@ FAMILY_RELATION_TYPES = [
     ("CHILD", "Child"),
     ("PARENT", "Parent"),
     ("SIBLING", "Sibling"),
+    ("DOMESTIC_HELP", "Domestic Help"),
     ("OTHER", "Other"),
 ]
 
@@ -95,12 +96,16 @@ def _seed_document_field_definitions(session: Session) -> None:
             )
 
 
+REMINDER_THRESHOLDS = [config.REMINDER_DAYS_THRESHOLD, 30, 7, 1]
+
+
 def _seed_reminder_rules(session: Session) -> None:
-    threshold = config.REMINDER_DAYS_THRESHOLD
-    if not session.query(ReminderRule).filter_by(threshold_days=threshold).first():
-        session.add(
-            ReminderRule(name=f"{threshold} days before expiry", threshold_days=threshold)
-        )
+    for threshold in REMINDER_THRESHOLDS:
+        if not session.query(ReminderRule).filter_by(threshold_days=threshold).first():
+            unit = "day" if threshold == 1 else "days"
+            session.add(
+                ReminderRule(name=f"{threshold} {unit} before expiry", threshold_days=threshold)
+            )
 
 
 if __name__ == "__main__":

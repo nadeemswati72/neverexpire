@@ -15,9 +15,16 @@ export const COLORS = {
 
   // Status
   danger: "#EB5757", // expired / urgent (<= 0 days)
+  dangerLight: "#FF9A9A",
   warning: "#F2994A", // expiring soon (<= 30 days)
+  warningLight: "#FFC98A",
   success: "#27AE60", // valid / safe (> 30 days)
+  successLight: "#6FE3A0",
   noExpiry: "#9CA3AF",
+
+  // Family/people identity (glossy icon pucks, tab bar)
+  purple: "#8B6FD6",
+  purpleLight: "#C3B2F5",
 
   // Surfaces
   background: "#F4F6FA",

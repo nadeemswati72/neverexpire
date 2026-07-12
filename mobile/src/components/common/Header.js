@@ -4,6 +4,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation, DrawerActions } from "@react-navigation/native";
 
 import EmojiIcon from "./EmojiIcon";
+import GlossyIconPuck from "./GlossyIconPuck";
+import MenuGlyph from "./MenuGlyph";
+import BackArrowGlyph from "./BackArrowGlyph";
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS } from "../../constants/theme";
 
 /**
@@ -16,9 +19,11 @@ import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS } from "../../constan
  * - `rightIcon`/`onRightPress` adds a single action icon on the right
  *   (notification bell, edit, add, etc.), with an optional `rightBadge` dot.
  *
- * Nav icons sit in a soft tinted circular chip (matching the drawer's icon
- * treatment) rather than a bare glyph — plain chevrons/hamburgers read as
- * "dull" next to the rest of the app's colorful emoji icon chips.
+ * The left nav icon and the notification bell get the full glossy 3D puck
+ * treatment (gradient + shadow + highlight) since they're prominent,
+ * always-visible chrome. Other right-icon actions (edit, add-family) keep
+ * the lighter flat tinted chip — reserving the heavier gloss for primary
+ * navigation rather than applying it everywhere.
  */
 export default function Header({
   title,
@@ -38,18 +43,19 @@ export default function Header({
     }
   };
 
+  const isBellAction = rightIcon === "notifications-outline";
+
   return (
     <View style={styles.container}>
       <View style={styles.side}>
         {variant !== "none" && (
           <TouchableOpacity
             onPress={handleLeftPress}
-            style={styles.iconButton}
             accessibilityLabel={variant === "back" ? "Go back" : "Open menu"}
           >
-            <View style={styles.iconChip}>
-              <EmojiIcon name={variant === "back" ? "arrow-back" : "menu"} size={18} color={COLORS.accentDark} />
-            </View>
+            <GlossyIconPuck size={36} colorStart={COLORS.primaryLight} colorEnd={COLORS.primary}>
+              {variant === "back" ? <BackArrowGlyph size={17} /> : <MenuGlyph size={16} />}
+            </GlossyIconPuck>
           </TouchableOpacity>
         )}
       </View>
@@ -76,15 +82,20 @@ export default function Header({
 
       <View style={[styles.side, styles.right]}>
         {rightIcon ? (
-          <TouchableOpacity
-            onPress={onRightPress}
-            style={styles.iconButton}
-            accessibilityLabel="Header action"
-          >
-            <View style={styles.iconChip}>
-              <EmojiIcon name={rightIcon} size={17} color={COLORS.accentDark} />
-              {rightBadge && <View style={styles.badgeDot} />}
-            </View>
+          <TouchableOpacity onPress={onRightPress} accessibilityLabel="Header action">
+            {isBellAction ? (
+              <View>
+                <GlossyIconPuck size={36} colorStart={COLORS.warningLight} colorEnd={COLORS.warning}>
+                  <EmojiIcon name={rightIcon} size={16} />
+                </GlossyIconPuck>
+                {rightBadge && <View style={styles.badgeDot} />}
+              </View>
+            ) : (
+              <View style={styles.iconChip}>
+                <EmojiIcon name={rightIcon} size={17} color={COLORS.accentDark} />
+                {rightBadge && <View style={styles.badgeDot} />}
+              </View>
+            )}
           </TouchableOpacity>
         ) : null}
       </View>
@@ -110,12 +121,6 @@ const styles = StyleSheet.create({
   },
   right: {
     alignItems: "flex-end",
-  },
-  iconButton: {
-    width: ICON_BUTTON_SIZE,
-    height: ICON_BUTTON_SIZE,
-    alignItems: "center",
-    justifyContent: "center",
   },
   iconChip: {
     width: CHIP_SIZE,
@@ -156,11 +161,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -1,
     right: -1,
-    width: 9,
-    height: 9,
+    width: 10,
+    height: 10,
     borderRadius: 5,
     backgroundColor: COLORS.danger,
     borderWidth: 1.5,
     borderColor: COLORS.background,
+    zIndex: 2,
   },
 });

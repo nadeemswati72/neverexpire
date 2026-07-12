@@ -6,6 +6,7 @@ import { useNavigationState } from "@react-navigation/native";
 
 import Avatar from "../components/common/Avatar";
 import ShareIcon from "../components/common/ShareIcon";
+import GlossyIconPuck from "../components/common/GlossyIconPuck";
 import { useAuth } from "../context/AuthContext";
 import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS, RADIUS } from "../constants/theme";
 import { ROUTES } from "./routes";
@@ -163,7 +164,13 @@ export default function CustomDrawerContent({ navigation }) {
               {({ pressed }) => (
                 <Row style={[styles.menuItem, pressed && !isActive && styles.menuItemPressed]} {...rowGradientProps}>
                   <View style={styles.emojiWrap}>
-                    {item.isShareIcon ? <ShareIcon size={17} /> : <Text style={styles.emojiText}>{item.emoji}</Text>}
+                    {item.isShareIcon ? (
+                      <GlossyIconPuck size={24} colorStart={COLORS.accent} colorEnd={COLORS.accentDark}>
+                        <ShareIcon size={12} colorStart="#FFFFFF" colorEnd="#FFFFFF" />
+                      </GlossyIconPuck>
+                    ) : (
+                      <Text style={styles.emojiText}>{item.emoji}</Text>
+                    )}
                   </View>
                   <Text style={[styles.menuLabel, isActive && styles.menuLabelActive]}>{item.label}</Text>
                   {isActive ? <View style={styles.activeDot} /> : null}

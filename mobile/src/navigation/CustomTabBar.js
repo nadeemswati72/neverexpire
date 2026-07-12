@@ -3,12 +3,26 @@ import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import EmojiIcon from "../components/common/EmojiIcon";
-import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS, SHADOW } from "../constants/theme";
+import GlossyIconPuck from "../components/common/GlossyIconPuck";
+import PlusGlyph from "../components/common/PlusGlyph";
+import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS } from "../constants/theme";
 import { ROUTES } from "./routes";
 
 const TAB_META = {
-  [ROUTES.DASHBOARD]: { activeIcon: "home", inactiveIcon: "home-outline", label: "Dashboard" },
-  [ROUTES.FAMILY]: { activeIcon: "people", inactiveIcon: "people-outline", label: "Family" },
+  [ROUTES.DASHBOARD]: {
+    activeIcon: "home",
+    inactiveIcon: "home-outline",
+    label: "Dashboard",
+    colorStart: COLORS.accent,
+    colorEnd: COLORS.accentDark,
+  },
+  [ROUTES.FAMILY]: {
+    activeIcon: "people",
+    inactiveIcon: "people-outline",
+    label: "Family",
+    colorStart: COLORS.purpleLight,
+    colorEnd: COLORS.purple,
+  },
 };
 
 /**
@@ -16,6 +30,11 @@ const TAB_META = {
  * route (ROUTES.ADD_TAB) is never actually displayed — tapping it pushes
  * AddDocument onto the root stack instead of switching tabs, so the modal
  * appears above the drawer/tabs and "back" returns here.
+ *
+ * The focused tab gets the glossy 3D puck treatment (gradient + shadow +
+ * highlight); unfocused tabs stay a flat, quiet emoji with no puck — that
+ * contrast *is* the active/inactive signal, since true color emoji ignore
+ * RN's color-tint prop and can't be dimmed the usual way.
  */
 export default function CustomTabBar({ state, navigation }) {
   const insets = useSafeAreaInsets();
@@ -27,12 +46,13 @@ export default function CustomTabBar({ state, navigation }) {
           return (
             <View key={route.key} style={styles.fabSlot}>
               <TouchableOpacity
-                style={styles.fab}
                 activeOpacity={0.85}
                 onPress={() => navigation.getParent()?.navigate(ROUTES.ADD_DOCUMENT)}
                 accessibilityLabel="Add document"
               >
-                <EmojiIcon name="add" size={24} />
+                <GlossyIconPuck size={58} colorStart={COLORS.accent} colorEnd={COLORS.accentDark} shadowColor={COLORS.accentDark}>
+                  <PlusGlyph size={26} />
+                </GlossyIconPuck>
               </TouchableOpacity>
             </View>
           );
@@ -50,12 +70,15 @@ export default function CustomTabBar({ state, navigation }) {
             onPress={() => navigation.navigate(route.name)}
             accessibilityLabel={meta.label}
           >
-            {/* True color emoji ignore RN's `color` prop, so the active/inactive
-                distinction now lives on this chip's background instead of an
-                icon tint. */}
-            <View style={[styles.iconChip, isFocused && styles.iconChipActive]}>
-              <EmojiIcon name={isFocused ? meta.activeIcon : meta.inactiveIcon} size={18} />
-            </View>
+            {isFocused ? (
+              <GlossyIconPuck size={32} colorStart={meta.colorStart} colorEnd={meta.colorEnd}>
+                <EmojiIcon name={meta.activeIcon} size={16} />
+              </GlossyIconPuck>
+            ) : (
+              <View style={styles.iconChip}>
+                <EmojiIcon name={meta.inactiveIcon} size={18} />
+              </View>
+            )}
             <Text style={[styles.label, { color: isFocused ? COLORS.primary : COLORS.textMuted }]}>
               {meta.label}
             </Text>
@@ -66,7 +89,7 @@ export default function CustomTabBar({ state, navigation }) {
   );
 }
 
-const FAB_SIZE = 56;
+const FAB_SLOT_HEIGHT = 58;
 
 const styles = StyleSheet.create({
   container: {
@@ -84,14 +107,10 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.xs,
   },
   iconChip: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 32,
+    height: 32,
     alignItems: "center",
     justifyContent: "center",
-  },
-  iconChipActive: {
-    backgroundColor: `${COLORS.accent}22`,
   },
   label: {
     fontSize: FONT_SIZES.xs,
@@ -101,15 +120,6 @@ const styles = StyleSheet.create({
   fabSlot: {
     flex: 1,
     alignItems: "center",
-  },
-  fab: {
-    width: FAB_SIZE,
-    height: FAB_SIZE,
-    borderRadius: FAB_SIZE / 2,
-    backgroundColor: COLORS.accent,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: -FAB_SIZE / 2,
-    ...SHADOW.fab,
+    marginTop: -FAB_SLOT_HEIGHT / 2,
   },
 });

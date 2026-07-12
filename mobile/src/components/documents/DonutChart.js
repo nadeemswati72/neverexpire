@@ -4,15 +4,24 @@ import Svg, { Circle, Defs, LinearGradient, Stop, G } from "react-native-svg";
 
 import { COLORS, FONT_WEIGHTS, withOpacity } from "../../constants/theme";
 
-/** Mixes a hex color toward white by `amount` (0-1) for a glossy highlight stop. */
-function lighten(hexColor, amount) {
+function hexToRgb(hexColor) {
   let hex = hexColor.replace("#", "");
   if (hex.length === 3) hex = hex.split("").map((c) => c + c).join("");
   const value = parseInt(hex, 16);
-  const r = (value >> 16) & 255;
-  const g = (value >> 8) & 255;
-  const b = value & 255;
+  return { r: (value >> 16) & 255, g: (value >> 8) & 255, b: value & 255 };
+}
+
+/** Mixes a hex color toward white by `amount` (0-1) for a glossy highlight stop. */
+function lighten(hexColor, amount) {
+  const { r, g, b } = hexToRgb(hexColor);
   const mix = (channel) => Math.round(channel + (255 - channel) * amount);
+  return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+}
+
+/** Mixes a hex color toward black by `amount` (0-1) for the gradient's dark stop. */
+function darken(hexColor, amount) {
+  const { r, g, b } = hexToRgb(hexColor);
+  const mix = (channel) => Math.round(channel * (1 - amount));
   return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
 }
 
@@ -54,9 +63,10 @@ export default function DonutChart({ segments, total, size = 132, thickness = 18
       <Svg width={size} height={size}>
         <Defs>
           {filtered.map((seg, i) => (
-            <LinearGradient key={`grad-${seg.label}-${i}`} id={`donutGrad${i}`} x1="0" y1="0" x2="1" y2="1">
-              <Stop offset="0" stopColor={lighten(seg.color, 0.4)} />
-              <Stop offset="1" stopColor={seg.color} />
+            <LinearGradient key={`grad-${seg.label}-${i}`} id={`donutGrad${i}`} x1="0.1" y1="0" x2="0.9" y2="1">
+              <Stop offset="0" stopColor={lighten(seg.color, 0.45)} />
+              <Stop offset="0.55" stopColor={seg.color} />
+              <Stop offset="1" stopColor={darken(seg.color, 0.28)} />
             </LinearGradient>
           ))}
         </Defs>
@@ -85,15 +95,15 @@ export default function DonutChart({ segments, total, size = 132, thickness = 18
                 offset += frac;
                 return arc;
               })}
-              {/* Specular sheen — a soft white arc over the upper-left, like a glossy dome. */}
+              {/* Specular sheen — a bold rounded white arc over the upper-left, like a glossy tube. */}
               <Circle
                 cx={c}
                 cy={c}
                 r={r}
                 fill="none"
                 stroke="#FFFFFF"
-                strokeOpacity={0.4}
-                strokeWidth={thickness * 0.38}
+                strokeOpacity={0.5}
+                strokeWidth={thickness * 0.32}
                 strokeDasharray={`${highlightDash} ${circumference - highlightDash}`}
                 strokeDashoffset={highlightOffset}
                 strokeLinecap="round"
@@ -116,10 +126,10 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.26,
+    shadowRadius: 14,
+    elevation: 8,
   },
   centre: {
     ...StyleSheet.absoluteFillObject,

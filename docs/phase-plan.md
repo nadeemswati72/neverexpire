@@ -133,6 +133,60 @@
 
 ---
 
+## PoC Feedback Round — Web (branch `PoC-FeedBack`) ✅ DONE
+**Goal:** Address CIO feedback from PoC round 1 — document sharing, storage safety, watermark fix. Kept on a separate branch from `v2-poc` at Nadeem's request so the base MVP isn't disturbed. Committed to `PoC-FeedBack`; **not deployed to Railway** (redeploy blocked during PoC).
+
+| Task | Status |
+|------|--------|
+| Email-based document sharing (read / edit / download permissions) | ✅ |
+| Bulk share all of a person's documents, with optional future-doc auto-include | ✅ |
+| Revoke sharing anytime; re-share allowed for `edit`-permission holders | ✅ |
+| Share expiry (1 / 7 / 30 days or no expiry), auto-revokes access | ✅ |
+| Mock email service (console + `data/mock_emails.log`) for share/revoke notices | ✅ |
+| Mock email inbox viewer page (`/mock-inbox`) for live demo | ✅ |
+| In-app notification bell (unread badge, dropdown, mark read/all-read) | ✅ |
+| "Shared by X · PERMISSION" badges in the documents list | ✅ |
+| Access audit trail — who viewed/downloaded a shared document, shown on owner's document page | ✅ |
+| Personalized watermark for shared docs (recipient email + date baked in, traceable if leaked) | ✅ |
+| Manual entry: optional picture attach without AI extraction | ✅ |
+| "Add Picture" button on document detail page (owner only) | ✅ |
+| Permission-correct action buttons (Delete=owner only; Edit/Share=`edit`; Download=`download`/`edit`) | ✅ |
+| Fixed: notification dropdown clipped behind Dashboard cards (z-index/stacking) — now uses a React portal | ✅ |
+| Fixed: Safari `-webkit-backdrop-filter` prefix missing on ~29 glass panels across 12 files | ✅ |
+| Email reminders via Gmail SMTP (App Password) — 90/30/7/1 day thresholds, daily APScheduler job + manual trigger, single digest email routed to Nadeem's real Gmail for PoC | ✅ See `backend/reminder_service.py`, `reminder_email.py` |
+| Google Drive storage + encryption for new document uploads (existing local files untouched) | ✅ OAuth2 (personal Google account) + Fernet encryption. Verified: uploads land in Drive encrypted (raw bytes unreadable, not a valid JPEG), download+decrypt+watermark round-trips correctly. See `backend/storage.py` (`GDriveStorageBackend`), `setup_google_drive_auth.py`. |
+| Screenshot / OS-level capture prevention for read-only shares | ⏸ Deferred — not technically preventable on web; watermark is the real mitigation |
+| Mobile responsiveness (sidebar breaks below ~480px) | 🔴 Found, not fixed |
+| Realistic multi-family demo dataset for management presentation | ✅ Al Rashid family (5, Ahmed+Fatima logins) + Khan family (6, Imran+Sara logins), 49 documents with generated specimen images, generated avatars, 10 sharing scenarios covering every permission/expiry/invite/revoke/cross-family case. See `backend/seed_rich_demo.py`. |
+| `Domestic Help` family relation type | ✅ Done — additive seed row, no migration needed |
+
+---
+
+## PoC Feedback Round 2 — Mobile Wired to Real Backend (branch `PoC-FeedBack`) ✅ DONE
+**Goal:** Bring the Expo mobile app from demo-mode (AsyncStorage) to full parity with the web app on the shared Flask backend, verified on Nadeem's iPhone via Expo Go.
+
+| Task | Status |
+|------|--------|
+| Upgrade Expo SDK 51 → 54 (React 19, RN 0.81, Reanimated 4 + worklets, React Navigation v7) | ✅ Required by current Expo Go; v6 drawer crashed with Reanimated 4 |
+| JWT ApiService + Auth/Family/Document/Extraction services on `/api/v1` | ✅ AsyncStorage demo dataset removed |
+| Flask bound to `0.0.0.0` so phones on the Wi-Fi can reach it | ✅ `flask --app run run --host=0.0.0.0` |
+| AI extraction from camera/gallery on device | ✅ Verified on iPhone (passport scan → pre-filled form) |
+| Dashboard: status donut chart + family member filter chips | ✅ react-native-svg |
+| Family member documents screen: per-member status donut | ✅ |
+| Document details: full (uncropped) watermarked picture | ✅ Backend now sends `files` in the list payload (`document_brief`) |
+| MyDocuments filter chip strip height bug | ✅ `flexGrow: 0` fix |
+| Sharing: ShareModal (permission + expiry), share-all per member, revoke | ✅ |
+| Sharing screen: Shared with Me / Shared by Me tabs | ✅ |
+| Access history on owned documents (15s poll) | ✅ |
+| Notifications: backend sharing activity + expiry reminders, live bell badge | ✅ |
+| Register screen (POST /auth/register) linked from login | ✅ |
+| Family member photo avatars (authenticated endpoint) | ✅ |
+| Testing guide refreshed (in-app screen + `docs/testing-guide.html`) | ✅ |
+
+**Still open (mobile):** Change Password / Settings toggles are UI-only; document download/save-to-phone not built; Android device untested.
+
+---
+
 ## Sprint 6 — Mobile Polish + Deploy ⬜ NOT STARTED
 **Goal:** Merge mobile, push notifications, TestFlight/Play Store build.
 
@@ -156,17 +210,19 @@
 |------|--------|-------|
 | **Railway redeploy** | 🚫 Blocked | Do NOT redeploy Railway until PoC phase is closed. Demo data must be preserved. All backend changes requiring redeploy are blocked. |
 | **Relation types: Mother, Father, Employee** | ⏸ Deferred | Requires Railway redeploy. Proposed: MOTHER 👩, FATHER 👨, EMPLOYEE 💼. Keep PARENT in DB, hide in UI. Migrate existing PARENT→FATHER. |
-| **Email reminders** | ⏸ Deferred | Needs APScheduler + Resend/SMTP setup. Reminder rules already seeded in DB. |
 | **EID extraction prompt improvement** | ⏸ Deferred | Discussed, not yet implemented. See EID Analysis section below. |
 | **Model revert to haiku** | ⏸ Blocked | Requested but blocked by Railway redeploy freeze. Currently on claude-sonnet-4-6. |
+| **Screenshot / OS-level capture prevention** | ⏸ Deferred | Not technically possible to block OS-level screenshots (Print Screen etc.) from a website. Browser-level deterrents (right-click, devtools keys, text-select) are in place; personalized watermark is the real mitigation — see PoC Feedback Round section. |
+
+**Done, formerly deferred:** Email reminders (Gmail SMTP) and Google Drive storage + encryption — see PoC Feedback Round section above.
 
 ### Open Items — Under Discussion
 
 | Item | Status | Notes |
 |------|--------|-------|
 | **E2E Testing Plan** | 📋 Created | See `docs/testing-plan.md`. Covers web, iOS, Android, API. Review before Sprint 6 merge. |
-| **Document photo upload (manual entry)** | 💬 Discussed | In manual entry, allow attaching a photo without AI extraction. No backend change needed — reuse upload-and-create without extraction call. |
-| **Web mobile responsiveness** | 💬 Discussed | Web dashboard not tested on mobile browsers. May be broken on narrow screens. |
+| **Document photo upload (manual entry)** | ✅ Done (PoC-FeedBack) | Manual entry now has an optional picture attach; new `POST /documents/:id/files` endpoint, no AI extraction. |
+| **Web mobile responsiveness** | 🔴 Confirmed broken | Sidebar is a fixed 240px on all viewports — on a 375px phone it eats 64% of the screen width, leaving ~135px for content. Needs a collapsible/hamburger sidebar below ~768px. Not yet fixed. |
 | **App icon + splash screen** | 💬 Discussed | Currently using clock emoji. Proper PNG icons needed before App Store submission. |
 | **Privacy policy URL** | 💬 Discussed | Required by App Store + Play Store before submission. |
 | **Database persistence for production** | 💬 Discussed | Railway SQLite is ephemeral (data lost on redeploy). Need persistent volume or PostgreSQL before production launch. Fine for PoC. |
@@ -182,7 +238,6 @@
 | Budgeting | Separate module, own DB tables, new nav section |
 | Expense Tracking | Could integrate with Budgeting |
 | Daily Puzzle Games | Completely different domain — review architecture impact before committing |
-| Document Sharing | Share document details with another person (embassy, employer) |
 | Multiple logins per family | Primary + family member accounts with access levels |
 | NFC chip reading for Emirates ID | Newer EIDs (post-2017) have NFC chip. Requires native Expo module. High effort. |
 

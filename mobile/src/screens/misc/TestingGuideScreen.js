@@ -10,24 +10,25 @@ import { DEMO_USERS, DEMO_PASSWORD } from "../../data/mockUsers";
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, withOpacity } from "../../constants/theme";
 
 const TEST_FLOWS = [
-  "Log in with a demo account (or switch accounts after logging out)",
-  "Dashboard: greeting, summary cards, and recent documents list",
+  "Log in with a demo account (or create a new one via 'Create an account')",
+  "Dashboard: summary cards, status donut chart, and family member filter chips — tap a member to narrow everything to them",
   "Add Document: take a photo, choose from gallery, or upload a file — the form is auto-filled by AI, review and edit before saving (or skip with 'Enter details manually')",
-  "Document Details: view, edit, and delete a document",
-  "My Documents: search and filter by status",
-  "Family: view members, add a new family member, open a member's documents",
-  "Family Member Documents: add a document preselected to that member",
-  "Profile: edit account details and change password (UI-only)",
-  "Notifications: shows documents that are expiring soon or expired",
-  "Side drawer: Settings, Help & Support, About, Logout",
+  "Document Details: watermarked picture, details, edit, and delete",
+  "Share a document: Details → Share, enter another demo account's email, pick permission + expiry; log in as the recipient to see it (with a personalized watermark)",
+  "Sharing screen (drawer): 'Shared with Me' and 'Shared by Me' tabs; revoke an outgoing share",
+  "Access History on a shared document: as the owner, watch views/downloads appear",
+  "Family: view members (with photos), add a new member, share ALL of a member's documents via the share icon",
+  "Family Member Documents: per-member status donut + documents",
+  "My Documents: search and filter chips (All / Expiring Soon / Expired / Valid)",
+  "Notifications (bell): sharing activity with unread badges + expiry reminders",
+  "Side drawer: Sharing, My Documents, Settings, Help & Support, About, Logout",
 ];
 
 const KNOWN_LIMITATIONS = [
-  "Family members and documents are stored on-device (AsyncStorage) — this demo dataset isn't shared with the website.",
-  "The AI document scan (Add Document) calls the developer's Flask server — your phone needs to be on the same Wi-Fi network, or it'll fall back to manual entry.",
+  "The app talks to the developer's Flask server — your phone must be on the same Wi-Fi network. Data is shared with the website (same accounts, same documents).",
   "Camera capture needs a real device; emulators often don't have a working camera.",
-  "Change Password and Notification toggles are UI-only and don't persist or send anything.",
-  "Reinstalling the app or clearing app storage resets all documents and family members back to the seed data.",
+  "Change Password and Notification toggles in Settings are UI-only for this round.",
+  "Share emails are mocked (viewable in the website's Mock Inbox) — recipients see in-app notifications instead.",
 ];
 
 /**
@@ -63,7 +64,7 @@ export default function TestingGuideScreen() {
             </View>
           ))}
           <View style={styles.passwordRow}>
-            <Text style={styles.passwordLabel}>Password (both accounts)</Text>
+            <Text style={styles.passwordLabel}>Password (all accounts)</Text>
             <Text style={styles.passwordValue}>{DEMO_PASSWORD}</Text>
           </View>
         </Card>

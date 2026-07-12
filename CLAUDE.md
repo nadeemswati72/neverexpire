@@ -11,7 +11,8 @@ This is **Version 2** — a full redesign using glassmorphic UI (see design file
 
 ## Repository
 - **GitHub**: `git@github.com:nadeemswati72/neverexpire.git`
-- **Branch**: `v2-poc` (tracks `origin/main`)
+- **Branch**: `v2-poc` (tracks `origin/main`) — base web/mobile MVP
+- **Branch**: `PoC-FeedBack` (tracks `origin/PoC-FeedBack`) — active branch for PoC feedback round 2 (document sharing, notifications, audit trail, watermark personalization); kept separate from `v2-poc` per Nadeem's request
 - **V1 source** (reference only, do not modify): `C:\Users\Hp\NeverExpire\`
 
 ## Tech Stack
@@ -19,7 +20,7 @@ This is **Version 2** — a full redesign using glassmorphic UI (see design file
 | Layer | Technology | Notes |
 |-------|-----------|-------|
 | Backend | Flask + SQLAlchemy | Evolved from V1; SQLite for dev, Postgres-ready |
-| Mobile | React Native (Expo SDK 52+) | Fresh project in `mobile/` |
+| Mobile | React Native (Expo SDK 54) | In `mobile/` — wired to the same REST API as web |
 | Web | React + Vite | Fresh project in `web/` |
 | AI extraction | Anthropic API (claude-sonnet-4-6) | Already working in V1 |
 | Auth | Flask-Login + JWT for API | V1 has session auth; V2 adds JWT for mobile/web clients |
@@ -131,8 +132,10 @@ Both web and mobile use JWT. Login → `POST /api/v1/auth/login` → `{ data: { 
 
 ### Mobile architecture
 See `mobile/CLAUDE.md` for the full guide. Key points:
-- Demo-mode only: all data in AsyncStorage, seeded from `src/data/mock*.js`; no backend calls yet
-- 3-layer rule: screens → context hooks → services → AsyncStorage (never skip layers)
+- Wired to the real Flask backend (`/api/v1`, JWT) — same accounts/data as web; AsyncStorage holds only the token + cached user
+- Expo SDK 54 / React 19 / RN 0.81 / React Navigation v7 (required pairing with Reanimated 4)
+- 3-layer rule: screens → context hooks → services → ApiService (never skip layers)
+- Backend must run with `--host=0.0.0.0` so a phone on the same Wi-Fi can reach it; mobile derives the host from Expo's `hostUri`
 - All colors/spacing from `src/constants/theme.js`; all route strings from `src/navigation/routes.js`
 
 ## Conventions
@@ -141,3 +144,20 @@ See `mobile/CLAUDE.md` for the full guide. Key points:
 - No Jinja templates — all UI is React/React Native
 - All API responses: `{ "data": ..., "error": null }` or `{ "data": null, "error": "message" }`
 - Tests: unit tests per task, E2E per phase end
+
+## Claude's Responsibilities (PoC-FeedBack Phase)
+**Claude should DO:**
+- ✅ Git operations (branch, commit, push)
+- ✅ Code changes (edit, create files)
+- ✅ Run builds and tests
+- ✅ Deploy to existing Vercel projects
+- ✅ Configure environment variables in Vercel (via API if possible)
+- ✅ Set up Google Drive API code integration
+
+**Nadeem should DO (only when account login required):**
+- 🔑 Create new Vercel project (requires account login)
+- 🔑 Set up Google Cloud project (requires GCP account)
+- 🔑 Create Google Drive API credentials
+- 🔑 Create/manage GitHub secrets that require account access
+
+**Rule:** Claude does everything possible; only ask Nadeem for account-specific actions.

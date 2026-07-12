@@ -117,6 +117,13 @@ export default function AddDocumentScreen({ navigation, route }) {
           color={COLORS.warning}
           onPress={handleUploadFile}
         />
+        <SourceOptionCard
+          icon="mic-outline"
+          title="Speak It"
+          subtitle="Describe it in your own words — AI fills the form"
+          color={COLORS.accentDark}
+          onPress={() => navigation.navigate(ROUTES.VOICE_ADD, { familyMemberId })}
+        />
 
         <TouchableOpacity onPress={handleEnterManually} disabled={isProcessing} style={styles.manualLink}>
           <Text style={styles.manualLinkText}>Enter details manually instead</Text>

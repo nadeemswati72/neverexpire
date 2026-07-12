@@ -9,6 +9,7 @@ export const ROUTES = {
 
   // Screens pushed above the drawer (hide tabs/drawer while open)
   ADD_DOCUMENT: "AddDocument",
+  VOICE_ADD: "VoiceAdd",
   DOCUMENT_FORM: "DocumentForm",
   DOCUMENT_DETAILS: "DocumentDetails",
   MY_DOCUMENTS: "MyDocuments",

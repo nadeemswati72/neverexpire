@@ -1,4 +1,5 @@
 import base64
+from datetime import date
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Sequence
 
@@ -102,6 +103,47 @@ def extract_expiry_info(file_path: str) -> ExpiryExtraction:
                 "content": [content_block, {"type": "text", "text": EXTRACTION_PROMPT}],
             }
         ],
+        output_format=ExpiryExtraction,
+    ) as stream:
+        final_message = stream.get_final_message()
+
+    return final_message.parsed_output
+
+
+VOICE_PROMPT_TEMPLATE = (
+    "The user spoke or typed a short, casual description of a document or "
+    "reminder they want to add to their document-expiry tracker. Extract "
+    "structured fields as JSON, resolving any relative dates (\"next March\", "
+    "\"in 30 days\", \"end of this year\") against today's date: {today}.\n\n"
+    "- document_type: a short category (e.g. passport, visa, insurance, "
+    "license, warranty, subscription, certificate, or other if nothing fits)\n"
+    "- title: a short, human-readable label for this document\n"
+    "- issued_date: YYYY-MM-DD if mentioned, else null\n"
+    "- expiry_date: YYYY-MM-DD — resolve relative phrasing against today's "
+    "date above, else null if no date was given at all\n"
+    "- document_number: only if a specific number/code was stated, else null\n"
+    "- issuing_authority: only if stated (e.g. a country, company, bank), "
+    "else null\n"
+    "- holder_name: only if the user names someone specific (e.g. \"my "
+    "son's\", \"Fatima's\"); if they say \"my\" or don't mention anyone, "
+    "return null and the app will default to the account holder\n"
+    "- additional_notes: any other detail mentioned that doesn't fit above, "
+    "as a short sentence, else null\n"
+    "- confidence: \"high\" if a clear document type and date were given, "
+    "\"medium\" if one is vague, \"low\" if very little information was given\n\n"
+    "User said: \"{text}\""
+)
+
+
+def extract_from_text(text: str) -> ExpiryExtraction:
+    """Parse a typed/dictated description into the same fields as image
+    extraction — powers the mobile 'voice reminder' Add Document flow."""
+    prompt = VOICE_PROMPT_TEMPLATE.format(today=date.today().isoformat(), text=text)
+
+    with client.messages.stream(
+        model=config.EXTRACTION_MODEL,
+        max_tokens=1024,
+        messages=[{"role": "user", "content": [{"type": "text", "text": prompt}]}],
         output_format=ExpiryExtraction,
     ) as stream:
         final_message = stream.get_final_message()

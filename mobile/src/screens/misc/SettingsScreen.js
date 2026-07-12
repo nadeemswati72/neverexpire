@@ -1,48 +1,60 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, Switch, StyleSheet } from "react-native";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
 import Header from "../../components/common/Header";
 import Card from "../../components/common/Card";
 import SectionHeader from "../../components/common/SectionHeader";
+import { useAppData } from "../../context/DataContext";
+import * as NotificationSchedulerService from "../../services/NotificationSchedulerService";
 import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS } from "../../constants/theme";
 
 const NOTIFICATION_OPTIONS = [
   {
     key: "expiryReminders",
     label: "Expiry Reminders",
-    description: "Get notified 30 days before a document expires",
-    defaultValue: true,
+    description: "On-device alerts 30/7/1 days before a document expires",
   },
   {
     key: "expiredAlerts",
     label: "Expired Document Alerts",
-    description: "Get notified immediately when a document expires",
-    defaultValue: true,
+    description: "On-device alert on the day a document expires",
   },
   {
     key: "weeklyDigest",
     label: "Weekly Email Digest",
-    description: "Receive a weekly summary of upcoming expiries",
-    defaultValue: false,
+    description: "Receive a weekly summary of upcoming expiries (UI-only for this round)",
+    isEmailOnly: true,
   },
 ];
 
+const DEFAULT_TOGGLES = { expiryReminders: true, expiredAlerts: true, weeklyDigest: false };
+
 /**
- * Notification preferences (drawer "Settings"). UI-only — toggles are kept
- * in local state for the demo and aren't wired to a real notification
- * service yet.
+ * Notification preferences. expiryReminders/expiredAlerts are real —
+ * persisted to AsyncStorage and control on-device scheduled notifications
+ * (see NotificationSchedulerService). weeklyDigest stays UI-only; the
+ * actual reminder digest email is a server-side feature, not a device toggle.
  */
 export default function SettingsScreen() {
-  const [toggles, setToggles] = useState(() =>
-    NOTIFICATION_OPTIONS.reduce((acc, option) => {
-      acc[option.key] = option.defaultValue;
-      return acc;
-    }, {})
-  );
+  const { documents } = useAppData();
+  const [toggles, setToggles] = useState(DEFAULT_TOGGLES);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const handleToggle = (key) => {
-    setToggles((prev) => ({ ...prev, [key]: !prev[key] }));
+  useEffect(() => {
+    NotificationSchedulerService.getPreferences().then((prefs) => {
+      setToggles({ ...DEFAULT_TOGGLES, ...prefs });
+      setIsLoaded(true);
+    });
+  }, []);
+
+  const handleToggle = async (key, option) => {
+    const next = { ...toggles, [key]: !toggles[key] };
+    setToggles(next);
+    if (option.isEmailOnly) return;
+
+    await NotificationSchedulerService.setPreferences(next);
+    NotificationSchedulerService.syncExpiryNotifications(documents).catch(() => {});
   };
 
   return (
@@ -60,7 +72,8 @@ export default function SettingsScreen() {
                 </View>
                 <Switch
                   value={toggles[option.key]}
-                  onValueChange={() => handleToggle(option.key)}
+                  onValueChange={() => handleToggle(option.key, option)}
+                  disabled={!isLoaded}
                   trackColor={{ false: COLORS.border, true: COLORS.accent }}
                   thumbColor={COLORS.surface}
                 />

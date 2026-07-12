@@ -12,7 +12,7 @@ import { useAppData } from "../../context/DataContext";
 import { useAuth } from "../../context/AuthContext";
 import { authHeader } from "../../services/ApiService";
 import { DOCUMENT_TYPE_LIST, mapExtractedDocumentType } from "../../constants/documentTypes";
-import { extractDocumentDetails, ExtractionError } from "../../services/ExtractionService";
+import { extractDocumentDetails, extractFromVoiceText, ExtractionError } from "../../services/ExtractionService";
 import { validateDocumentForm, isValidISODate } from "../../utils/validators";
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, withOpacity } from "../../constants/theme";
 import { ROUTES } from "../../navigation/routes";
@@ -26,7 +26,12 @@ import { ROUTES } from "../../navigation/routes";
 export default function DocumentFormScreen() {
   const navigation = useNavigation();
   const route = useRoute();
-  const { imageUri: pickedImageUri, documentId, familyMemberId: preselectedFamilyMemberId } = route.params || {};
+  const {
+    imageUri: pickedImageUri,
+    voiceText,
+    documentId,
+    familyMemberId: preselectedFamilyMemberId,
+  } = route.params || {};
   const { familyMembers, getDocumentById, saveDocument } = useAppData();
   const { token } = useAuth();
 
@@ -49,17 +54,20 @@ export default function DocumentFormScreen() {
 
   const imageUri = existingDocument?.imageUri ?? pickedImageUri ?? null;
 
-  // On a freshly picked image (not when editing an existing document), ask
-  // the Flask backend's /api/extract to read the document and pre-fill the
-  // form — same AI extraction the web "Add Document" flow uses.
+  // On a freshly picked image or a dictated/typed voice description (not
+  // when editing an existing document), ask the backend to read/parse it
+  // and pre-fill the form — same AI extraction the web "Add Document" flow
+  // uses, just with a text source instead of an image for the voice case.
   useEffect(() => {
-    if (!pickedImageUri || isEditing) return;
+    if ((!pickedImageUri && !voiceText) || isEditing) return;
 
     let isCancelled = false;
     (async () => {
       setIsExtracting(true);
       try {
-        const result = await extractDocumentDetails(pickedImageUri);
+        const result = pickedImageUri
+          ? await extractDocumentDetails(pickedImageUri)
+          : await extractFromVoiceText(voiceText);
         if (isCancelled) return;
         setDocumentType(mapExtractedDocumentType(result.document_type));
         if (result.holder_name) setFullName(result.holder_name);
@@ -80,7 +88,7 @@ export default function DocumentFormScreen() {
     return () => {
       isCancelled = true;
     };
-  }, [pickedImageUri, isEditing]);
+  }, [pickedImageUri, voiceText, isEditing]);
 
   const handleSave = async () => {
     const validationErrors = validateDocumentForm({ documentType, fullName, expiryDate });
@@ -128,7 +136,9 @@ export default function DocumentFormScreen() {
         {isExtracting ? (
           <View style={styles.extractingBanner}>
             <ActivityIndicator size="small" color={COLORS.primary} />
-            <Text style={styles.extractingText}>Reading document with AI&hellip;</Text>
+            <Text style={styles.extractingText}>
+              {voiceText ? "Understanding your description…" : "Reading document with AI…"}
+            </Text>
           </View>
         ) : null}
 

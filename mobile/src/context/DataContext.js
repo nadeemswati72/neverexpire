@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 
 import * as DocumentService from "../services/DocumentService";
 import * as FamilyService from "../services/FamilyService";
+import * as NotificationSchedulerService from "../services/NotificationSchedulerService";
 import { useAuth } from "./AuthContext";
 
 const DataContext = createContext(null);
@@ -23,6 +24,7 @@ export function DataProvider({ children }) {
       setFamilyMembers([]);
       setDocuments([]);
       setIsLoading(false);
+      NotificationSchedulerService.cancelAll().catch(() => {});
       return;
     }
     setIsLoading(true);
@@ -33,6 +35,8 @@ export function DataProvider({ children }) {
     setFamilyMembers(members);
     setDocuments(docs);
     setIsLoading(false);
+    // Best-effort — a permission denial or scheduling hiccup shouldn't block the UI.
+    NotificationSchedulerService.syncExpiryNotifications(docs).catch(() => {});
   }, [user]);
 
   useEffect(() => {

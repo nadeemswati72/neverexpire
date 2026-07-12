@@ -51,3 +51,34 @@ export async function extractDocumentDetails(fileUri) {
   // Normalize to the field names DocumentFormScreen already expects.
   return { ...data, additional_notes: data.notes };
 }
+
+/**
+ * "Voice reminder" flow: the user dictates or types a short description
+ * (e.g. "my Dubai driving license expires next March") instead of scanning
+ * an image; the backend parses it into the same fields via Claude text
+ * extraction. Reuses DocumentFormScreen's existing pre-fill-then-confirm UX.
+ */
+export async function extractFromVoiceText(text) {
+  const token = await ApiService.getAuthToken();
+
+  let response;
+  try {
+    response = await fetch(`${API_V1_URL}/documents/extract-from-text`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json", ...ApiService.authHeader(token) },
+      body: JSON.stringify({ text }),
+    });
+  } catch (err) {
+    throw new ExtractionError(
+      "Could not reach the server. Make sure this phone and the dev computer are on the same Wi-Fi network."
+    );
+  }
+
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new ExtractionError(payload?.error || "Could not understand that.");
+  }
+
+  const data = payload?.data || {};
+  return { ...data, additional_notes: data.notes };
+}

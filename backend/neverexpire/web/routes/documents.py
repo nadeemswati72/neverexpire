@@ -17,7 +17,7 @@ from ...db.repository import (
 )
 from ...db.session import get_session
 from ...db.sharing import can_user_access_document, get_effective_share
-from ...extractor import EXTENSION_MEDIA_TYPES, extract_expiry_info
+from ...extractor import EXTENSION_MEDIA_TYPES, extract_expiry_info, extract_from_text
 from ..jwt_utils import jwt_required
 from ..serializers import document_brief, document_detail
 
@@ -278,6 +278,38 @@ def extract_only():
     except Exception as e:
         tmp_path.unlink(missing_ok=True)
         return jsonify({"data": None, "error": f"Extraction failed: {str(e)}"}), 500
+
+
+@documents_bp.post("/api/v1/documents/extract-from-text")
+@jwt_required
+def extract_from_text_only():
+    """Parse a typed/dictated description into document fields WITHOUT
+    saving — powers the mobile 'voice reminder' Add Document flow."""
+    body = request.get_json(silent=True) or {}
+    text = (body.get("text") or "").strip()
+    if not text:
+        return jsonify({"data": None, "error": "text is required"}), 400
+    if len(text) > 2000:
+        return jsonify({"data": None, "error": "That's too long — try a shorter description"}), 400
+
+    try:
+        extraction = extract_from_text(text)
+        return jsonify({
+            "data": {
+                "document_type": extraction.document_type,
+                "title": extraction.title,
+                "issued_date": extraction.issued_date,
+                "expiry_date": extraction.expiry_date,
+                "document_number": extraction.document_number,
+                "issuing_authority": extraction.issuing_authority,
+                "holder_name": extraction.holder_name,
+                "notes": extraction.additional_notes,
+                "confidence": extraction.confidence,
+            },
+            "error": None,
+        })
+    except Exception as e:
+        return jsonify({"data": None, "error": f"Could not understand that: {str(e)}"}), 500
 
 
 @documents_bp.post("/api/v1/documents/upload-and-create")

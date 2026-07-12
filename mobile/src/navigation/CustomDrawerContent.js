@@ -1,17 +1,18 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useNavigationState } from "@react-navigation/native";
 
 import Avatar from "../components/common/Avatar";
 import { useAuth } from "../context/AuthContext";
-import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS, RADIUS } from "../constants/theme";
+import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS, RADIUS, withOpacity } from "../constants/theme";
 import { ROUTES } from "./routes";
 
 /**
- * Side navigation drawer (Mobile.jpg screen 8). Each item either switches
- * the bottom tab (Dashboard, Family Members) or pushes a screen onto the
- * root stack via `navigation.getParent()` so it appears above the drawer.
+ * Side navigation drawer. Styled to echo the web sidebar's teal-accented
+ * glass look (frosted header, teal active/pressed tint, muted uppercase
+ * section label) rather than mobile's previous flat, undifferentiated list.
  */
 const MENU_ITEMS = [
   {
@@ -78,9 +79,20 @@ const MENU_ITEMS = [
   },
 ];
 
+/** Reads the focused route name inside the bottom-tab navigator, if any (so Dashboard/Family can highlight). */
+function useActiveTabRoute() {
+  return useNavigationState((state) => {
+    const drawerRoute = state?.routes?.[state.index];
+    const tabState = drawerRoute?.state;
+    if (!tabState || tabState.type !== "tab") return null;
+    return tabState.routes?.[tabState.index]?.name ?? null;
+  });
+}
+
 export default function CustomDrawerContent({ navigation }) {
   const { user, logout } = useAuth();
   const insets = useSafeAreaInsets();
+  const activeTabRoute = useActiveTabRoute();
 
   const handleNavigate = (item) => {
     navigation.closeDrawer();
@@ -99,7 +111,10 @@ export default function CustomDrawerContent({ navigation }) {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + SPACING.lg, paddingBottom: insets.bottom + SPACING.lg }]}>
-      <TouchableOpacity style={styles.profile} onPress={handleProfilePress} activeOpacity={0.85}>
+      <Pressable
+        style={({ pressed }) => [styles.profile, pressed && styles.profilePressed]}
+        onPress={handleProfilePress}
+      >
         <Avatar name={user?.name} color={user?.avatarColor} size={56} />
         <View style={styles.profileText}>
           <Text style={styles.name} numberOfLines={1}>
@@ -109,21 +124,43 @@ export default function CustomDrawerContent({ navigation }) {
             {user?.email}
           </Text>
         </View>
-      </TouchableOpacity>
+      </Pressable>
+
+      <Text style={styles.sectionLabel}>Menu</Text>
 
       <View style={styles.menu}>
-        {MENU_ITEMS.map((item) => (
-          <TouchableOpacity key={item.key} style={styles.menuItem} onPress={() => handleNavigate(item)}>
-            <Ionicons name={item.icon} size={20} color={COLORS.textPrimary} style={styles.menuIcon} />
-            <Text style={styles.menuLabel}>{item.label}</Text>
-          </TouchableOpacity>
-        ))}
+        {MENU_ITEMS.map((item) => {
+          const isActive = item.key === activeTabRoute;
+          return (
+            <Pressable
+              key={item.key}
+              style={({ pressed }) => [
+                styles.menuItem,
+                isActive && styles.menuItemActive,
+                pressed && !isActive && styles.menuItemPressed,
+              ]}
+              onPress={() => handleNavigate(item)}
+            >
+              <Ionicons
+                name={item.icon}
+                size={20}
+                color={isActive ? COLORS.accentDark : COLORS.textSecondary}
+                style={styles.menuIcon}
+              />
+              <Text style={[styles.menuLabel, isActive && styles.menuLabelActive]}>{item.label}</Text>
+              {isActive ? <View style={styles.activeDot} /> : null}
+            </Pressable>
+          );
+        })}
       </View>
 
-      <TouchableOpacity style={[styles.menuItem, styles.logout]} onPress={handleLogout}>
+      <Pressable
+        style={({ pressed }) => [styles.menuItem, styles.logout, pressed && styles.logoutPressed]}
+        onPress={handleLogout}
+      >
         <Ionicons name="log-out-outline" size={20} color={COLORS.danger} style={styles.menuIcon} />
         <Text style={[styles.menuLabel, styles.logoutLabel]}>Logout</Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 }
@@ -141,6 +178,10 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.sm,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
+    borderRadius: RADIUS.md,
+  },
+  profilePressed: {
+    backgroundColor: withOpacity(COLORS.accent, 0.06),
   },
   profileText: {
     flex: 1,
@@ -156,15 +197,33 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     marginTop: 2,
   },
+  sectionLabel: {
+    fontSize: 10,
+    fontWeight: FONT_WEIGHTS.bold,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    color: COLORS.textMuted,
+    marginTop: SPACING.md,
+    marginBottom: SPACING.xs,
+    marginLeft: SPACING.xs,
+  },
   menu: {
     flex: 1,
-    paddingTop: SPACING.sm,
+    paddingTop: SPACING.xs,
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.sm,
     borderRadius: RADIUS.md,
+    marginBottom: 2,
+  },
+  menuItemActive: {
+    backgroundColor: withOpacity(COLORS.accent, 0.12),
+  },
+  menuItemPressed: {
+    backgroundColor: withOpacity(COLORS.primary, 0.05),
   },
   menuIcon: {
     marginRight: SPACING.lg,
@@ -173,12 +232,28 @@ const styles = StyleSheet.create({
   menuLabel: {
     fontSize: FONT_SIZES.md,
     fontWeight: FONT_WEIGHTS.medium,
+    color: COLORS.textSecondary,
+  },
+  menuLabelActive: {
     color: COLORS.textPrimary,
+    fontWeight: FONT_WEIGHTS.semibold,
+  },
+  activeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.accent,
+    marginLeft: "auto",
   },
   logout: {
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
+    borderRadius: 0,
     paddingTop: SPACING.lg,
+    marginTop: SPACING.xs,
+  },
+  logoutPressed: {
+    backgroundColor: withOpacity(COLORS.danger, 0.06),
   },
   logoutLabel: {
     color: COLORS.danger,

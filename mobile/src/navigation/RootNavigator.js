@@ -1,16 +1,19 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import * as Notifications from "expo-notifications";
 
 import { useAuth } from "../context/AuthContext";
 import { COLORS } from "../constants/theme";
 import { ROUTES } from "./routes";
+import { navigationRef, navigate } from "./navigationRef";
 
 import LoginScreen from "../screens/auth/LoginScreen";
 import RegisterScreen from "../screens/auth/RegisterScreen";
 import MainDrawerNavigator from "./MainDrawerNavigator";
 import AddDocumentScreen from "../screens/documents/AddDocumentScreen";
+import VoiceReminderScreen from "../screens/documents/VoiceReminderScreen";
 import DocumentFormScreen from "../screens/documents/DocumentFormScreen";
 import DocumentDetailsScreen from "../screens/documents/DocumentDetailsScreen";
 import MyDocumentsScreen from "../screens/documents/MyDocumentsScreen";
@@ -34,6 +37,17 @@ const Stack = createNativeStackNavigator();
 export default function RootNavigator() {
   const { isAuthenticated, isLoading } = useAuth();
 
+  // Tapping a scheduled expiry notification opens that document directly.
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const documentId = response.notification.request.content.data?.documentId;
+      if (documentId) {
+        navigate(ROUTES.DOCUMENT_DETAILS, { documentId });
+      }
+    });
+    return () => subscription.remove();
+  }, []);
+
   if (isLoading) {
     return (
       <View style={styles.loading}>
@@ -43,12 +57,13 @@ export default function RootNavigator() {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
           <Stack.Group>
             <Stack.Screen name={ROUTES.DRAWER} component={MainDrawerNavigator} />
             <Stack.Screen name={ROUTES.ADD_DOCUMENT} component={AddDocumentScreen} />
+            <Stack.Screen name={ROUTES.VOICE_ADD} component={VoiceReminderScreen} />
             <Stack.Screen name={ROUTES.DOCUMENT_FORM} component={DocumentFormScreen} />
             <Stack.Screen name={ROUTES.DOCUMENT_DETAILS} component={DocumentDetailsScreen} />
             <Stack.Screen name={ROUTES.MY_DOCUMENTS} component={MyDocumentsScreen} />

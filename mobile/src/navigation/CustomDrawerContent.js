@@ -10,9 +10,10 @@ import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS, RADIUS, withOpacity } from "
 import { ROUTES } from "./routes";
 
 /**
- * Side navigation drawer. Styled to echo the web sidebar's teal-accented
- * glass look (frosted header, teal active/pressed tint, muted uppercase
- * section label) rather than mobile's previous flat, undifferentiated list.
+ * Side navigation drawer. Rebuilt to match the web sidebar's teal identity:
+ * a branded header block (logo + wordmark, same as web's top-left), teal
+ * icon chips on every row (previously flat black icons with no background —
+ * the biggest visual gap vs. web), and a teal active/pressed state on top.
  */
 const MENU_ITEMS = [
   {
@@ -79,7 +80,7 @@ const MENU_ITEMS = [
   },
 ];
 
-/** Reads the focused route name inside the bottom-tab navigator, if any (so Dashboard/Family can highlight). */
+/** Bonus: highlights Dashboard/Family when that tab is currently focused. */
 function useActiveTabRoute() {
   return useNavigationState((state) => {
     const drawerRoute = state?.routes?.[state.index];
@@ -111,11 +112,21 @@ export default function CustomDrawerContent({ navigation }) {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + SPACING.lg, paddingBottom: insets.bottom + SPACING.lg }]}>
+      <View style={styles.brandRow}>
+        <View style={styles.brandLogo}>
+          <Ionicons name="shield-checkmark" size={18} color={COLORS.white} />
+        </View>
+        <View>
+          <Text style={styles.brandTitle}>NeverExpire</Text>
+          <Text style={styles.brandSubtitle}>Document Tracker</Text>
+        </View>
+      </View>
+
       <Pressable
         style={({ pressed }) => [styles.profile, pressed && styles.profilePressed]}
         onPress={handleProfilePress}
       >
-        <Avatar name={user?.name} color={user?.avatarColor} size={56} />
+        <Avatar name={user?.name} color={user?.avatarColor} size={52} />
         <View style={styles.profileText}>
           <Text style={styles.name} numberOfLines={1}>
             {user?.name}
@@ -141,12 +152,9 @@ export default function CustomDrawerContent({ navigation }) {
               ]}
               onPress={() => handleNavigate(item)}
             >
-              <Ionicons
-                name={item.icon}
-                size={20}
-                color={isActive ? COLORS.accentDark : COLORS.textSecondary}
-                style={styles.menuIcon}
-              />
+              <View style={[styles.iconChip, isActive && styles.iconChipActive]}>
+                <Ionicons name={item.icon} size={17} color={isActive ? COLORS.white : COLORS.accentDark} />
+              </View>
               <Text style={[styles.menuLabel, isActive && styles.menuLabelActive]}>{item.label}</Text>
               {isActive ? <View style={styles.activeDot} /> : null}
             </Pressable>
@@ -158,7 +166,9 @@ export default function CustomDrawerContent({ navigation }) {
         style={({ pressed }) => [styles.menuItem, styles.logout, pressed && styles.logoutPressed]}
         onPress={handleLogout}
       >
-        <Ionicons name="log-out-outline" size={20} color={COLORS.danger} style={styles.menuIcon} />
+        <View style={[styles.iconChip, styles.iconChipDanger]}>
+          <Ionicons name="log-out-outline" size={17} color={COLORS.danger} />
+        </View>
         <Text style={[styles.menuLabel, styles.logoutLabel]}>Logout</Text>
       </Pressable>
     </View>
@@ -171,10 +181,36 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     paddingHorizontal: SPACING.lg,
   },
+  brandRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.sm,
+    marginBottom: SPACING.lg,
+  },
+  brandLogo: {
+    width: 32,
+    height: 32,
+    borderRadius: RADIUS.sm,
+    backgroundColor: COLORS.accent,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  brandTitle: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: FONT_WEIGHTS.bold,
+    color: COLORS.primary,
+    letterSpacing: -0.2,
+  },
+  brandSubtitle: {
+    fontSize: 10,
+    color: COLORS.textMuted,
+    marginTop: 1,
+  },
   profile: {
     flexDirection: "row",
     alignItems: "center",
-    paddingBottom: SPACING.xl,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.xs,
     marginBottom: SPACING.sm,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
@@ -202,7 +238,7 @@ const styles = StyleSheet.create({
     fontWeight: FONT_WEIGHTS.bold,
     letterSpacing: 1,
     textTransform: "uppercase",
-    color: COLORS.textMuted,
+    color: COLORS.accentDark,
     marginTop: SPACING.md,
     marginBottom: SPACING.xs,
     marginLeft: SPACING.xs,
@@ -214,8 +250,8 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.xs,
     borderRadius: RADIUS.md,
     marginBottom: 2,
   },
@@ -225,9 +261,20 @@ const styles = StyleSheet.create({
   menuItemPressed: {
     backgroundColor: withOpacity(COLORS.primary, 0.05),
   },
-  menuIcon: {
-    marginRight: SPACING.lg,
-    width: 24,
+  iconChip: {
+    width: 32,
+    height: 32,
+    borderRadius: RADIUS.sm,
+    backgroundColor: withOpacity(COLORS.accent, 0.14),
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: SPACING.md,
+  },
+  iconChipActive: {
+    backgroundColor: COLORS.accent,
+  },
+  iconChipDanger: {
+    backgroundColor: withOpacity(COLORS.danger, 0.12),
   },
   menuLabel: {
     fontSize: FONT_SIZES.md,

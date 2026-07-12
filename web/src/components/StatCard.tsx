@@ -15,8 +15,7 @@ export default function StatCard({ label, value, icon, color, bgColor, borderCol
       onClick={onClick}
       style={{
         background: active ? `${bgColor.replace('0.1', '0.22')}` : 'rgba(255,255,255,0.6)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
+        backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
         border: `1.5px solid ${active ? color + '66' : borderColor}`,
         borderRadius: 16,
         padding: '20px 22px',

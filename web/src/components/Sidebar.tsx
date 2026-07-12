@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { logout } from '../auth'
 import type { Person, User } from '../api'
 import MemberAvatar from './MemberAvatar'
+import NotificationBell from './NotificationBell'
 
 interface Props {
   user: User | null
@@ -15,16 +16,22 @@ const NAV_ITEMS = [
   { label: 'Dashboard', icon: '▦', path: '/', id: 'dashboard' },
   { label: 'Documents', icon: '📄', path: '/documents', id: 'documents' },
   { label: 'Family', icon: '👥', path: '/family', id: 'family' },
+  { label: 'Sharing', icon: '🔗', path: '/sharing', id: 'sharing' },
+  { label: 'Mock Inbox', icon: '📬', path: '/mock-inbox', id: 'mock-inbox' },
   { label: 'Reminders', icon: '🔔', path: '/reminders', id: 'reminders', soon: true },
 ]
 
 const RELATION_ICONS: Record<string, string> = {
-  SELF: '👤', SPOUSE: '💑', CHILD: '👶', PARENT: '👴', SIBLING: '🧑', OTHER: '🙂',
+  SELF: '👤', SPOUSE: '💑', CHILD: '👶', PARENT: '👴', SIBLING: '🧑', DOMESTIC_HELP: '🧹', OTHER: '🙂',
 }
 
 const RELATION_COLORS: Record<string, string> = {
   SELF: '#34c9ba', SPOUSE: '#e879a0', CHILD: '#f6ad55',
-  PARENT: '#68d391', SIBLING: '#76e4f7', OTHER: '#b794f4',
+  PARENT: '#68d391', SIBLING: '#76e4f7', DOMESTIC_HELP: '#f6a5c0', OTHER: '#b794f4',
+}
+
+function formatRelationLabel(code: string) {
+  return code.split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ')
 }
 
 export default function Sidebar({ user, family, selectedPersonId, onSelectPerson, activePage = 'dashboard' }: Props) {
@@ -35,8 +42,7 @@ export default function Sidebar({ user, family, selectedPersonId, onSelectPerson
       width: 240,
       minHeight: '100vh',
       background: 'rgba(255,255,255,0.52)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
+      backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
       borderRight: '1px solid rgba(255,255,255,0.55)',
       display: 'flex',
       flexDirection: 'column',
@@ -53,10 +59,11 @@ export default function Sidebar({ user, family, selectedPersonId, onSelectPerson
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 18, boxShadow: '0 3px 10px rgba(52,201,186,0.3)',
           }}>⏰</div>
-          <div>
+          <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 800, fontSize: 15, color: '#15203a', letterSpacing: '-0.3px' }}>NeverExpire</div>
             <div style={{ fontSize: 11, color: '#8a9ab5', marginTop: 1 }}>Document Tracker</div>
           </div>
+          <NotificationBell />
         </div>
       </div>
 
@@ -154,7 +161,7 @@ export default function Sidebar({ user, family, selectedPersonId, onSelectPerson
               </div>
               <div>
                 <div>{p.full_name.split(' ')[0]}</div>
-                <div style={{ fontSize: 10, color: '#8a9ab5' }}>{p.relation_type ? p.relation_type.charAt(0) + p.relation_type.slice(1).toLowerCase() : ''}</div>
+                <div style={{ fontSize: 10, color: '#8a9ab5' }}>{p.relation_type ? formatRelationLabel(p.relation_type) : ''}</div>
               </div>
             </div>
           ))}

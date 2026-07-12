@@ -37,6 +37,10 @@ export default function AddDocumentPage() {
   const [extraction, setExtraction] = useState<Extraction | null>(null)
   const [extractError, setExtractError] = useState('')
 
+  // Manual entry: optional picture attachment (no AI extraction)
+  const manualFileRef = useRef<HTMLInputElement>(null)
+  const [manualFile, setManualFile] = useState<File | null>(null)
+
   // Form fields
   const [personId, setPersonId] = useState<number | ''>('')
   const [docTypeCode, setDocTypeCode] = useState('OTHER')
@@ -126,6 +130,11 @@ export default function AddDocumentPage() {
           holder_name: holderName || null,
           notes: notes || null,
         })
+        if (manualFile) {
+          const fd = new FormData()
+          fd.append('file', manualFile)
+          await api.post(`/documents/${r.data.data.id}/files`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+        }
       }
       navigate(`/documents/${r.data.data.id}`)
     } catch (e: any) {
@@ -167,7 +176,7 @@ export default function AddDocumentPage() {
 
             <button
               onClick={() => setStep('manual')}
-              style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.55)', borderRadius: 16, padding: '28px 20px', cursor: 'pointer', textAlign: 'left' }}
+              style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.55)', borderRadius: 16, padding: '28px 20px', cursor: 'pointer', textAlign: 'left' }}
             >
               <div style={{ fontSize: 32, marginBottom: 12 }}>✏️</div>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#15203a' }}>Manual Entry</div>
@@ -178,7 +187,7 @@ export default function AddDocumentPage() {
 
         {/* Step: upload */}
         {step === 'upload' && (
-          <div style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.55)', borderRadius: 16, padding: 32 }}>
+          <div style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.55)', borderRadius: 16, padding: 32 }}>
             <input ref={fileRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }} onChange={e => { if (e.target.files?.[0]) handleFileUpload(e.target.files[0]) }} />
 
             {extracting ? (
@@ -202,7 +211,7 @@ export default function AddDocumentPage() {
 
         {/* Step: preview (after extraction) or manual */}
         {(step === 'preview' || step === 'manual') && (
-          <div style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.55)', borderRadius: 16, padding: '28px 32px' }}>
+          <div style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.55)', borderRadius: 16, padding: '28px 32px' }}>
 
             {step === 'preview' && extraction && (
               <div style={{ background: 'rgba(52,201,186,0.08)', border: '1px solid rgba(52,201,186,0.2)', borderRadius: 10, padding: '12px 16px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -232,6 +241,23 @@ export default function AddDocumentPage() {
                 <label style={labelStyle}>Document Title *</label>
                 <input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Alice Passport" style={inputStyle} />
               </div>
+
+              {step === 'manual' && (
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={labelStyle}>Picture (optional)</label>
+                  <input ref={manualFileRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }} onChange={e => setManualFile(e.target.files?.[0] ?? null)} />
+                  {manualFile ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(52,201,186,0.08)', border: '1px solid rgba(52,201,186,0.25)', borderRadius: 9, padding: '9px 12px' }}>
+                      <span style={{ fontSize: 13, color: '#15203a', flex: 1 }}>📎 {manualFile.name}</span>
+                      <button type="button" onClick={() => setManualFile(null)} style={{ background: 'none', border: 'none', color: '#c53030', fontSize: 12, cursor: 'pointer', fontWeight: 600 }}>Remove</button>
+                    </div>
+                  ) : (
+                    <button type="button" onClick={() => manualFileRef.current?.click()} style={{ ...inputStyle, textAlign: 'left', cursor: 'pointer', color: '#8a9ab5', background: 'rgba(255,255,255,0.7)' }}>
+                      📎 Attach a photo or scan (optional)
+                    </button>
+                  )}
+                </div>
+              )}
 
               <div>
                 <label style={labelStyle}>Document Type</label>

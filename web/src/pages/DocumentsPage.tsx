@@ -86,16 +86,16 @@ export default function DocumentsPage() {
               placeholder="Search documents or people…"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              style={{ flex: 1, minWidth: 200, background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.6)', borderRadius: 10, padding: '9px 14px', fontSize: 13, color: '#15203a', outline: 'none' }}
+              style={{ flex: 1, minWidth: 200, background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.6)', borderRadius: 10, padding: '9px 14px', fontSize: 13, color: '#15203a', outline: 'none' }}
             />
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.6)', borderRadius: 10, padding: '9px 14px', fontSize: 13, color: '#15203a', outline: 'none', cursor: 'pointer' }}>
+            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.6)', borderRadius: 10, padding: '9px 14px', fontSize: 13, color: '#15203a', outline: 'none', cursor: 'pointer' }}>
               {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </div>
 
           {/* Document cards */}
           {filtered.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px 20px', background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(16px)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.55)' }}>
+            <div style={{ textAlign: 'center', padding: '60px 20px', background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.55)' }}>
               <div style={{ fontSize: 40, marginBottom: 12 }}>📭</div>
               <div style={{ fontSize: 15, fontWeight: 600, color: '#15203a' }}>No documents found</div>
               <div style={{ fontSize: 13, color: '#8a9ab5', marginTop: 6 }}>Try adjusting your filters or add a new document</div>
@@ -119,7 +119,14 @@ export default function DocumentsPage() {
                   </div>
 
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, color: '#15203a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{doc.title}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ fontWeight: 700, fontSize: 14, color: '#15203a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{doc.title}</div>
+                      {doc.is_owner === false && (
+                        <span style={{ flexShrink: 0, fontSize: 10, fontWeight: 700, color: '#22a99c', background: 'rgba(52,201,186,0.12)', border: '1px solid rgba(52,201,186,0.3)', borderRadius: 99, padding: '2px 8px', whiteSpace: 'nowrap' }}>
+                          🔗 Shared by {doc.shared_by_email?.split('@')[0] ?? '—'} · {doc.user_permission?.toUpperCase()}
+                        </span>
+                      )}
+                    </div>
                     <div style={{ fontSize: 12, color: '#8a9ab5', marginTop: 2 }}>
                       {doc.person?.full_name ?? '—'} · {doc.document_type?.name ?? '—'}
                       {doc.document_number && <span style={{ marginLeft: 8, color: '#b0bfd0' }}>#{doc.document_number}</span>}

@@ -34,6 +34,7 @@ export interface User {
 
 export interface Person {
   id: number
+  user_id: number
   full_name: string
   relation_type: string
   is_primary: boolean
@@ -52,12 +53,15 @@ export interface DocumentBrief {
   title: string
   document_type: DocumentType
   person_id: number
-  person: { id: number; full_name: string; is_primary: boolean } | null
+  person: { id: number; user_id: number; full_name: string; is_primary: boolean } | null
   status: 'expired' | 'expiring_soon' | 'valid' | 'no_expiry'
   expiry_date: string | null
   days_remaining: number | null
   issued_date: string | null
   document_number: string | null
+  is_owner?: boolean
+  user_permission?: 'read' | 'edit' | 'download'
+  shared_by_email?: string | null
 }
 
 export interface DashboardSummary {

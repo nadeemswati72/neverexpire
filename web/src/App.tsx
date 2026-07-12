@@ -7,6 +7,8 @@ import DocumentsPage from './pages/DocumentsPage'
 import DocumentDetailPage from './pages/DocumentDetailPage'
 import AddDocumentPage from './pages/AddDocumentPage'
 import FamilyPage from './pages/FamilyPage'
+import SharingPage from './pages/SharingPage'
+import MockInboxPage from './pages/MockInboxPage'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   return isLoggedIn() ? <>{children}</> : <Navigate to="/login" replace />
@@ -22,6 +24,8 @@ export default function App() {
       <Route path="/documents/add" element={<RequireAuth><AddDocumentPage /></RequireAuth>} />
       <Route path="/documents/:id" element={<RequireAuth><DocumentDetailPage /></RequireAuth>} />
       <Route path="/family" element={<RequireAuth><FamilyPage /></RequireAuth>} />
+      <Route path="/sharing" element={<RequireAuth><SharingPage /></RequireAuth>} />
+      <Route path="/mock-inbox" element={<RequireAuth><MockInboxPage /></RequireAuth>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

@@ -10,11 +10,15 @@ import DonutChart from '../components/DonutChart'
 import MemberAvatar from '../components/MemberAvatar'
 
 const RELATION_ICONS: Record<string, string> = {
-  SELF: '👤', SPOUSE: '💑', CHILD: '👶', PARENT: '👴', SIBLING: '🧑', OTHER: '🙂',
+  SELF: '👤', SPOUSE: '💑', CHILD: '👶', PARENT: '👴', SIBLING: '🧑', DOMESTIC_HELP: '🧹', OTHER: '🙂',
 }
 const RELATION_COLORS: Record<string, string> = {
   SELF: '#34c9ba', SPOUSE: '#e879a0', CHILD: '#f6ad55',
-  PARENT: '#68d391', SIBLING: '#76e4f7', OTHER: '#b794f4',
+  PARENT: '#68d391', SIBLING: '#76e4f7', DOMESTIC_HELP: '#f6a5c0', OTHER: '#b794f4',
+}
+
+function formatRelationLabel(code: string) {
+  return code.split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ')
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -78,8 +82,12 @@ export default function DashboardPage() {
     return () => document.removeEventListener('mousedown', handle)
   }, [userMenuOpen])
 
-  const filteredDocs: DocumentBrief[] = allDocs
+  // Filtered by selected family member only — used for the stat cards and donut
+  // chart, which must ignore the status-filter click (that only narrows the lists below).
+  const personDocs: DocumentBrief[] = allDocs
     .filter(d => !selectedPersonId || d.person_id === selectedPersonId)
+
+  const filteredDocs: DocumentBrief[] = personDocs
     .filter(d => !statusFilter || d.status === statusFilter)
 
   const attentionDocs = filteredDocs
@@ -89,6 +97,16 @@ export default function DashboardPage() {
   const validDocs = filteredDocs.filter(d => d.status === 'valid' || d.status === 'no_expiry')
 
   const selectedPerson = family.find(p => p.id === selectedPersonId)
+
+  // Derived from personDocs (not the whole-family `summary`) so stat cards and the
+  // donut chart update when a family member is selected in the sidebar.
+  const displayCounts = {
+    total: personDocs.length,
+    expired: personDocs.filter(dc => dc.status === 'expired').length,
+    expiring_soon: personDocs.filter(dc => dc.status === 'expiring_soon').length,
+    valid: personDocs.filter(dc => dc.status === 'valid').length,
+    no_expiry: personDocs.filter(dc => dc.status === 'no_expiry').length,
+  }
 
   if (loading) {
     return (
@@ -121,8 +139,7 @@ export default function DashboardPage() {
         {/* Top bar */}
         <div style={{
           background: 'rgba(255,255,255,0.45)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
+          backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
           borderBottom: '1px solid rgba(255,255,255,0.55)',
           padding: '16px 28px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -188,16 +205,16 @@ export default function DashboardPage() {
           {/* Stat cards */}
           {summary && (
             <div style={{ display: 'flex', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
-              <StatCard label="Total Documents" value={summary.total} icon="📋"
+              <StatCard label="Total Documents" value={displayCounts.total} icon="📋"
                 color="#15203a" bgColor="rgba(30,45,80,0.08)" borderColor="rgba(30,45,80,0.1)"
                 active={statusFilter === null} onClick={() => setStatusFilter(null)} />
-              <StatCard label="Expired" value={summary.expired} icon="🔴"
+              <StatCard label="Expired" value={displayCounts.expired} icon="🔴"
                 color="#c53030" bgColor="rgba(229,62,62,0.1)" borderColor="rgba(229,62,62,0.2)"
                 active={statusFilter === 'expired'} onClick={() => setStatusFilter(f => f === 'expired' ? null : 'expired')} />
-              <StatCard label="Expiring Soon" value={summary.expiring_soon} icon="⚠️"
+              <StatCard label="Expiring Soon" value={displayCounts.expiring_soon} icon="⚠️"
                 color="#b45309" bgColor="rgba(217,119,6,0.1)" borderColor="rgba(217,119,6,0.2)"
                 active={statusFilter === 'expiring_soon'} onClick={() => setStatusFilter(f => f === 'expiring_soon' ? null : 'expiring_soon')} />
-              <StatCard label="Valid" value={summary.valid} icon="✅"
+              <StatCard label="Valid" value={displayCounts.valid} icon="✅"
                 color="#276749" bgColor="rgba(56,161,105,0.1)" borderColor="rgba(56,161,105,0.2)"
                 active={statusFilter === 'valid'} onClick={() => setStatusFilter(f => f === 'valid' ? null : 'valid')} />
             </div>
@@ -207,8 +224,7 @@ export default function DashboardPage() {
           {summary && (
           <div style={{
             background: 'linear-gradient(135deg, rgba(21,32,58,0.9) 0%, rgba(30,45,80,0.95) 100%)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
+            backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: 20,
             padding: '24px 28px',
@@ -224,23 +240,23 @@ export default function DashboardPage() {
             {/* Left — donut chart */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, flexShrink: 0 }}>
               <DonutChart
-                total={summary.total}
+                total={displayCounts.total}
                 size={140}
                 thickness={20}
                 segments={[
-                  { value: summary.expired,       color: '#e53e3e', label: 'Expired' },
-                  { value: summary.expiring_soon, color: '#d97706', label: 'Expiring' },
-                  { value: summary.valid,         color: '#38a169', label: 'Valid' },
-                  { value: summary.no_expiry,     color: '#718096', label: 'No expiry' },
+                  { value: displayCounts.expired,       color: '#e53e3e', label: 'Expired' },
+                  { value: displayCounts.expiring_soon, color: '#d97706', label: 'Expiring' },
+                  { value: displayCounts.valid,         color: '#38a169', label: 'Valid' },
+                  { value: displayCounts.no_expiry,     color: '#718096', label: 'No expiry' },
                 ]}
               />
               {/* Legend */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                 {[
-                  { color: '#e53e3e', label: 'Expired',   value: summary.expired },
-                  { color: '#d97706', label: 'Expiring',  value: summary.expiring_soon },
-                  { color: '#38a169', label: 'Valid',     value: summary.valid },
-                  { color: '#718096', label: 'No expiry', value: summary.no_expiry },
+                  { color: '#e53e3e', label: 'Expired',   value: displayCounts.expired },
+                  { color: '#d97706', label: 'Expiring',  value: displayCounts.expiring_soon },
+                  { color: '#38a169', label: 'Valid',     value: displayCounts.valid },
+                  { color: '#718096', label: 'No expiry', value: displayCounts.no_expiry },
                 ].map(l => (
                   <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: l.color, flexShrink: 0 }} />
@@ -302,8 +318,7 @@ export default function DashboardPage() {
             {/* Upcoming expiries table */}
             <div style={{
               background: 'rgba(255,255,255,0.58)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
+              backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
               border: '1px solid rgba(255,255,255,0.55)',
               borderRadius: 16,
               boxShadow: '0 4px 16px rgba(30,45,80,0.08)',
@@ -370,8 +385,7 @@ export default function DashboardPage() {
               {/* Family overview */}
               <div style={{
                 background: 'rgba(255,255,255,0.58)',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
+                backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
                 border: '1px solid rgba(255,255,255,0.55)',
                 borderRadius: 16,
                 padding: '18px 20px',
@@ -417,7 +431,7 @@ export default function DashboardPage() {
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 13, fontWeight: 600, color: '#15203a' }}>{p.full_name}</div>
                         <div style={{ fontSize: 11, color: '#8a9ab5' }}>
-                          {memberDocs.length} doc{memberDocs.length !== 1 ? 's' : ''} · {p.relation_type ? p.relation_type.charAt(0) + p.relation_type.slice(1).toLowerCase() : ''}
+                          {memberDocs.length} doc{memberDocs.length !== 1 ? 's' : ''} · {p.relation_type ? formatRelationLabel(p.relation_type) : ''}
                         </div>
                       </div>
                       <div style={{ display: 'flex', gap: 4 }}>
@@ -446,8 +460,7 @@ export default function DashboardPage() {
               {validDocs.length > 0 && (
                 <div style={{
                   background: 'rgba(255,255,255,0.58)',
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)',
+                  backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
                   border: '1px solid rgba(255,255,255,0.55)',
                   borderRadius: 16,
                   padding: '18px 20px',

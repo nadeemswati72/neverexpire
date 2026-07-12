@@ -51,8 +51,7 @@ export default function LoginPage() {
       <div style={{
         position: 'relative', zIndex: 1,
         background: 'rgba(255,255,255,0.65)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
+        backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
         border: '1px solid rgba(255,255,255,0.6)',
         borderRadius: 20,
         padding: '48px 40px',

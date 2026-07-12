@@ -5,9 +5,11 @@ import type { User } from '../api'
 import { fetchMe } from '../auth'
 import Sidebar from '../components/Sidebar'
 import MemberAvatar from '../components/MemberAvatar'
+import { ShareModal } from '../components/ShareModal'
 
 interface FamilyMember {
   id: number
+  user_id: number
   full_name: string
   relation_type: string
   is_primary: boolean
@@ -22,13 +24,13 @@ interface DocSummary {
   valid: number
 }
 
-const RELATION_TYPES = ['SPOUSE', 'CHILD', 'PARENT', 'SIBLING', 'OTHER']
+const RELATION_TYPES = ['SPOUSE', 'CHILD', 'PARENT', 'SIBLING', 'DOMESTIC_HELP', 'OTHER']
 const RELATION_ICONS: Record<string, string> = {
-  SELF: '👤', SPOUSE: '💑', CHILD: '👶', PARENT: '👴', SIBLING: '🧑', OTHER: '🙂',
+  SELF: '👤', SPOUSE: '💑', CHILD: '👶', PARENT: '👴', SIBLING: '🧑', DOMESTIC_HELP: '🧹', OTHER: '🙂',
 }
 const RELATION_COLORS: Record<string, string> = {
   SELF: '#34c9ba', SPOUSE: '#e879a0', CHILD: '#f6ad55',
-  PARENT: '#68d391', SIBLING: '#76e4f7', OTHER: '#b794f4',
+  PARENT: '#68d391', SIBLING: '#76e4f7', DOMESTIC_HELP: '#f6a5c0', OTHER: '#b794f4',
 }
 
 function formatDOB(d: string | null) {
@@ -38,14 +40,19 @@ function formatDOB(d: string | null) {
   return `${date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} · ${age}y`
 }
 
+function formatRelationLabel(code: string) {
+  return code.split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ')
+}
+
 function MemberCard({
-  member, docSummary, onEdit, onDelete, onAddDoc, onPhotoChange, isPrimary,
+  member, docSummary, onEdit, onDelete, onAddDoc, onShareAll, onPhotoChange, isPrimary,
 }: {
   member: FamilyMember
   docSummary: DocSummary
   onEdit: (m: FamilyMember) => void
   onDelete: (m: FamilyMember) => void
   onAddDoc: (m: FamilyMember) => void
+  onShareAll: (m: FamilyMember) => void
   onPhotoChange: () => void
   isPrimary: boolean
 }) {
@@ -54,7 +61,7 @@ function MemberCard({
   const menuRef = useRef<HTMLDivElement>(null)
   const color = RELATION_COLORS[member.relation_type] ?? '#b794f4'
   const icon = RELATION_ICONS[member.relation_type] ?? '🙂'
-  const relation = member.is_primary ? 'Self' : member.relation_type.charAt(0) + member.relation_type.slice(1).toLowerCase()
+  const relation = member.is_primary ? 'Self' : formatRelationLabel(member.relation_type)
   const initials = member.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
 
   // Close menu on outside click
@@ -72,8 +79,7 @@ function MemberCard({
   return (
     <div style={{
       background: 'rgba(255,255,255,0.62)',
-      backdropFilter: 'blur(16px)',
-      WebkitBackdropFilter: 'blur(16px)',
+      backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
       border: '1px solid rgba(255,255,255,0.6)',
       borderRadius: 18,
       padding: '20px 20px 16px',
@@ -92,6 +98,8 @@ function MemberCard({
           {menuOpen && (
             <div style={{ position: 'absolute', right: 0, top: 34, background: 'white', borderRadius: 10, boxShadow: '0 8px 24px rgba(30,45,80,0.15)', border: '1px solid rgba(30,45,80,0.08)', minWidth: 150, zIndex: 20, overflow: 'hidden' }}>
               <button onClick={() => { setMenuOpen(false); onAddDoc(member) }} style={{ display: 'block', width: '100%', padding: '10px 16px', textAlign: 'left', background: 'none', border: 'none', fontSize: 13, color: '#15203a', cursor: 'pointer', fontWeight: 500 }}>📄 Add Document</button>
+              <div style={{ height: 1, background: 'rgba(30,45,80,0.06)' }} />
+              <button onClick={() => { setMenuOpen(false); onShareAll(member) }} style={{ display: 'block', width: '100%', padding: '10px 16px', textAlign: 'left', background: 'none', border: 'none', fontSize: 13, color: '#22a99c', cursor: 'pointer', fontWeight: 500 }}>🔗 Share All Documents</button>
               <div style={{ height: 1, background: 'rgba(30,45,80,0.06)' }} />
               <button onClick={() => { setMenuOpen(false); onEdit(member) }} style={{ display: 'block', width: '100%', padding: '10px 16px', textAlign: 'left', background: 'none', border: 'none', fontSize: 13, color: '#15203a', cursor: 'pointer', fontWeight: 500 }}>✏️ Edit</button>
               <div style={{ height: 1, background: 'rgba(30,45,80,0.06)' }} />
@@ -199,8 +207,8 @@ function MemberModal({
   })
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-      <div style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(20px)', borderRadius: 20, padding: '32px 36px', width: '100%', maxWidth: 440, boxShadow: '0 20px 60px rgba(30,45,80,0.2)' }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <div style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: 20, padding: '32px 36px', width: '100%', maxWidth: 440, boxShadow: '0 20px 60px rgba(30,45,80,0.2)' }}>
         <h2 style={{ fontSize: 18, fontWeight: 800, color: '#15203a', marginBottom: 6 }}>
           {isEdit ? 'Edit Family Member' : 'Add Family Member'}
         </h2>
@@ -218,7 +226,7 @@ function MemberModal({
             <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#4a5568', marginBottom: 6 }}>Relation</label>
             <select {...inp('relation_type')} style={{ width: '100%', background: 'rgba(30,45,80,0.04)', border: '1px solid rgba(30,45,80,0.15)', borderRadius: 10, padding: '10px 14px', fontSize: 14, color: '#15203a', outline: 'none', cursor: 'pointer' }}>
               {RELATION_TYPES.map(r => (
-                <option key={r} value={r}>{r.charAt(0) + r.slice(1).toLowerCase()}</option>
+                <option key={r} value={r}>{formatRelationLabel(r)}</option>
               ))}
             </select>
           </div>
@@ -255,6 +263,7 @@ export default function FamilyPage() {
   const [saving, setSaving] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<FamilyMember | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [sharingMember, setSharingMember] = useState<FamilyMember | null>(null)
 
   function loadData() {
     return Promise.all([fetchMe(), api.get('/family'), api.get('/documents')])
@@ -328,7 +337,7 @@ export default function FamilyPage() {
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {/* Top bar */}
-        <div style={{ background: 'rgba(255,255,255,0.45)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255,255,255,0.55)', padding: '16px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10 }}>
+        <div style={{ background: 'rgba(255,255,255,0.45)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255,255,255,0.55)', padding: '16px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10 }}>
           <div>
             <h1 style={{ fontSize: 18, fontWeight: 700, color: '#15203a', margin: 0 }}>Family Members</h1>
             <p style={{ fontSize: 12, color: '#8a9ab5', margin: 0, marginTop: 2 }}>{family.length} member{family.length !== 1 ? 's' : ''} · manage your family profile</p>
@@ -361,7 +370,7 @@ export default function FamilyPage() {
 
           {/* Member grid */}
           {family.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px 20px', background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(16px)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.55)' }}>
+            <div style={{ textAlign: 'center', padding: '60px 20px', background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.55)' }}>
               <div style={{ fontSize: 48, marginBottom: 12 }}>👨‍👩‍👧</div>
               <div style={{ fontSize: 16, fontWeight: 700, color: '#15203a' }}>No family members yet</div>
               <div style={{ fontSize: 13, color: '#8a9ab5', marginTop: 6 }}>Add your spouse, children, or parents to track their documents too</div>
@@ -380,6 +389,7 @@ export default function FamilyPage() {
                   onEdit={m => { setEditingMember(m); setShowModal(true) }}
                   onDelete={m => setDeleteConfirm(m)}
                   onAddDoc={m => navigate(`/documents/add?person_id=${m.id}`)}
+                  onShareAll={m => setSharingMember(m)}
                   onPhotoChange={loadData}
                 />
               ))}
@@ -400,7 +410,7 @@ export default function FamilyPage() {
 
       {/* Delete confirmation */}
       {deleteConfirm && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: 'rgba(255,255,255,0.96)', borderRadius: 20, padding: '32px 36px', maxWidth: 400, width: '100%', boxShadow: '0 20px 60px rgba(30,45,80,0.2)' }}>
             <div style={{ fontSize: 40, textAlign: 'center', marginBottom: 16 }}>⚠️</div>
             <h2 style={{ fontSize: 18, fontWeight: 800, color: '#15203a', textAlign: 'center', marginBottom: 8 }}>Remove {deleteConfirm.full_name}?</h2>
@@ -415,6 +425,17 @@ export default function FamilyPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Share all documents modal */}
+      {sharingMember && (
+        <ShareModal
+          personId={sharingMember.id}
+          personName={sharingMember.full_name}
+          isOpen={true}
+          onClose={() => setSharingMember(null)}
+          onShareSuccess={() => setSharingMember(null)}
+        />
       )}
     </div>
   )

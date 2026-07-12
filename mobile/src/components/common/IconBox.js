@@ -10,6 +10,9 @@ import { RADIUS, withOpacity } from "../../constants/theme";
  * emoji character itself, not an icon-font name.
  */
 export default function IconBox({ icon, color, size = 44, iconSize, style }) {
+  // 0.68 fills most of the tinted square instead of floating a small glyph
+  // in a lot of empty background — was 0.5, which read as too much padding.
+  const resolvedIconSize = iconSize || size * 0.68;
   return (
     <View
       style={[
@@ -18,7 +21,7 @@ export default function IconBox({ icon, color, size = 44, iconSize, style }) {
         style,
       ]}
     >
-      <Text style={{ fontSize: iconSize || size * 0.5, lineHeight: (iconSize || size * 0.5) * 1.15 }}>{icon}</Text>
+      <Text style={{ fontSize: resolvedIconSize, lineHeight: resolvedIconSize * 1.15 }}>{icon}</Text>
     </View>
   );
 }

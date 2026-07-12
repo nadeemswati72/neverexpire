@@ -6,6 +6,7 @@ import ScreenContainer from "../../components/common/ScreenContainer";
 import Header from "../../components/common/Header";
 import Card from "../../components/common/Card";
 import AppTextInput from "../../components/common/AppTextInput";
+import EmojiIcon from "../../components/common/EmojiIcon";
 import DocumentListItem from "../../components/documents/DocumentListItem";
 import EmptyState from "../../components/common/EmptyState";
 import { useAppData } from "../../context/DataContext";
@@ -31,11 +32,17 @@ export default function MyDocumentsScreen() {
     route.params?.filter === "expiring_soon" ? "expiring_soon" : "all"
   );
   const [search, setSearch] = useState("");
+  // Carried from the Dashboard's member chip so the summary cards / "See
+  // All" don't silently drop the selected member and show the whole family.
+  const [memberFilterId, setMemberFilterId] = useState(route.params?.familyMemberId || null);
+
+  const memberFilter = memberFilterId ? getFamilyMemberById(memberFilterId) : null;
 
   const filteredDocuments = useMemo(() => {
     const query = search.trim().toLowerCase();
 
     return documents
+      .filter((doc) => !memberFilterId || doc.familyMemberId === memberFilterId)
       .filter((doc) => {
         const status = getExpiryStatus(doc.expiryDate);
         switch (activeFilter) {
@@ -63,11 +70,25 @@ export default function MyDocumentsScreen() {
         if (daysB === null) return -1;
         return daysA - daysB;
       });
-  }, [documents, activeFilter, search, getFamilyMemberById]);
+  }, [documents, activeFilter, search, memberFilterId, getFamilyMemberById]);
 
   return (
     <ScreenContainer>
-      <Header variant="back" title="My Documents" />
+      <Header variant="back" title={memberFilter ? `${memberFilter.name}'s Documents` : "My Documents"} />
+
+      {memberFilter ? (
+        <View style={styles.memberBanner}>
+          <Text style={styles.memberBannerText} numberOfLines={1}>
+            Showing {memberFilter.name}'s documents only
+          </Text>
+          <TouchableOpacity onPress={() => setMemberFilterId(null)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <View style={styles.memberBannerClear}>
+              <EmojiIcon name="close" size={12} color={COLORS.accentDark} />
+              <Text style={styles.memberBannerClearText}>Show all</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      ) : null}
 
       <View style={styles.searchWrap}>
         <AppTextInput
@@ -130,6 +151,34 @@ export default function MyDocumentsScreen() {
 }
 
 const styles = StyleSheet.create({
+  memberBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginHorizontal: SPACING.lg,
+    marginBottom: SPACING.md,
+    backgroundColor: `${COLORS.accent}1F`,
+    borderRadius: RADIUS.md,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+  },
+  memberBannerText: {
+    flex: 1,
+    fontSize: FONT_SIZES.sm,
+    fontWeight: FONT_WEIGHTS.medium,
+    color: COLORS.accentDark,
+    marginRight: SPACING.sm,
+  },
+  memberBannerClear: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  memberBannerClearText: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: FONT_WEIGHTS.semibold,
+    color: COLORS.accentDark,
+  },
   searchWrap: {
     paddingHorizontal: SPACING.lg,
   },

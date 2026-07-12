@@ -31,8 +31,10 @@ export const EMOJI_ICONS = {
   // Bottom tabs
   home: "🏠",
   "home-outline": "🏠",
-  people: "👨‍👩‍👧",
-  "people-outline": "👨‍👩‍👧",
+  // A single-glyph family emoji (👪) renders bigger/punchier across fonts
+  // than the multi-codepoint 👨‍👩‍👧 sequence, which many renderers shrink.
+  people: "👪",
+  "people-outline": "👪",
 
   // Forms
   "mail-outline": "✉️",

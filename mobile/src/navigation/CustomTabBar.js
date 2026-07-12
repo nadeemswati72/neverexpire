@@ -50,11 +50,12 @@ export default function CustomTabBar({ state, navigation }) {
             onPress={() => navigation.navigate(route.name)}
             accessibilityLabel={meta.label}
           >
-            <EmojiIcon
-              name={isFocused ? meta.activeIcon : meta.inactiveIcon}
-              size={20}
-              color={isFocused ? COLORS.primary : COLORS.textMuted}
-            />
+            {/* True color emoji ignore RN's `color` prop, so the active/inactive
+                distinction now lives on this chip's background instead of an
+                icon tint. */}
+            <View style={[styles.iconChip, isFocused && styles.iconChipActive]}>
+              <EmojiIcon name={isFocused ? meta.activeIcon : meta.inactiveIcon} size={18} />
+            </View>
             <Text style={[styles.label, { color: isFocused ? COLORS.primary : COLORS.textMuted }]}>
               {meta.label}
             </Text>
@@ -81,6 +82,16 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingVertical: SPACING.xs,
+  },
+  iconChip: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  iconChipActive: {
+    backgroundColor: `${COLORS.accent}22`,
   },
   label: {
     fontSize: FONT_SIZES.xs,

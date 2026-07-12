@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigationState } from "@react-navigation/native";
 
 import Avatar from "../components/common/Avatar";
+import ShareIcon from "../components/common/ShareIcon";
 import { useAuth } from "../context/AuthContext";
 import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS, RADIUS } from "../constants/theme";
 import { ROUTES } from "./routes";
@@ -36,13 +37,13 @@ const MENU_ITEMS = [
   },
   {
     key: ROUTES.SHARING,
-    emoji: "🔗",
+    isShareIcon: true,
     label: "Sharing",
     action: (navigation) => navigation.getParent()?.navigate(ROUTES.SHARING),
   },
   {
     key: ROUTES.FAMILY,
-    emoji: "👨‍👩‍👧",
+    emoji: "👪",
     label: "Family Members",
     action: (navigation) => navigation.navigate(ROUTES.MAIN_TABS, { screen: ROUTES.FAMILY }),
   },
@@ -161,7 +162,9 @@ export default function CustomDrawerContent({ navigation }) {
             <Pressable key={item.key} onPress={() => handleNavigate(item)}>
               {({ pressed }) => (
                 <Row style={[styles.menuItem, pressed && !isActive && styles.menuItemPressed]} {...rowGradientProps}>
-                  <Text style={styles.emoji}>{item.emoji}</Text>
+                  <View style={styles.emojiWrap}>
+                    {item.isShareIcon ? <ShareIcon size={17} /> : <Text style={styles.emojiText}>{item.emoji}</Text>}
+                  </View>
                   <Text style={[styles.menuLabel, isActive && styles.menuLabelActive]}>{item.label}</Text>
                   {isActive ? <View style={styles.activeDot} /> : null}
                 </Row>
@@ -175,7 +178,9 @@ export default function CustomDrawerContent({ navigation }) {
         style={({ pressed }) => [styles.menuItem, styles.logout, pressed && styles.logoutPressed]}
         onPress={handleLogout}
       >
-        <Text style={styles.emoji}>🚪</Text>
+        <View style={styles.emojiWrap}>
+          <Text style={styles.emojiText}>🚪</Text>
+        </View>
         <Text style={[styles.menuLabel, styles.logoutLabel]}>Logout</Text>
       </Pressable>
     </View>
@@ -274,11 +279,14 @@ const styles = StyleSheet.create({
   menuItemPressed: {
     backgroundColor: `${COLORS.primary}0D`,
   },
-  emoji: {
-    fontSize: 17,
+  emojiWrap: {
     width: 24,
-    textAlign: "center",
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: SPACING.md,
+  },
+  emojiText: {
+    fontSize: 17,
   },
   menuLabel: {
     fontSize: FONT_SIZES.md,

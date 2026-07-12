@@ -227,6 +227,7 @@
 | **Privacy policy URL** | 💬 Discussed | Required by App Store + Play Store before submission. |
 | **Database persistence for production** | 💬 Discussed | Railway SQLite is ephemeral (data lost on redeploy). Need persistent volume or PostgreSQL before production launch. Fine for PoC. |
 | **Multiple account cache on device** | 💬 Discussed | If user signs out and in as different user, cached photos may show wrong data. Needs investigation. |
+| **Mobile member-photo upload UI** | ⏸ Deferred | Backend (`POST /api/v1/family/:id/photo`) and web already support this; mobile's `Avatar` displays a photo when one exists but has no picker UI to add/change one. Nadeem asked to backlog rather than build now. |
 | **Offline behaviour** | 💬 Discussed | No offline handling. Friendly error message at minimum. |
 | **Navigation architecture review** | 💬 Discussed | Before adding Budgeting/Games features, review mobile navigation (bottom tabs vs stack). |
 | **MRZ parsing for passports** | 💬 Discussed | Passports have MRZ (2 lines of OCR-B at bottom). Python `mrz` library could parse reliably. Emirates ID does NOT have MRZ — has PDF417 barcode on back instead. |

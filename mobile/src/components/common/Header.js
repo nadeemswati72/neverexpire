@@ -1,9 +1,10 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation, DrawerActions } from "@react-navigation/native";
 
 import EmojiIcon from "./EmojiIcon";
-import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS } from "../../constants/theme";
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS } from "../../constants/theme";
 
 /**
  * Shared top app bar used across all main screens.
@@ -14,6 +15,10 @@ import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS } from "../../constants/theme
  * - `brand` renders the "NeverExpire" wordmark + logo instead of `title`.
  * - `rightIcon`/`onRightPress` adds a single action icon on the right
  *   (notification bell, edit, add, etc.), with an optional `rightBadge` dot.
+ *
+ * Nav icons sit in a soft tinted circular chip (matching the drawer's icon
+ * treatment) rather than a bare glyph — plain chevrons/hamburgers read as
+ * "dull" next to the rest of the app's colorful emoji icon chips.
  */
 export default function Header({
   title,
@@ -42,7 +47,9 @@ export default function Header({
             style={styles.iconButton}
             accessibilityLabel={variant === "back" ? "Go back" : "Open menu"}
           >
-            <EmojiIcon name={variant === "back" ? "arrow-back" : "menu"} size={22} color={COLORS.textPrimary} />
+            <View style={styles.iconChip}>
+              <EmojiIcon name={variant === "back" ? "arrow-back" : "menu"} size={18} color={COLORS.accentDark} />
+            </View>
           </TouchableOpacity>
         )}
       </View>
@@ -50,9 +57,14 @@ export default function Header({
       <View style={styles.center}>
         {brand ? (
           <View style={styles.brandRow}>
-            <View style={styles.brandMark}>
-              <EmojiIcon name="shield-checkmark" size={14} />
-            </View>
+            <LinearGradient
+              colors={[COLORS.accent, COLORS.accentDark]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.brandMark}
+            >
+              <EmojiIcon name="shield-checkmark" size={13} />
+            </LinearGradient>
             <Text style={styles.brandText}>NeverExpire</Text>
           </View>
         ) : (
@@ -69,8 +81,10 @@ export default function Header({
             style={styles.iconButton}
             accessibilityLabel="Header action"
           >
-            <EmojiIcon name={rightIcon} size={20} color={COLORS.textPrimary} />
-            {rightBadge && <View style={styles.badgeDot} />}
+            <View style={styles.iconChip}>
+              <EmojiIcon name={rightIcon} size={17} color={COLORS.accentDark} />
+              {rightBadge && <View style={styles.badgeDot} />}
+            </View>
           </TouchableOpacity>
         ) : null}
       </View>
@@ -79,6 +93,7 @@ export default function Header({
 }
 
 const ICON_BUTTON_SIZE = 40;
+const CHIP_SIZE = 34;
 
 const styles = StyleSheet.create({
   container: {
@@ -102,6 +117,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  iconChip: {
+    width: CHIP_SIZE,
+    height: CHIP_SIZE,
+    borderRadius: CHIP_SIZE / 2,
+    backgroundColor: `${COLORS.accent}20`,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   center: {
     flex: 1,
     alignItems: "center",
@@ -118,8 +141,7 @@ const styles = StyleSheet.create({
   brandMark: {
     width: 24,
     height: 24,
-    borderRadius: 8,
-    backgroundColor: COLORS.primary,
+    borderRadius: RADIUS.sm,
     alignItems: "center",
     justifyContent: "center",
     marginRight: SPACING.sm,
@@ -132,13 +154,13 @@ const styles = StyleSheet.create({
   },
   badgeDot: {
     position: "absolute",
-    top: 6,
-    right: 6,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    top: -1,
+    right: -1,
+    width: 9,
+    height: 9,
+    borderRadius: 5,
     backgroundColor: COLORS.danger,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: COLORS.background,
   },
 });

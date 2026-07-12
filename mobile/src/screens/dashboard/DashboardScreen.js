@@ -77,7 +77,7 @@ export default function DashboardScreen() {
   };
 
   const openAllDocuments = (filter) => {
-    navigation.navigate(ROUTES.MY_DOCUMENTS, { filter });
+    navigation.navigate(ROUTES.MY_DOCUMENTS, { filter, familyMemberId: selectedMemberId || undefined });
   };
 
   return (

@@ -39,6 +39,13 @@ export function AuthProvider({ children }) {
     return loggedInUser;
   }, []);
 
+  const register = useCallback(async (email, password, fullName) => {
+    const newUser = await AuthService.register(email, password, fullName);
+    setUser(newUser);
+    setToken(await ApiService.getAuthToken());
+    return newUser;
+  }, []);
+
   const logout = useCallback(async () => {
     await AuthService.logout();
     setUser(null);
@@ -57,6 +64,7 @@ export function AuthProvider({ children }) {
     isLoading,
     isAuthenticated: !!user,
     login,
+    register,
     logout,
     updateProfile,
   };

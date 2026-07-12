@@ -2,7 +2,7 @@ import React from "react";
 import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
 
 import IconBox from "../common/IconBox";
-import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS, STATUS_COLORS } from "../../constants/theme";
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, STATUS_COLORS, withOpacity } from "../../constants/theme";
 import { getDocumentTypeMeta } from "../../constants/documentTypes";
 import { getExpiryStatus, formatDaysLabel, formatExpiresOn } from "../../utils/dateUtils";
 
@@ -22,9 +22,16 @@ export default function DocumentListItem({ document, subtitle, onPress }) {
     <TouchableOpacity style={styles.row} onPress={onPress} activeOpacity={0.85}>
       <IconBox icon={typeMeta.icon} color={typeMeta.color} />
       <View style={styles.main}>
-        <Text style={styles.title} numberOfLines={1}>
-          {typeMeta.label}
-        </Text>
+        <View style={styles.titleRow}>
+          <Text style={styles.title} numberOfLines={1}>
+            {typeMeta.label}
+          </Text>
+          {document.isOwner === false ? (
+            <View style={styles.sharedBadge}>
+              <Text style={styles.sharedBadgeText}>Shared</Text>
+            </View>
+          ) : null}
+        </View>
         {resolvedSubtitle ? (
           <Text style={styles.subtitle} numberOfLines={1}>
             {resolvedSubtitle}
@@ -52,10 +59,27 @@ const styles = StyleSheet.create({
     marginLeft: SPACING.md,
     marginRight: SPACING.sm,
   },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
   title: {
     fontSize: FONT_SIZES.md,
     fontWeight: FONT_WEIGHTS.semibold,
     color: COLORS.textPrimary,
+    flexShrink: 1,
+  },
+  sharedBadge: {
+    backgroundColor: withOpacity(COLORS.accent, 0.14),
+    borderRadius: RADIUS.pill,
+    paddingHorizontal: 7,
+    paddingVertical: 1,
+  },
+  sharedBadgeText: {
+    fontSize: 10,
+    fontWeight: FONT_WEIGHTS.bold,
+    color: COLORS.accentDark,
   },
   subtitle: {
     fontSize: FONT_SIZES.sm,

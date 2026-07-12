@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
 import AppTextInput from "../../components/common/AppTextInput";
@@ -10,6 +11,7 @@ import { AuthError } from "../../services/AuthService";
 import { validateLoginForm } from "../../utils/validators";
 import { DEMO_USERS, DEMO_PASSWORD } from "../../data/mockUsers";
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOW } from "../../constants/theme";
+import { ROUTES } from "../../navigation/routes";
 
 /**
  * Login against the real Flask backend. Validates input locally, then calls
@@ -18,6 +20,7 @@ import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOW } from "../..
  * backend/seed_rich_demo.py.
  */
 export default function LoginScreen() {
+  const navigation = useNavigation();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -88,6 +91,16 @@ export default function LoginScreen() {
           {formError ? <Text style={styles.formError}>{formError}</Text> : null}
 
           <AppButton label="Log In" onPress={handleLogin} loading={isSubmitting} style={styles.loginButton} />
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate(ROUTES.REGISTER)}
+            style={styles.registerLink}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.registerLinkText}>
+              New to NeverExpire? <Text style={styles.registerLinkAccent}>Create an account</Text>
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.demoCard}>
@@ -176,6 +189,18 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     marginTop: SPACING.sm,
+  },
+  registerLink: {
+    alignItems: "center",
+    marginTop: SPACING.lg,
+  },
+  registerLinkText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textSecondary,
+  },
+  registerLinkAccent: {
+    color: COLORS.accentDark,
+    fontWeight: FONT_WEIGHTS.semibold,
   },
   demoCard: {
     backgroundColor: COLORS.surface,

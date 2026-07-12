@@ -1,3 +1,4 @@
+import { API_V1_URL } from "../constants/api";
 import * as ApiService from "./ApiService";
 
 /**
@@ -20,6 +21,11 @@ export const RELATION_TYPES = [
 const RELATION_LABELS = Object.fromEntries(RELATION_TYPES.map((r) => [r.code, r.label]));
 const RELATION_COLORS = Object.fromEntries(RELATION_TYPES.map((r) => [r.code, r.color]));
 
+/** Authenticated member photo URL — pair with { headers: authHeader } on <Image>/<Avatar>. */
+export function photoUrlFor(personId) {
+  return `${API_V1_URL}/family/${personId}/photo`;
+}
+
 function toAppMember(person) {
   return {
     id: person.id,
@@ -29,6 +35,7 @@ function toAppMember(person) {
     isSelf: person.is_primary,
     avatarColor: RELATION_COLORS[person.relation_type] || "#4F8EF7",
     photoPath: person.photo_path,
+    photoUri: person.photo_path ? photoUrlFor(person.id) : null,
   };
 }
 

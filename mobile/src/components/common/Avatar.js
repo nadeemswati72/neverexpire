@@ -11,15 +11,16 @@ function getInitials(name = "") {
 }
 
 /**
- * Circular avatar. Renders `imageUri` when provided, otherwise falls back to
- * initials on a colored background — used for the logged-in user and every
- * family member across Dashboard, Family, and Profile screens.
+ * Circular avatar. Renders `imageUri` when provided (pass `headers` for
+ * authenticated backend photo endpoints), otherwise falls back to initials
+ * on a colored background — used for the logged-in user and every family
+ * member across Dashboard, Family, and Profile screens.
  */
-export default function Avatar({ name, imageUri, color = COLORS.primary, size = 48 }) {
+export default function Avatar({ name, imageUri, headers, color = COLORS.primary, size = 48 }) {
   const dimensionStyle = { width: size, height: size, borderRadius: size / 2 };
 
   if (imageUri) {
-    return <Image source={{ uri: imageUri }} style={[styles.image, dimensionStyle]} />;
+    return <Image source={{ uri: imageUri, headers }} style={[styles.image, dimensionStyle]} />;
   }
 
   return (

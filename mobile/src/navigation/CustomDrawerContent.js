@@ -33,6 +33,12 @@ const MENU_ITEMS = [
     action: (navigation) => navigation.getParent()?.navigate(ROUTES.MY_DOCUMENTS),
   },
   {
+    key: ROUTES.SHARING,
+    icon: "share-social-outline",
+    label: "Sharing",
+    action: (navigation) => navigation.getParent()?.navigate(ROUTES.SHARING),
+  },
+  {
     key: ROUTES.FAMILY,
     icon: "people-outline",
     label: "Family Members",

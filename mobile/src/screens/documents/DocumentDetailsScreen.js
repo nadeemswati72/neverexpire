@@ -1,6 +1,6 @@
-import React from "react";
-import { View, Text, Image, ScrollView, Alert, StyleSheet } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import React, { useCallback, useEffect, useState } from "react";
+import { View, Text, Image, ScrollView, Alert, TouchableOpacity, StyleSheet } from "react-native";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
@@ -10,15 +10,34 @@ import Badge from "../../components/common/Badge";
 import IconBox from "../../components/common/IconBox";
 import AppButton from "../../components/common/AppButton";
 import EmptyState from "../../components/common/EmptyState";
+import ShareModal from "../../components/documents/ShareModal";
 import { useAppData } from "../../context/DataContext";
 import { useAuth } from "../../context/AuthContext";
 import { authHeader } from "../../services/ApiService";
+import * as SharingService from "../../services/SharingService";
+import { PERMISSION_LEVELS } from "../../services/SharingService";
 import { getDocumentTypeMeta } from "../../constants/documentTypes";
 import { getExpiryStatus, formatDaysLabel, formatExpiresOn, formatDate } from "../../utils/dateUtils";
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, withOpacity } from "../../constants/theme";
 import { ROUTES } from "../../navigation/routes";
 
-/** Full document record view (Mobile.jpg screen 4), with edit & delete. */
+const ACCESS_LOG_POLL_MS = 15000;
+
+const PERMISSION_LABELS = Object.fromEntries(PERMISSION_LEVELS.map((p) => [p.code, p.label]));
+
+function formatLogTime(isoString) {
+  if (!isoString) return "";
+  const dt = new Date(isoString);
+  if (Number.isNaN(dt.getTime())) return "";
+  return `${formatDate(isoString)} ${dt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
+}
+
+/**
+ * Full document record view with edit & delete for owners, plus the sharing
+ * features from the web app: share button, who-has-access list with revoke,
+ * and a polled access history (who viewed/downloaded). Non-owners get a
+ * "shared by" banner instead, with actions gated by their permission level.
+ */
 export default function DocumentDetailsScreen() {
   const navigation = useNavigation();
   const route = useRoute();
@@ -27,6 +46,34 @@ export default function DocumentDetailsScreen() {
   const { token } = useAuth();
 
   const document = getDocumentById(documentId);
+  const isOwner = document ? document.isOwner !== false : false;
+  const canEdit = isOwner || document?.userPermission === "edit";
+
+  const [shareVisible, setShareVisible] = useState(false);
+  const [shares, setShares] = useState([]);
+  const [accessLog, setAccessLog] = useState([]);
+
+  const loadSharingInfo = useCallback(async () => {
+    if (!documentId) return;
+    try {
+      // /sharing/outgoing carries recipient emails; per-doc /shares does not.
+      const [outgoing, log] = await Promise.all([
+        SharingService.getOutgoingShares(),
+        SharingService.getAccessLog(documentId),
+      ]);
+      setShares(outgoing.filter((s) => s.document_id === documentId));
+      setAccessLog(log);
+    } catch {
+      // Non-owner or transient failure — sharing panels simply stay hidden.
+    }
+  }, [documentId]);
+
+  useEffect(() => {
+    if (!isOwner) return undefined;
+    loadSharingInfo();
+    const interval = setInterval(loadSharingInfo, ACCESS_LOG_POLL_MS);
+    return () => clearInterval(interval);
+  }, [isOwner, loadSharingInfo]);
 
   if (!document) {
     return (
@@ -63,6 +110,20 @@ export default function DocumentDetailsScreen() {
     ]);
   };
 
+  const handleRevoke = (share) => {
+    Alert.alert("Revoke Access", `Stop sharing with ${share.shared_with_email}?`, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Revoke",
+        style: "destructive",
+        onPress: async () => {
+          await SharingService.revokeShare(share.share_id);
+          loadSharingInfo();
+        },
+      },
+    ]);
+  };
+
   const infoRows = [
     { label: "Full Name", value: document.fullName },
     { label: "Document Number", value: document.documentNumber },
@@ -78,8 +139,23 @@ export default function DocumentDetailsScreen() {
 
   return (
     <ScreenContainer>
-      <Header variant="back" title="Document Details" rightIcon="create-outline" onRightPress={handleEdit} />
+      <Header
+        variant="back"
+        title="Document Details"
+        rightIcon={canEdit ? "create-outline" : undefined}
+        onRightPress={canEdit ? handleEdit : undefined}
+      />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {!isOwner ? (
+          <View style={styles.sharedBanner}>
+            <Ionicons name="people-outline" size={16} color={COLORS.accentDark} />
+            <Text style={styles.sharedBannerText} numberOfLines={2}>
+              Shared by {document.sharedByEmail || "another user"}
+              {document.userPermission ? ` · ${PERMISSION_LABELS[document.userPermission] || document.userPermission}` : ""}
+            </Text>
+          </View>
+        ) : null}
+
         {document.imageUri ? (
           <Image
             source={{ uri: document.imageUri, headers: authHeader(token) }}
@@ -117,26 +193,104 @@ export default function DocumentDetailsScreen() {
 
         {document.notes ? (
           <Card style={styles.notesCard}>
-            <Text style={styles.notesLabel}>Notes</Text>
+            <Text style={styles.sectionLabel}>Notes</Text>
             <Text style={styles.notesText}>{document.notes}</Text>
           </Card>
         ) : null}
 
-        <AppButton
-          label="Edit Document"
-          onPress={handleEdit}
-          variant="outline"
-          icon="create-outline"
-          style={styles.actionButton}
-        />
-        <AppButton
-          label="Delete Document"
-          onPress={handleDelete}
-          variant="danger"
-          icon="trash-outline"
-          style={styles.actionButton}
-        />
+        {isOwner ? (
+          <Card style={styles.notesCard}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionLabel}>Shared With</Text>
+              <TouchableOpacity onPress={() => setShareVisible(true)} activeOpacity={0.8} style={styles.shareLink}>
+                <Ionicons name="share-social-outline" size={14} color={COLORS.accentDark} />
+                <Text style={styles.shareLinkText}>Share</Text>
+              </TouchableOpacity>
+            </View>
+            {shares.length === 0 ? (
+              <Text style={styles.emptyText}>Not shared with anyone yet.</Text>
+            ) : (
+              shares.map((share, index) => (
+                <View key={share.share_id}>
+                  <View style={styles.shareRow}>
+                    <View style={styles.shareInfo}>
+                      <Text style={styles.shareEmail} numberOfLines={1}>{share.shared_with_email}</Text>
+                      <Text style={styles.shareMeta}>
+                        {PERMISSION_LABELS[share.permission_level] || share.permission_level}
+                        {share.expires_at ? ` · until ${formatDate(share.expires_at)}` : ""}
+                        {share.is_expired ? " · expired" : ""}
+                      </Text>
+                    </View>
+                    <TouchableOpacity onPress={() => handleRevoke(share)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                      <Text style={styles.revokeText}>Revoke</Text>
+                    </TouchableOpacity>
+                  </View>
+                  {index < shares.length - 1 ? <View style={styles.infoSeparator} /> : null}
+                </View>
+              ))
+            )}
+          </Card>
+        ) : null}
+
+        {isOwner && accessLog.length > 0 ? (
+          <Card style={styles.notesCard}>
+            <Text style={styles.sectionLabel}>Access History</Text>
+            {accessLog.slice(0, 10).map((entry, index) => (
+              <View key={entry.id}>
+                <View style={styles.logRow}>
+                  <Ionicons
+                    name={entry.action === "download" ? "download-outline" : "eye-outline"}
+                    size={15}
+                    color={COLORS.textSecondary}
+                    style={styles.logIcon}
+                  />
+                  <View style={styles.shareInfo}>
+                    <Text style={styles.shareEmail} numberOfLines={1}>{entry.user_email}</Text>
+                    <Text style={styles.shareMeta}>
+                      {entry.action === "download" ? "Downloaded" : "Viewed"} · {formatLogTime(entry.created_at)}
+                    </Text>
+                  </View>
+                </View>
+                {index < Math.min(accessLog.length, 10) - 1 ? <View style={styles.infoSeparator} /> : null}
+              </View>
+            ))}
+          </Card>
+        ) : null}
+
+        {isOwner ? (
+          <AppButton
+            label="Share Document"
+            onPress={() => setShareVisible(true)}
+            icon="share-social-outline"
+            style={styles.actionButton}
+          />
+        ) : null}
+        {canEdit ? (
+          <AppButton
+            label="Edit Document"
+            onPress={handleEdit}
+            variant="outline"
+            icon="create-outline"
+            style={styles.actionButton}
+          />
+        ) : null}
+        {isOwner ? (
+          <AppButton
+            label="Delete Document"
+            onPress={handleDelete}
+            variant="danger"
+            icon="trash-outline"
+            style={styles.actionButton}
+          />
+        ) : null}
       </ScrollView>
+
+      <ShareModal
+        visible={shareVisible}
+        onClose={() => setShareVisible(false)}
+        onShared={loadSharingInfo}
+        documentId={document.id}
+      />
     </ScreenContainer>
   );
 }
@@ -145,6 +299,22 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: SPACING.lg,
     paddingBottom: SPACING.xxxl,
+  },
+  sharedBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.sm,
+    backgroundColor: withOpacity(COLORS.accent, 0.12),
+    borderRadius: RADIUS.md,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    marginBottom: SPACING.md,
+  },
+  sharedBannerText: {
+    flex: 1,
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.accentDark,
+    fontWeight: FONT_WEIGHTS.medium,
   },
   image: {
     width: "100%",
@@ -210,11 +380,64 @@ const styles = StyleSheet.create({
   notesCard: {
     marginBottom: SPACING.lg,
   },
-  notesLabel: {
+  sectionHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: SPACING.xs,
+  },
+  sectionLabel: {
     fontSize: FONT_SIZES.sm,
     fontWeight: FONT_WEIGHTS.semibold,
     color: COLORS.textSecondary,
     marginBottom: SPACING.xs,
+  },
+  shareLink: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  shareLinkText: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: FONT_WEIGHTS.semibold,
+    color: COLORS.accentDark,
+  },
+  emptyText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textMuted,
+    paddingVertical: SPACING.xs,
+  },
+  shareRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: SPACING.sm,
+  },
+  shareInfo: {
+    flex: 1,
+    marginRight: SPACING.md,
+  },
+  shareEmail: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: FONT_WEIGHTS.medium,
+    color: COLORS.textPrimary,
+  },
+  shareMeta: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.textSecondary,
+    marginTop: 1,
+  },
+  revokeText: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: FONT_WEIGHTS.semibold,
+    color: COLORS.danger,
+  },
+  logRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: SPACING.sm,
+  },
+  logIcon: {
+    marginRight: SPACING.sm,
   },
   notesText: {
     fontSize: FONT_SIZES.md,

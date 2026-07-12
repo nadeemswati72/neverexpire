@@ -8,11 +8,13 @@ import { COLORS } from "../constants/theme";
 import { ROUTES } from "./routes";
 
 import LoginScreen from "../screens/auth/LoginScreen";
+import RegisterScreen from "../screens/auth/RegisterScreen";
 import MainDrawerNavigator from "./MainDrawerNavigator";
 import AddDocumentScreen from "../screens/documents/AddDocumentScreen";
 import DocumentFormScreen from "../screens/documents/DocumentFormScreen";
 import DocumentDetailsScreen from "../screens/documents/DocumentDetailsScreen";
 import MyDocumentsScreen from "../screens/documents/MyDocumentsScreen";
+import SharingScreen from "../screens/sharing/SharingScreen";
 import FamilyMemberDocumentsScreen from "../screens/family/FamilyMemberDocumentsScreen";
 import ProfileScreen from "../screens/profile/ProfileScreen";
 import NotificationsScreen from "../screens/misc/NotificationsScreen";
@@ -50,6 +52,7 @@ export default function RootNavigator() {
             <Stack.Screen name={ROUTES.DOCUMENT_FORM} component={DocumentFormScreen} />
             <Stack.Screen name={ROUTES.DOCUMENT_DETAILS} component={DocumentDetailsScreen} />
             <Stack.Screen name={ROUTES.MY_DOCUMENTS} component={MyDocumentsScreen} />
+            <Stack.Screen name={ROUTES.SHARING} component={SharingScreen} />
             <Stack.Screen name={ROUTES.FAMILY_MEMBER_DOCUMENTS} component={FamilyMemberDocumentsScreen} />
             <Stack.Screen name={ROUTES.PROFILE} component={ProfileScreen} />
             <Stack.Screen name={ROUTES.NOTIFICATIONS} component={NotificationsScreen} />
@@ -59,7 +62,10 @@ export default function RootNavigator() {
             <Stack.Screen name={ROUTES.TESTING_GUIDE} component={TestingGuideScreen} />
           </Stack.Group>
         ) : (
-          <Stack.Screen name={ROUTES.LOGIN} component={LoginScreen} />
+          <Stack.Group>
+            <Stack.Screen name={ROUTES.LOGIN} component={LoginScreen} />
+            <Stack.Screen name={ROUTES.REGISTER} component={RegisterScreen} />
+          </Stack.Group>
         )}
       </Stack.Navigator>
     </NavigationContainer>

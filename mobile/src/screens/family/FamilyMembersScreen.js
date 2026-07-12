@@ -8,7 +8,10 @@ import FamilyMemberCard from "../../components/family/FamilyMemberCard";
 import AppTextInput from "../../components/common/AppTextInput";
 import AppButton from "../../components/common/AppButton";
 import EmptyState from "../../components/common/EmptyState";
+import ShareModal from "../../components/documents/ShareModal";
 import { useAppData } from "../../context/DataContext";
+import { useAuth } from "../../context/AuthContext";
+import { authHeader } from "../../services/ApiService";
 import { RELATION_TYPES } from "../../services/FamilyService";
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOW, withOpacity } from "../../constants/theme";
 import { ROUTES } from "../../navigation/routes";
@@ -17,12 +20,14 @@ import { ROUTES } from "../../navigation/routes";
 export default function FamilyMembersScreen() {
   const navigation = useNavigation();
   const { familyMembers, documents, addFamilyMember } = useAppData();
+  const { token } = useAuth();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [name, setName] = useState("");
   const [relationshipCode, setRelationshipCode] = useState(RELATION_TYPES[0].code);
   const [error, setError] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [sharingMember, setSharingMember] = useState(null);
 
   const openModal = () => {
     setName("");
@@ -68,11 +73,20 @@ export default function FamilyMembersScreen() {
                 member={member}
                 documentCount={documentCount}
                 onPress={() => navigation.navigate(ROUTES.FAMILY_MEMBER_DOCUMENTS, { familyMemberId: member.id })}
+                onSharePress={documentCount > 0 ? () => setSharingMember(member) : undefined}
+                photoHeaders={authHeader(token)}
               />
             );
           })
         )}
       </ScrollView>
+
+      <ShareModal
+        visible={!!sharingMember}
+        onClose={() => setSharingMember(null)}
+        personId={sharingMember?.id}
+        personName={sharingMember?.name}
+      />
 
       <Modal visible={isModalVisible} transparent animationType="fade" onRequestClose={closeModal}>
         <View style={styles.modalOverlay}>

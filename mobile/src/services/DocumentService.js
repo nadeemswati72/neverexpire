@@ -45,6 +45,10 @@ function toAppDocument(backendDoc) {
     imageUri: firstFile ? imageUrlFor(firstFile.id) : null,
     imageFileId: firstFile?.id || null,
     createdAt: backendDoc.created_at,
+    // Sharing: the backend list mixes in documents shared with this user.
+    isOwner: backendDoc.is_owner !== false,
+    userPermission: backendDoc.user_permission || null,
+    sharedByEmail: backendDoc.shared_by_email || null,
   };
 }
 

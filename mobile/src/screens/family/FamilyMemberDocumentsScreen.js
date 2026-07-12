@@ -10,6 +10,8 @@ import StatusOverview from "../../components/documents/StatusOverview";
 import DocumentListItem from "../../components/documents/DocumentListItem";
 import EmptyState from "../../components/common/EmptyState";
 import { useAppData } from "../../context/DataContext";
+import { useAuth } from "../../context/AuthContext";
+import { authHeader } from "../../services/ApiService";
 import { daysRemaining } from "../../utils/dateUtils";
 import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS } from "../../constants/theme";
 import { ROUTES } from "../../navigation/routes";
@@ -20,6 +22,7 @@ export default function FamilyMemberDocumentsScreen() {
   const route = useRoute();
   const { familyMemberId } = route.params || {};
   const { getFamilyMemberById, getDocumentsForMember } = useAppData();
+  const { token } = useAuth();
 
   const member = getFamilyMemberById(familyMemberId);
 
@@ -53,7 +56,7 @@ export default function FamilyMemberDocumentsScreen() {
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.profileRow}>
-          <Avatar name={member.name} color={member.avatarColor} size={56} />
+          <Avatar name={member.name} imageUri={member.photoUri} headers={authHeader(token)} color={member.avatarColor} size={56} />
           <View style={styles.profileText}>
             <Text style={styles.name}>{member.name}</Text>
             <Text style={styles.relationship}>{member.isSelf ? "Me" : member.relationship}</Text>

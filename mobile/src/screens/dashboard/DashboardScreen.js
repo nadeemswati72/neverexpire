@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
 import Header from "../../components/common/Header";
@@ -13,6 +13,8 @@ import DocumentListItem from "../../components/documents/DocumentListItem";
 import EmptyState from "../../components/common/EmptyState";
 import { useAuth } from "../../context/AuthContext";
 import { useAppData } from "../../context/DataContext";
+import { authHeader } from "../../services/ApiService";
+import * as NotificationService from "../../services/NotificationService";
 import { EXPIRY_STATUS, getExpiryStatus, daysRemaining } from "../../utils/dateUtils";
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, withOpacity } from "../../constants/theme";
 import { ROUTES } from "../../navigation/routes";
@@ -26,9 +28,20 @@ const RECENT_LIMIT = 5;
  */
 export default function DashboardScreen() {
   const navigation = useNavigation();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const { documents, familyMembers, getFamilyMemberById } = useAppData();
   const [selectedMemberId, setSelectedMemberId] = useState(null);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Refresh the bell badge whenever the dashboard regains focus (e.g. after
+  // reading notifications or receiving a new share).
+  useFocusEffect(
+    useCallback(() => {
+      NotificationService.getNotifications()
+        .then((data) => setUnreadCount(data.unread_count || 0))
+        .catch(() => {});
+    }, [])
+  );
 
   const firstName = (user?.name || "").split(" ")[0];
 
@@ -72,7 +85,7 @@ export default function DashboardScreen() {
       <Header
         brand
         rightIcon="notifications-outline"
-        rightBadge
+        rightBadge={unreadCount > 0}
         onRightPress={() => navigation.navigate(ROUTES.NOTIFICATIONS)}
       />
 
@@ -109,7 +122,13 @@ export default function DashboardScreen() {
                   onPress={() => setSelectedMemberId(active ? null : member.id)}
                   activeOpacity={0.85}
                 >
-                  <Avatar name={member.name} color={member.avatarColor} size={22} />
+                  <Avatar
+                    name={member.name}
+                    imageUri={member.photoUri}
+                    headers={authHeader(token)}
+                    color={member.avatarColor}
+                    size={22}
+                  />
                   <Text style={[styles.memberChipText, active && styles.memberChipTextActive]} numberOfLines={1}>
                     {member.isSelf ? "Me" : member.name.split(" ")[0]}
                   </Text>

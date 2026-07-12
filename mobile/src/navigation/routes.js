@@ -12,6 +12,8 @@ export const ROUTES = {
   DOCUMENT_FORM: "DocumentForm",
   DOCUMENT_DETAILS: "DocumentDetails",
   MY_DOCUMENTS: "MyDocuments",
+  SHARING: "Sharing",
+  REGISTER: "Register",
   FAMILY_MEMBER_DOCUMENTS: "FamilyMemberDocuments",
   PROFILE: "Profile",
   NOTIFICATIONS: "Notifications",

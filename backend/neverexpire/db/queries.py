@@ -14,6 +14,7 @@ from .models import (
     Person,
     User,
 )
+from .sharing import get_user_accessible_document_ids
 
 
 def get_persons_for_user(session: Session, user_id: int) -> list[Person]:
@@ -28,6 +29,11 @@ def get_persons_for_user(session: Session, user_id: int) -> list[Person]:
 def get_person(session: Session, person_id: int) -> Person | None:
     """Get a single person by ID."""
     return session.query(Person).filter_by(id=person_id, is_active=True).first()
+
+
+def get_user_by_email(session: Session, email: str) -> User | None:
+    """Get a user by email address."""
+    return session.query(User).filter_by(email=email).first()
 
 
 def _apply_status_filter(query, status_filter: str | None, today: date, horizon: date):
@@ -64,14 +70,14 @@ def get_documents_for_user(
     today = date.today()
     horizon = today + timedelta(days=config.REMINDER_DAYS_THRESHOLD)
 
-    person_ids = [person.id for person in get_persons_for_user(session, user_id)]
-    if not person_ids:
+    accessible_ids = get_user_accessible_document_ids(session, user_id)
+    if not accessible_ids:
         return []
 
     query = (
         session.query(Document)
         .options(joinedload(Document.document_type), joinedload(Document.person))
-        .filter(Document.person_id.in_(person_ids))
+        .filter(Document.id.in_(accessible_ids))
     )
     query = _apply_status_filter(query, status_filter, today, horizon)
     return query.order_by(Document.expiry_date.is_(None), Document.expiry_date).all()
@@ -112,8 +118,8 @@ def get_dashboard_summary(session: Session, user_id: int) -> dict:
     today = date.today()
     horizon = today + timedelta(days=config.REMINDER_DAYS_THRESHOLD)
 
-    person_ids = [person.id for person in get_persons_for_user(session, user_id)]
-    if not person_ids:
+    accessible_ids = get_user_accessible_document_ids(session, user_id)
+    if not accessible_ids:
         return {
             "total_documents": 0,
             "expiring_soon": 0,
@@ -123,7 +129,7 @@ def get_dashboard_summary(session: Session, user_id: int) -> dict:
             "pending_reminders": [],
         }
 
-    base_query = session.query(Document).filter(Document.person_id.in_(person_ids))
+    base_query = session.query(Document).filter(Document.id.in_(accessible_ids))
 
     total_documents = base_query.count()
     expiring_soon = base_query.filter(
@@ -151,7 +157,7 @@ def get_dashboard_summary(session: Session, user_id: int) -> dict:
         session.query(DocumentReminder)
         .join(Document, DocumentReminder.document_id == Document.id)
         .options(joinedload(DocumentReminder.document).joinedload(Document.person))
-        .filter(Document.person_id.in_(person_ids), DocumentReminder.status == "pending")
+        .filter(Document.id.in_(accessible_ids), DocumentReminder.status == "pending")
         .order_by(DocumentReminder.due_date)
         .all()
     )

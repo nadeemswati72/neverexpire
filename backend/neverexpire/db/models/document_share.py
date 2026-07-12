@@ -45,6 +45,7 @@ class DocumentShare(Base, TimestampMixin):
     responded_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     response: Mapped[str | None] = mapped_column(String(20), nullable=True)  # 'accepted' or 'declined'
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     notes: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
     document: Mapped["Document"] = relationship(back_populates="shares")
@@ -90,6 +91,7 @@ class PersonShareGrant(Base, TimestampMixin):
     responded_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     response: Mapped[str | None] = mapped_column(String(20), nullable=True)
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     person: Mapped["Person"] = relationship(back_populates="share_grants")
     granted_by_user: Mapped["User"] = relationship(

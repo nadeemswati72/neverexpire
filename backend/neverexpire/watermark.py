@@ -8,14 +8,21 @@ WATERMARK_SUBTEXT = "For Reminder Use Only"
 WATERMARKABLE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 
 
-def watermarked_path_for(source_path: Path) -> Path:
-    return source_path.with_name(f"{source_path.stem}_wm{source_path.suffix}")
+def watermarked_path_for(source_path: Path, tag: str | None = None) -> Path:
+    """
+    Path for the watermarked copy. When `tag` is given (e.g. a recipient's user id),
+    a separate cached copy is used so each recipient gets their own personalized watermark.
+    """
+    suffix = f"_wm_{tag}" if tag else "_wm"
+    return source_path.with_name(f"{source_path.stem}{suffix}{source_path.suffix}")
 
 
-def apply_watermark(source_path: str | Path) -> Path | None:
+def apply_watermark(source_path: str | Path, subtext: str | None = None, tag: str | None = None) -> Path | None:
     path = Path(source_path)
     if path.suffix.lower() not in WATERMARKABLE_EXTENSIONS:
         return None
+
+    watermark_subtext = subtext or WATERMARK_SUBTEXT
 
     image = Image.open(path).convert("RGBA")
     w, h = image.size
@@ -33,7 +40,7 @@ def apply_watermark(source_path: str | Path) -> Path | None:
     # Build a single tile with both lines
     dummy = ImageDraw.Draw(Image.new("RGBA", (1, 1)))
     bb1 = dummy.textbbox((0, 0), WATERMARK_TEXT, font=font)
-    bb2 = dummy.textbbox((0, 0), WATERMARK_SUBTEXT, font=sub_font)
+    bb2 = dummy.textbbox((0, 0), watermark_subtext, font=sub_font)
     tile_w = max(bb1[2] - bb1[0], bb2[2] - bb2[0]) + font_size * 3
     tile_h = (bb1[3] - bb1[1]) + (bb2[3] - bb2[1]) + font_size * 2
 
@@ -48,7 +55,7 @@ def apply_watermark(source_path: str | Path) -> Path | None:
     # Main text (increased opacity from 110 to 220 for better visibility)
     td.text((font_size, font_size // 2), WATERMARK_TEXT, font=font, fill=(255, 255, 255, 220))
     # Sub text (increased opacity from 90 to 190)
-    td.text((font_size, font_size // 2 + (bb1[3] - bb1[1]) + 4), WATERMARK_SUBTEXT, font=sub_font, fill=(255, 255, 255, 190))
+    td.text((font_size, font_size // 2 + (bb1[3] - bb1[1]) + 4), watermark_subtext, font=sub_font, fill=(255, 255, 255, 190))
 
     # Rotate tile ~30 degrees
     angle = 25
@@ -68,6 +75,6 @@ def apply_watermark(source_path: str | Path) -> Path | None:
     if path.suffix.lower() in (".jpg", ".jpeg", ".gif"):
         watermarked = watermarked.convert("RGB")
 
-    out_path = watermarked_path_for(path)
+    out_path = watermarked_path_for(path, tag=tag)
     watermarked.save(out_path)
     return out_path

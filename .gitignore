@@ -8,8 +8,14 @@ __pycache__/
 *.db
 *.db-shm
 *.db-wal
+*.db.bak*
 data/uploads/
 data/avatars/
+
+# Google OAuth credentials / tokens (Drive integration)
+*client_secret*.json
+google_client_secret.json
+google_token.json
 
 # Node
 node_modules/
@@ -17,6 +23,7 @@ node_modules/
 dist/
 build/
 .env.local
+.vercel/
 
 # Logs
 *.log

@@ -1,5 +1,6 @@
 from flask import Flask
 
+from .admin import admin_bp
 from .auth import auth_bp
 from .avatars import avatars_bp
 from .dashboard import dashboard_bp
@@ -8,6 +9,8 @@ from .documents import documents_bp
 from .family import family_bp
 from .files import files_bp
 from .health import health_bp
+from .mock_inbox import mock_inbox_bp
+from .notifications import notifications_bp
 from .sharing import sharing_bp
 
 
@@ -21,3 +24,6 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(files_bp)
     app.register_blueprint(sharing_bp)
+    app.register_blueprint(mock_inbox_bp)
+    app.register_blueprint(notifications_bp)
+    app.register_blueprint(admin_bp)

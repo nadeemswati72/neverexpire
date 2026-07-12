@@ -3,9 +3,11 @@ Sharing repository functions for documents and persons.
 """
 
 from datetime import datetime
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
-from .models import Document, DocumentShare, Person, PersonShareGrant, User
+from ..email_service import MockEmailService
+from .models import Document, DocumentShare, Notification, Person, PersonShareGrant, User
 
 
 def share_document(
@@ -15,6 +17,7 @@ def share_document(
     shared_with_user_id: int,
     permission_level: str = "read",
     is_invite: bool = False,
+    expires_at: datetime | None = None,
 ) -> DocumentShare:
     """
     Share a document with another user.
@@ -26,6 +29,7 @@ def share_document(
         shared_with_user_id: User receiving access
         permission_level: 'read', 'edit', or 'download'
         is_invite: If True, requires acceptance; if False, grants immediately
+        expires_at: If set, access auto-expires at this time
 
     Returns:
         DocumentShare record
@@ -43,6 +47,7 @@ def share_document(
         existing.is_invite = is_invite
         existing.responded_at = None
         existing.response = None
+        existing.expires_at = expires_at
         session.commit()
         return existing
 
@@ -55,6 +60,7 @@ def share_document(
         is_invite=is_invite,
         responded_at=None if is_invite else datetime.utcnow(),
         response="granted" if not is_invite else None,
+        expires_at=expires_at,
     )
     session.add(share)
     session.commit()
@@ -107,7 +113,7 @@ def get_user_accessible_document_ids(session: Session, user_id: int) -> list[int
 
     Includes:
     - Documents they own (via their persons)
-    - Documents shared with them (accepted or granted)
+    - Documents shared with them (accepted or granted immediately)
     - Documents via person bulk shares
     """
     # 1. Documents they own
@@ -116,14 +122,19 @@ def get_user_accessible_document_ids(session: Session, user_id: int) -> list[int
     ).all()
     owned_ids = [row[0] for row in owned_ids]
 
-    # 2. Documents directly shared with them
+    # 2. Documents directly shared with them (accepted or immediately granted, not expired)
     shared_ids = session.query(DocumentShare.document_id).filter(
         DocumentShare.shared_with_user_id == user_id,
         DocumentShare.revoked_at.is_(None),
+        or_(DocumentShare.expires_at.is_(None), DocumentShare.expires_at > datetime.utcnow()),
+        or_(
+            (DocumentShare.is_invite.is_(True)) & (DocumentShare.response == "accepted"),
+            DocumentShare.is_invite.is_(False)
+        )
     ).all()
     shared_ids = [row[0] for row in shared_ids]
 
-    # 3. Documents via person bulk shares
+    # 3. Documents via person bulk shares (accepted or immediately granted, not expired)
     bulk_ids = (
         session.query(Document.id)
         .join(Person, Document.person_id == Person.id)
@@ -131,6 +142,11 @@ def get_user_accessible_document_ids(session: Session, user_id: int) -> list[int
         .filter(
             PersonShareGrant.granted_to_user_id == user_id,
             PersonShareGrant.revoked_at.is_(None),
+            or_(PersonShareGrant.expires_at.is_(None), PersonShareGrant.expires_at > datetime.utcnow()),
+            or_(
+                (PersonShareGrant.is_invite.is_(True)) & (PersonShareGrant.response == "accepted"),
+                PersonShareGrant.is_invite.is_(False)
+            )
         )
         .all()
     )
@@ -147,6 +163,7 @@ def share_person_all(
     permission_level: str = "read",
     include_future: bool = False,
     is_invite: bool = False,
+    expires_at: datetime | None = None,
 ) -> PersonShareGrant:
     """Share all documents for a person with another user."""
     grant = PersonShareGrant(
@@ -158,6 +175,7 @@ def share_person_all(
         is_invite=is_invite,
         responded_at=None if is_invite else datetime.utcnow(),
         response="granted" if not is_invite else None,
+        expires_at=expires_at,
     )
     session.add(grant)
     session.commit()
@@ -174,6 +192,47 @@ def revoke_person_share(session: Session, grant_id: int) -> bool:
     grant.revoked_at = datetime.utcnow()
     session.commit()
     return True
+
+
+def _not_expired(expires_at: datetime | None) -> bool:
+    return expires_at is None or expires_at > datetime.utcnow()
+
+
+def get_effective_share(session: Session, user_id: int, document_id: int) -> dict | None:
+    """
+    Return {"permission_level": str, "shared_by_user_id": int, "expires_at": datetime | None}
+    for a non-owner's access to a document (direct share takes precedence over a person
+    bulk grant), or None if the user has no (non-expired) shared access to it.
+    """
+    doc = session.query(Document).filter_by(id=document_id).first()
+    if not doc:
+        return None
+
+    share = session.query(DocumentShare).filter(
+        DocumentShare.document_id == document_id,
+        DocumentShare.shared_with_user_id == user_id,
+        DocumentShare.revoked_at.is_(None)
+    ).first()
+    if share and _not_expired(share.expires_at):
+        return {
+            "permission_level": share.permission_level,
+            "shared_by_user_id": share.shared_by_user_id,
+            "expires_at": share.expires_at,
+        }
+
+    grant = session.query(PersonShareGrant).filter(
+        PersonShareGrant.person_id == doc.person_id,
+        PersonShareGrant.granted_to_user_id == user_id,
+        PersonShareGrant.revoked_at.is_(None)
+    ).first()
+    if grant and _not_expired(grant.expires_at):
+        return {
+            "permission_level": grant.permission_level,
+            "shared_by_user_id": grant.granted_by_user_id,
+            "expires_at": grant.expires_at,
+        }
+
+    return None
 
 
 def can_user_access_document(
@@ -200,29 +259,213 @@ def can_user_access_document(
         return True
 
     # Check direct document share
-    share = session.query(DocumentShare).filter_by(
-        document_id=document_id,
-        shared_with_user_id=user_id,
-        revoked_at=None,
+    share = session.query(DocumentShare).filter(
+        DocumentShare.document_id == document_id,
+        DocumentShare.shared_with_user_id == user_id,
+        DocumentShare.revoked_at.is_(None)
     ).first()
 
-    if share:
+    if share and _not_expired(share.expires_at):
         return has_permission(share.permission_level, permission)
 
     # Check person bulk share
-    grant = session.query(PersonShareGrant).filter_by(
-        person_id=doc.person_id,
-        granted_to_user_id=user_id,
-        revoked_at=None,
+    grant = session.query(PersonShareGrant).filter(
+        PersonShareGrant.person_id == doc.person_id,
+        PersonShareGrant.granted_to_user_id == user_id,
+        PersonShareGrant.revoked_at.is_(None)
     ).first()
 
-    if grant:
+    if grant and _not_expired(grant.expires_at):
         return has_permission(grant.permission_level, permission)
 
     return False
 
 
 def has_permission(share_level: str, required_level: str) -> bool:
-    """Check if share permission level satisfies required level."""
-    levels = {"read": 1, "edit": 2, "download": 3}
+    """
+    Check if share permission level satisfies required level.
+
+    Permission levels are cumulative:
+    - 'read': view only
+    - 'download': view + download original file
+    - 'edit': view + download + modify fields + re-share
+    """
+    levels = {"read": 1, "download": 2, "edit": 3}
     return levels.get(share_level, 0) >= levels.get(required_level, 0)
+
+
+def share_document_by_email(
+    session: Session,
+    document_id: int,
+    shared_by_user_id: int,
+    recipient_email: str,
+    permission_level: str = "read",
+    is_invite: bool = False,
+    expires_at: datetime | None = None,
+) -> dict:
+    """
+    Share a document with a user by email address.
+
+    Returns: {"success": bool, "message": str, "share_id": int or None}
+    """
+    from .queries import get_user_by_email
+
+    recipient_user = get_user_by_email(session, recipient_email)
+    if not recipient_user:
+        return {"success": False, "message": "User not found with this email"}
+
+    if recipient_user.id == shared_by_user_id:
+        return {"success": False, "message": "Cannot share with yourself"}
+
+    doc = session.query(Document).filter_by(id=document_id).first()
+    if not doc:
+        return {"success": False, "message": "Document not found"}
+
+    shared_by_user = session.query(User).filter_by(id=shared_by_user_id).first()
+
+    share = share_document(
+        session,
+        document_id,
+        shared_by_user_id,
+        recipient_user.id,
+        permission_level,
+        is_invite,
+        expires_at,
+    )
+
+    # Send mock email
+    MockEmailService.send_share_notification(
+        recipient_email=recipient_email,
+        shared_by=shared_by_user.email,
+        document_or_person=doc.title,
+        is_person=False,
+        permission_level=permission_level,
+        is_invite=is_invite,
+    )
+
+    session.add(Notification(
+        user_id=recipient_user.id,
+        message=f"{shared_by_user.email} shared \"{doc.title}\" with you ({permission_level})",
+        document_id=document_id,
+    ))
+    session.commit()
+
+    return {"success": True, "message": "Document shared successfully", "share_id": share.id}
+
+
+def share_person_all_by_email(
+    session: Session,
+    person_id: int,
+    granted_by_user_id: int,
+    recipient_email: str,
+    permission_level: str = "read",
+    include_future: bool = False,
+    is_invite: bool = False,
+    expires_at: datetime | None = None,
+) -> dict:
+    """
+    Share all documents of a person with a user by email address.
+
+    Returns: {"success": bool, "message": str, "grant_id": int or None}
+    """
+    from .queries import get_user_by_email
+
+    recipient_user = get_user_by_email(session, recipient_email)
+    if not recipient_user:
+        return {"success": False, "message": "User not found with this email"}
+
+    if recipient_user.id == granted_by_user_id:
+        return {"success": False, "message": "Cannot share with yourself"}
+
+    person = session.query(Person).filter_by(id=person_id).first()
+    if not person:
+        return {"success": False, "message": "Person not found"}
+
+    granted_by_user = session.query(User).filter_by(id=granted_by_user_id).first()
+    doc_count = session.query(Document).filter_by(person_id=person_id).count()
+
+    grant = share_person_all(
+        session,
+        person_id,
+        granted_by_user_id,
+        recipient_user.id,
+        permission_level,
+        include_future,
+        is_invite,
+        expires_at,
+    )
+
+    # Send mock email
+    MockEmailService.send_share_notification(
+        recipient_email=recipient_email,
+        shared_by=granted_by_user.email,
+        document_or_person=f"{person.full_name} ({doc_count} documents)",
+        is_person=True,
+        permission_level=permission_level,
+        is_invite=is_invite,
+    )
+
+    session.add(Notification(
+        user_id=recipient_user.id,
+        message=f"{granted_by_user.email} shared all of {person.full_name}'s documents with you ({permission_level})",
+    ))
+    session.commit()
+
+    return {"success": True, "message": "Person's documents shared successfully", "grant_id": grant.id}
+
+
+def get_user_sharing_recipients(session: Session, user_id: int) -> list[dict]:
+    """Get all users this user has shared documents with."""
+    # Direct document shares
+    doc_shares = (
+        session.query(DocumentShare.shared_with_user_id, DocumentShare.permission_level)
+        .filter(DocumentShare.shared_by_user_id == user_id, DocumentShare.revoked_at.is_(None))
+        .distinct()
+        .all()
+    )
+
+    # Bulk person shares
+    person_shares = (
+        session.query(PersonShareGrant.granted_to_user_id, PersonShareGrant.permission_level)
+        .filter(PersonShareGrant.granted_by_user_id == user_id, PersonShareGrant.revoked_at.is_(None))
+        .distinct()
+        .all()
+    )
+
+    recipient_ids = set([s[0] for s in doc_shares] + [s[0] for s in person_shares])
+
+    recipients = []
+    for recipient_id in recipient_ids:
+        user = session.query(User).filter_by(id=recipient_id).first()
+        if user:
+            # Count documents shared with this recipient
+            doc_count = (
+                session.query(DocumentShare)
+                .filter(
+                    DocumentShare.shared_by_user_id == user_id,
+                    DocumentShare.shared_with_user_id == recipient_id,
+                    DocumentShare.revoked_at.is_(None),
+                )
+                .count()
+            )
+
+            # Count person bulk shares
+            person_count = (
+                session.query(PersonShareGrant)
+                .filter(
+                    PersonShareGrant.granted_by_user_id == user_id,
+                    PersonShareGrant.granted_to_user_id == recipient_id,
+                    PersonShareGrant.revoked_at.is_(None),
+                )
+                .count()
+            )
+
+            recipients.append({
+                "user_id": recipient_id,
+                "email": user.email,
+                "full_name": user.full_name,
+                "documents_shared": doc_count,
+                "persons_shared": person_count,
+            })
+
+    return recipients

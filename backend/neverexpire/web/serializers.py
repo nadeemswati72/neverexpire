@@ -25,6 +25,7 @@ def days_remaining(doc, today: date) -> int | None:
 def person_brief(p) -> dict:
     return {
         "id": p.id,
+        "user_id": p.user_id,
         "full_name": p.full_name,
         "date_of_birth": _date(p.date_of_birth),
         "is_primary": p.is_primary,
@@ -37,6 +38,9 @@ def doc_type_brief(dt) -> dict:
 
 
 def document_brief(doc, today: date, horizon: date) -> dict:
+    # files/holder_name/issuing_authority/notes live here (not just in
+    # document_detail) because the mobile app renders detail screens from
+    # the list payload without a second fetch per document.
     return {
         "id": doc.id,
         "title": doc.title,
@@ -50,16 +54,9 @@ def document_brief(doc, today: date, horizon: date) -> dict:
         "document_number": doc.document_number,
         "source": doc.source,
         "created_at": doc.created_at.isoformat() if doc.created_at else None,
-    }
-
-
-def document_detail(doc, today: date, horizon: date) -> dict:
-    base = document_brief(doc, today, horizon)
-    base.update({
         "issuing_authority": doc.issuing_authority,
         "holder_name": doc.holder_name,
         "notes": doc.notes,
-        "extra_fields": doc.extra_fields,
         "files": [
             {
                 "id": f.id,
@@ -71,6 +68,13 @@ def document_detail(doc, today: date, horizon: date) -> dict:
             for f in doc.files
             if f.is_active
         ],
+    }
+
+
+def document_detail(doc, today: date, horizon: date) -> dict:
+    base = document_brief(doc, today, horizon)
+    base.update({
+        "extra_fields": doc.extra_fields,
         "extraction_runs": [
             {
                 "id": r.id,

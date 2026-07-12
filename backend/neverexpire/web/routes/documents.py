@@ -5,9 +5,10 @@ from pathlib import Path
 from flask import Blueprint, g, jsonify, request
 
 from ... import config
-from ...db.models import Document, Person
+from ...db.models import Document, DocumentAccessLog, Person, User
 from ...db.queries import get_document, get_documents_for_user
 from ...db.repository import (
+    add_document_file,
     create_document_from_extraction,
     create_manual_document,
     delete_document,
@@ -15,6 +16,7 @@ from ...db.repository import (
     parse_date,
 )
 from ...db.session import get_session
+from ...db.sharing import can_user_access_document, get_effective_share
 from ...extractor import EXTENSION_MEDIA_TYPES, extract_expiry_info
 from ..jwt_utils import jwt_required
 from ..serializers import document_brief, document_detail
@@ -34,6 +36,21 @@ def _doc_owned_by_user(session, doc_id: int, user_id: int) -> Document | None:
     return doc
 
 
+def _doc_editable_by_user(session, doc_id: int, user_id: int) -> Document | None:
+    """Owner can always edit. Shared users need 'edit' permission."""
+    doc = get_document(session, doc_id)
+    if doc is None:
+        return None
+    person = session.get(Person, doc.person_id)
+    if person is None:
+        return None
+    if person.user_id == user_id:
+        return doc
+    if can_user_access_document(session, user_id, doc_id, "edit"):
+        return doc
+    return None
+
+
 def _today_horizon():
     today = date.today()
     return today, today + timedelta(days=config.REMINDER_DAYS_THRESHOLD)
@@ -49,7 +66,21 @@ def list_documents():
         docs = get_documents_for_user(session, g.current_user_id, status_filter)
         if person_id:
             docs = [d for d in docs if d.person_id == person_id]
-        return jsonify({"data": [document_brief(d, today, horizon) for d in docs], "error": None})
+
+        results = []
+        for d in docs:
+            brief = document_brief(d, today, horizon)
+            is_owner = d.person and d.person.user_id == g.current_user_id
+            brief["is_owner"] = bool(is_owner)
+            if not is_owner:
+                share = get_effective_share(session, g.current_user_id, d.id)
+                if share:
+                    sharer = session.get(User, share["shared_by_user_id"])
+                    brief["user_permission"] = share["permission_level"]
+                    brief["shared_by_email"] = sharer.email if sharer else None
+            results.append(brief)
+
+        return jsonify({"data": results, "error": None})
 
 
 @documents_bp.post("/api/v1/documents")
@@ -91,10 +122,25 @@ def create_document():
 def get_doc(doc_id: int):
     today, horizon = _today_horizon()
     with get_session() as session:
-        doc = _doc_owned_by_user(session, doc_id, g.current_user_id)
+        doc = get_document(session, doc_id)
         if doc is None:
             return jsonify({"data": None, "error": "Not found"}), 404
-        return jsonify({"data": document_detail(doc, today, horizon), "error": None})
+
+        # Check if user owns the document or has read access via sharing
+        if not can_user_access_document(session, g.current_user_id, doc_id, "read"):
+            return jsonify({"data": None, "error": "Access denied"}), 403
+
+        # Determine user's permission level
+        is_owner = doc.person and doc.person.user_id == g.current_user_id
+        if is_owner:
+            permission_level = "edit"
+        else:
+            share = get_effective_share(session, g.current_user_id, doc_id)
+            permission_level = share["permission_level"] if share else "read"
+
+        response_data = document_detail(doc, today, horizon)
+        response_data["user_permission"] = permission_level
+        return jsonify({"data": response_data, "error": None})
 
 
 @documents_bp.put("/api/v1/documents/<int:doc_id>")
@@ -103,7 +149,7 @@ def update_doc(doc_id: int):
     body = request.get_json(silent=True) or {}
     today, horizon = _today_horizon()
     with get_session() as session:
-        doc = _doc_owned_by_user(session, doc_id, g.current_user_id)
+        doc = _doc_editable_by_user(session, doc_id, g.current_user_id)
         if doc is None:
             return jsonify({"data": None, "error": "Not found"}), 404
 
@@ -138,6 +184,62 @@ def delete_doc(doc_id: int):
             return jsonify({"data": None, "error": "Not found"}), 404
         delete_document(session, doc)
         return jsonify({"data": {"deleted": True}, "error": None})
+
+
+@documents_bp.post("/api/v1/documents/<int:doc_id>/files")
+@jwt_required
+def add_file(doc_id: int):
+    """Attach a picture/scan to an existing document. Owner only, no AI extraction."""
+    if "file" not in request.files:
+        return jsonify({"data": None, "error": "file is required"}), 400
+
+    with get_session() as session:
+        doc = _doc_owned_by_user(session, doc_id, g.current_user_id)
+        if doc is None:
+            return jsonify({"data": None, "error": "Not found"}), 404
+
+    file = request.files["file"]
+    suffix = Path(file.filename or "").suffix.lower()
+    if suffix not in ALLOWED_UPLOAD_EXTENSIONS:
+        return jsonify({"data": None, "error": f"Unsupported file type: {suffix}"}), 400
+
+    config.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    dest_path = config.UPLOAD_DIR / f"{uuid.uuid4().hex}{suffix}"
+    file.save(dest_path)
+
+    today, horizon = _today_horizon()
+    with get_session() as session:
+        add_document_file(session, doc_id, dest_path)
+        doc = get_document(session, doc_id)
+        return jsonify({"data": document_detail(doc, today, horizon), "error": None}), 201
+
+
+@documents_bp.get("/api/v1/documents/<int:doc_id>/access-log")
+@jwt_required
+def get_access_log(doc_id: int):
+    """Who viewed/downloaded this document. Owner only."""
+    with get_session() as session:
+        doc = _doc_owned_by_user(session, doc_id, g.current_user_id)
+        if doc is None:
+            return jsonify({"data": None, "error": "Not found"}), 404
+
+        entries = (
+            session.query(DocumentAccessLog)
+            .filter_by(document_id=doc_id)
+            .order_by(DocumentAccessLog.created_at.desc())
+            .limit(50)
+            .all()
+        )
+        data = []
+        for entry in entries:
+            user = session.get(User, entry.user_id)
+            data.append({
+                "id": entry.id,
+                "user_email": user.email if user else "unknown",
+                "action": entry.action,
+                "created_at": entry.created_at.isoformat() if entry.created_at else None,
+            })
+        return jsonify({"data": data, "error": None})
 
 
 @documents_bp.post("/api/v1/documents/extract")

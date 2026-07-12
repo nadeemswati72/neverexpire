@@ -1,72 +1,72 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigationState } from "@react-navigation/native";
 
 import Avatar from "../components/common/Avatar";
 import { useAuth } from "../context/AuthContext";
-import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS, RADIUS, withOpacity } from "../constants/theme";
+import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS, RADIUS } from "../constants/theme";
 import { ROUTES } from "./routes";
 
 /**
- * Side navigation drawer. Rebuilt to match the web sidebar's teal identity:
- * a branded header block (logo + wordmark, same as web's top-left), teal
- * icon chips on every row (previously flat black icons with no background —
- * the biggest visual gap vs. web), and a teal active/pressed state on top.
+ * Side navigation drawer — "Emoji Nav" design, chosen from three mockups
+ * (see docs/testing-guide.html-adjacent design review). Expressive emoji
+ * icons, a soft teal gradient pill for the active row, and a gradient brand
+ * logo, echoing the web sidebar's teal identity with more personality.
  */
 const MENU_ITEMS = [
   {
     key: ROUTES.DASHBOARD,
-    icon: "home-outline",
+    emoji: "🏠",
     label: "Dashboard",
     action: (navigation) => navigation.navigate(ROUTES.MAIN_TABS, { screen: ROUTES.DASHBOARD }),
   },
   {
     key: ROUTES.ADD_DOCUMENT,
-    icon: "add-circle-outline",
+    emoji: "➕",
     label: "Add Document",
     action: (navigation) => navigation.getParent()?.navigate(ROUTES.ADD_DOCUMENT),
   },
   {
     key: ROUTES.MY_DOCUMENTS,
-    icon: "document-text-outline",
+    emoji: "📄",
     label: "My Documents",
     action: (navigation) => navigation.getParent()?.navigate(ROUTES.MY_DOCUMENTS),
   },
   {
     key: ROUTES.SHARING,
-    icon: "share-social-outline",
+    emoji: "🔗",
     label: "Sharing",
     action: (navigation) => navigation.getParent()?.navigate(ROUTES.SHARING),
   },
   {
     key: ROUTES.FAMILY,
-    icon: "people-outline",
+    emoji: "👨‍👩‍👧",
     label: "Family Members",
     action: (navigation) => navigation.navigate(ROUTES.MAIN_TABS, { screen: ROUTES.FAMILY }),
   },
   {
     key: ROUTES.NOTIFICATIONS,
-    icon: "notifications-outline",
+    emoji: "🔔",
     label: "Notifications",
     action: (navigation) => navigation.getParent()?.navigate(ROUTES.NOTIFICATIONS),
   },
   {
     key: ROUTES.SETTINGS,
-    icon: "settings-outline",
+    emoji: "⚙️",
     label: "Settings",
     action: (navigation) => navigation.getParent()?.navigate(ROUTES.SETTINGS),
   },
   {
     key: ROUTES.HELP_SUPPORT,
-    icon: "help-circle-outline",
+    emoji: "❓",
     label: "Help & Support",
     action: (navigation) => navigation.getParent()?.navigate(ROUTES.HELP_SUPPORT),
   },
   {
     key: ROUTES.ABOUT,
-    icon: "information-circle-outline",
+    emoji: "ℹ️",
     label: "About",
     action: (navigation) => navigation.getParent()?.navigate(ROUTES.ABOUT),
   },
@@ -74,7 +74,7 @@ const MENU_ITEMS = [
   // TestingGuideScreen.js once this testing round is done.
   {
     key: ROUTES.TESTING_GUIDE,
-    icon: "construct-outline",
+    emoji: "🧪",
     label: "Testing Guide",
     action: (navigation) => navigation.getParent()?.navigate(ROUTES.TESTING_GUIDE),
   },
@@ -113,9 +113,14 @@ export default function CustomDrawerContent({ navigation }) {
   return (
     <View style={[styles.container, { paddingTop: insets.top + SPACING.lg, paddingBottom: insets.bottom + SPACING.lg }]}>
       <View style={styles.brandRow}>
-        <View style={styles.brandLogo}>
-          <Ionicons name="shield-checkmark" size={18} color={COLORS.white} />
-        </View>
+        <LinearGradient
+          colors={[COLORS.accent, COLORS.accentDark]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.brandLogo}
+        >
+          <Text style={styles.brandLogoEmoji}>🛡️</Text>
+        </LinearGradient>
         <View>
           <Text style={styles.brandTitle}>NeverExpire</Text>
           <Text style={styles.brandSubtitle}>Document Tracker</Text>
@@ -126,7 +131,9 @@ export default function CustomDrawerContent({ navigation }) {
         style={({ pressed }) => [styles.profile, pressed && styles.profilePressed]}
         onPress={handleProfilePress}
       >
-        <Avatar name={user?.name} color={user?.avatarColor} size={52} />
+        <View style={styles.avatarShadowWrap}>
+          <Avatar name={user?.name} color={user?.avatarColor} size={48} />
+        </View>
         <View style={styles.profileText}>
           <Text style={styles.name} numberOfLines={1}>
             {user?.name}
@@ -142,21 +149,23 @@ export default function CustomDrawerContent({ navigation }) {
       <View style={styles.menu}>
         {MENU_ITEMS.map((item) => {
           const isActive = item.key === activeTabRoute;
+          const Row = isActive ? LinearGradient : View;
+          const rowGradientProps = isActive
+            ? {
+                colors: [`${COLORS.accent}2E`, `${COLORS.accent}14`],
+                start: { x: 0, y: 0 },
+                end: { x: 1, y: 0 },
+              }
+            : {};
           return (
-            <Pressable
-              key={item.key}
-              style={({ pressed }) => [
-                styles.menuItem,
-                isActive && styles.menuItemActive,
-                pressed && !isActive && styles.menuItemPressed,
-              ]}
-              onPress={() => handleNavigate(item)}
-            >
-              <View style={[styles.iconChip, isActive && styles.iconChipActive]}>
-                <Ionicons name={item.icon} size={17} color={isActive ? COLORS.white : COLORS.accentDark} />
-              </View>
-              <Text style={[styles.menuLabel, isActive && styles.menuLabelActive]}>{item.label}</Text>
-              {isActive ? <View style={styles.activeDot} /> : null}
+            <Pressable key={item.key} onPress={() => handleNavigate(item)}>
+              {({ pressed }) => (
+                <Row style={[styles.menuItem, pressed && !isActive && styles.menuItemPressed]} {...rowGradientProps}>
+                  <Text style={styles.emoji}>{item.emoji}</Text>
+                  <Text style={[styles.menuLabel, isActive && styles.menuLabelActive]}>{item.label}</Text>
+                  {isActive ? <View style={styles.activeDot} /> : null}
+                </Row>
+              )}
             </Pressable>
           );
         })}
@@ -166,9 +175,7 @@ export default function CustomDrawerContent({ navigation }) {
         style={({ pressed }) => [styles.menuItem, styles.logout, pressed && styles.logoutPressed]}
         onPress={handleLogout}
       >
-        <View style={[styles.iconChip, styles.iconChipDanger]}>
-          <Ionicons name="log-out-outline" size={17} color={COLORS.danger} />
-        </View>
+        <Text style={styles.emoji}>🚪</Text>
         <Text style={[styles.menuLabel, styles.logoutLabel]}>Logout</Text>
       </Pressable>
     </View>
@@ -178,7 +185,7 @@ export default function CustomDrawerContent({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.background,
     paddingHorizontal: SPACING.lg,
   },
   brandRow: {
@@ -188,12 +195,14 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
   },
   brandLogo: {
-    width: 32,
-    height: 32,
+    width: 34,
+    height: 34,
     borderRadius: RADIUS.sm,
-    backgroundColor: COLORS.accent,
     alignItems: "center",
     justifyContent: "center",
+  },
+  brandLogoEmoji: {
+    fontSize: 16,
   },
   brandTitle: {
     fontSize: FONT_SIZES.md,
@@ -217,7 +226,14 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.md,
   },
   profilePressed: {
-    backgroundColor: withOpacity(COLORS.accent, 0.06),
+    backgroundColor: `${COLORS.accent}0F`,
+  },
+  avatarShadowWrap: {
+    shadowColor: COLORS.accentDark,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   profileText: {
     flex: 1,
@@ -225,12 +241,12 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: FONT_SIZES.lg,
-    fontWeight: FONT_WEIGHTS.semibold,
-    color: COLORS.textPrimary,
+    fontWeight: FONT_WEIGHTS.bold,
+    color: COLORS.primary,
   },
   email: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
+    color: COLORS.textMuted,
     marginTop: 2,
   },
   sectionLabel: {
@@ -238,7 +254,7 @@ const styles = StyleSheet.create({
     fontWeight: FONT_WEIGHTS.bold,
     letterSpacing: 1,
     textTransform: "uppercase",
-    color: COLORS.accentDark,
+    color: COLORS.textMuted,
     marginTop: SPACING.md,
     marginBottom: SPACING.xs,
     marginLeft: SPACING.xs,
@@ -250,40 +266,28 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.xs,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.sm,
     borderRadius: RADIUS.md,
     marginBottom: 2,
   },
-  menuItemActive: {
-    backgroundColor: withOpacity(COLORS.accent, 0.12),
-  },
   menuItemPressed: {
-    backgroundColor: withOpacity(COLORS.primary, 0.05),
+    backgroundColor: `${COLORS.primary}0D`,
   },
-  iconChip: {
-    width: 32,
-    height: 32,
-    borderRadius: RADIUS.sm,
-    backgroundColor: withOpacity(COLORS.accent, 0.14),
-    alignItems: "center",
-    justifyContent: "center",
+  emoji: {
+    fontSize: 17,
+    width: 24,
+    textAlign: "center",
     marginRight: SPACING.md,
-  },
-  iconChipActive: {
-    backgroundColor: COLORS.accent,
-  },
-  iconChipDanger: {
-    backgroundColor: withOpacity(COLORS.danger, 0.12),
   },
   menuLabel: {
     fontSize: FONT_SIZES.md,
     fontWeight: FONT_WEIGHTS.medium,
-    color: COLORS.textSecondary,
+    color: "#46516E",
   },
   menuLabelActive: {
-    color: COLORS.textPrimary,
-    fontWeight: FONT_WEIGHTS.semibold,
+    color: COLORS.primary,
+    fontWeight: FONT_WEIGHTS.bold,
   },
   activeDot: {
     width: 6,
@@ -300,9 +304,10 @@ const styles = StyleSheet.create({
     marginTop: SPACING.xs,
   },
   logoutPressed: {
-    backgroundColor: withOpacity(COLORS.danger, 0.06),
+    backgroundColor: `${COLORS.danger}0F`,
   },
   logoutLabel: {
     color: COLORS.danger,
+    fontWeight: FONT_WEIGHTS.bold,
   },
 });

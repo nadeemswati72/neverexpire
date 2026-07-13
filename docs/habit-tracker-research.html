@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Tracker — Research &amp; Concept Brainstorm | NeverExpire V2</title>
+<style>
+  :root {
+    --bg-1: #0f1224;
+    --bg-2: #1a1f3d;
+    --glass: rgba(255, 255, 255, 0.06);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --text: #e8eaf6;
+    --text-dim: #a3aacb;
+    --accent: #7c6cff;
+    --accent-2: #4dd0e1;
+    --good: #66d9a3;
+    --warn: #ffb74d;
+    --bad: #ef7373;
+    --mono: 'Cascadia Code', 'Consolas', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(160deg, var(--bg-1) 0%, var(--bg-2) 60%, #241a3d 100%);
+    background-attachment: fixed;
+    color: var(--text);
+    line-height: 1.65;
+    padding: 40px 20px 80px;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+
+  /* ---------- header ---------- */
+  header {
+    text-align: center;
+    padding: 48px 24px;
+    border-radius: 24px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(14px);
+    margin-bottom: 32px;
+  }
+  header .kicker {
+    display: inline-block;
+    font-size: 12px; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--accent-2); margin-bottom: 12px;
+  }
+  header h1 { font-size: 40px; font-weight: 700; margin-bottom: 10px; }
+  header h1 .emoji { font-size: 36px; }
+  header .sub { color: var(--text-dim); font-size: 17px; max-width: 640px; margin: 0 auto; }
+  header .meta {
+    margin-top: 20px; font-size: 13px; color: var(--text-dim);
+    display: flex; gap: 24px; justify-content: center; flex-wrap: wrap;
+  }
+  header .meta span b { color: var(--text); font-weight: 600; }
+
+  /* ---------- badges ---------- */
+  .badge {
+    display: inline-block; padding: 3px 12px; border-radius: 999px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.4px;
+  }
+  .badge.p1 { background: rgba(102,217,163,.15); color: var(--good); border: 1px solid rgba(102,217,163,.35); }
+  .badge.p2 { background: rgba(77,208,225,.15); color: var(--accent-2); border: 1px solid rgba(77,208,225,.35); }
+  .badge.p3 { background: rgba(255,183,77,.15); color: var(--warn); border: 1px solid rgba(255,183,77,.35); }
+  .badge.p4 { background: rgba(239,115,115,.15); color: var(--bad); border: 1px solid rgba(239,115,115,.35); }
+  .badge.neutral { background: rgba(124,108,255,.15); color: #b3a8ff; border: 1px solid rgba(124,108,255,.35); }
+
+  /* ---------- cards & sections ---------- */
+  section {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(14px);
+    border-radius: 20px;
+    padding: 36px 40px;
+    margin-bottom: 28px;
+  }
+  section h2 {
+    font-size: 26px; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  section h2 .num {
+    font-size: 14px; font-family: var(--mono); color: var(--accent-2);
+    background: rgba(77,208,225,.1); border: 1px solid rgba(77,208,225,.25);
+    border-radius: 8px; padding: 2px 10px;
+  }
+  section > .lede { color: var(--text-dim); margin-bottom: 22px; font-size: 15.5px; }
+  section h3 { font-size: 19px; margin: 28px 0 10px; color: #cfd3f0; }
+  section h4 { font-size: 15.5px; margin: 18px 0 8px; color: var(--accent-2); }
+  p { margin-bottom: 12px; font-size: 15.5px; }
+  ul, ol { margin: 0 0 14px 22px; }
+  li { margin-bottom: 7px; font-size: 15.5px; }
+  li::marker { color: var(--accent); }
+  strong { color: #fff; }
+  em { color: var(--accent-2); font-style: normal; }
+  code {
+    font-family: var(--mono); font-size: 13.5px;
+    background: rgba(124,108,255,.12); color: #c3baff;
+    padding: 2px 7px; border-radius: 6px;
+  }
+  pre {
+    background: rgba(0,0,0,.35); border: 1px solid var(--glass-border);
+    border-radius: 12px; padding: 18px 20px; overflow-x: auto;
+    margin: 14px 0 20px; font-family: var(--mono); font-size: 13px;
+    line-height: 1.6; color: #c8cdf0;
+  }
+  pre code { background: none; padding: 0; color: inherit; }
+
+  /* ---------- callouts ---------- */
+  .callout {
+    border-radius: 14px; padding: 16px 20px; margin: 16px 0;
+    border: 1px solid; font-size: 15px;
+  }
+  .callout .title { font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+  .callout.danger { background: rgba(239,115,115,.08); border-color: rgba(239,115,115,.35); }
+  .callout.danger .title { color: var(--bad); }
+  .callout.idea { background: rgba(77,208,225,.07); border-color: rgba(77,208,225,.3); }
+  .callout.idea .title { color: var(--accent-2); }
+  .callout.decision { background: rgba(102,217,163,.07); border-color: rgba(102,217,163,.3); }
+  .callout.decision .title { color: var(--good); }
+  .callout.open { background: rgba(255,183,77,.07); border-color: rgba(255,183,77,.3); }
+  .callout.open .title { color: var(--warn); }
+
+  /* ---------- tables ---------- */
+  .tbl-scroll { overflow-x: auto; margin: 16px 0 20px; }
+  table {
+    width: 100%; border-collapse: collapse; font-size: 14.5px;
+    background: rgba(0,0,0,.18); border-radius: 12px; overflow: hidden;
+  }
+  th {
+    text-align: left; padding: 12px 16px; font-size: 12.5px;
+    text-transform: uppercase; letter-spacing: 1px; color: var(--accent-2);
+    background: rgba(124,108,255,.1); border-bottom: 1px solid var(--glass-border);
+    white-space: nowrap;
+  }
+  td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.06); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { font-weight: 600; color: #fff; }
+
+  /* ---------- TOC ---------- */
+  nav.toc {
+    background: var(--glass); border: 1px solid var(--glass-border);
+    border-radius: 20px; padding: 28px 36px; margin-bottom: 28px;
+    backdrop-filter: blur(14px);
+  }
+  nav.toc h2 { font-size: 15px; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-2); margin-bottom: 14px; }
+  nav.toc ol { columns: 2; column-gap: 40px; margin-left: 20px; }
+  nav.toc a { color: var(--text); text-decoration: none; }
+  nav.toc a:hover { color: var(--accent-2); }
+  nav.toc li { margin-bottom: 6px; break-inside: avoid; }
+  @media (max-width: 640px) {
+    nav.toc ol { columns: 1; }
+    section { padding: 26px 22px; }
+    header h1 { font-size: 30px; }
+  }
+
+  /* ---------- pillar chips ---------- */
+  .pillars { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin: 18px 0; }
+  .pillar {
+    background: rgba(0,0,0,.22); border: 1px solid var(--glass-border);
+    border-radius: 14px; padding: 14px 16px;
+  }
+  .pillar .icon { font-size: 22px; }
+  .pillar .name { font-weight: 700; font-size: 14.5px; margin: 6px 0 2px; }
+  .pillar .phase { font-size: 12px; color: var(--text-dim); }
+
+  /* ---------- phase timeline ---------- */
+  .phase-block {
+    border-left: 3px solid var(--accent);
+    padding: 4px 0 4px 24px; margin: 22px 0;
+  }
+  .phase-block.ph1 { border-color: var(--good); }
+  .phase-block.ph2 { border-color: var(--accent-2); }
+  .phase-block.ph3 { border-color: var(--warn); }
+  .phase-block.ph4 { border-color: var(--bad); }
+  .phase-block h3 { margin-top: 0; }
+
+  footer { text-align: center; color: var(--text-dim); font-size: 13px; margin-top: 40px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="kicker">NeverExpire V2 · Research &amp; Concept Brainstorm</span>
+  <h1><span class="emoji">🌱</span> Habit Tracker</h1>
+  <p class="sub">A personal habit &amp; routine companion inside NeverExpire — reminders, streaks, AI-assisted planning, voice input, and native health data. This document explores the idea; it is not a build spec.</p>
+  <div class="meta">
+    <span>Author: <b>Nadeem Ahmad + Claude</b></span>
+    <span>Date: <b>12 July 2026</b></span>
+    <span>Status: <b>Brainstorm — not committed</b></span>
+    <span>Platform: <b>Mobile-first (Expo)</b></span>
+  </div>
+</header>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#why">Why habits inside NeverExpire?</a></li>
+    <li><a href="#principles">Guiding principles</a></li>
+    <li><a href="#pillars">Feature pillars overview</a></li>
+    <li><a href="#taxonomy">Habit classification</a></li>
+    <li><a href="#reminders">Habit creation &amp; reminders</a></li>
+    <li><a href="#dashboard">Dashboard, statistics &amp; streaks</a></li>
+    <li><a href="#quotes">Motivational quotes</a></li>
+    <li><a href="#questionnaire">Onboarding questionnaire</a></li>
+    <li><a href="#ai">AI planning &amp; execution</a></li>
+    <li><a href="#voice">Voice interface</a></li>
+    <li><a href="#health">Native health data</a></li>
+    <li><a href="#diet">Dietary &amp; exercise suggestions</a></li>
+    <li><a href="#meds">Medication reminders</a></li>
+    <li><a href="#roadmap">Phased roadmap</a></li>
+    <li><a href="#datamodel">Data model sketch</a></li>
+    <li><a href="#tech">Technical considerations</a></li>
+    <li><a href="#competitors">Competitive landscape</a></li>
+    <li><a href="#risks">Risks &amp; open questions</a></li>
+  </ol>
+</nav>
+
+<!-- ================================================================ -->
+<section id="why">
+  <h2><span class="num">01</span> Why habits inside NeverExpire?</h2>
+  <p class="lede">NeverExpire's core promise is <em>"we remember so you don't have to."</em> Today that applies to documents. Habits are the same promise applied to daily life.</p>
+
+  <p>NeverExpire already owns the hardest parts of a habit product:</p>
+  <ul>
+    <li><strong>A trusted reminder engine.</strong> Users already rely on the app to nag them about things that matter (passport renewals, visa expiries). Extending that trust from "yearly critical reminders" to "daily supportive reminders" is a natural brand move.</li>
+    <li><strong>Daily-open motivation.</strong> A document tracker is opened a few times a month at best. A habit tracker is opened <em>every day</em>. This feature could transform NeverExpire from a utility into a daily companion — dramatically improving retention and making the document features more visible.</li>
+    <li><strong>Existing infrastructure.</strong> JWT auth, user accounts, a REST API, push-capable mobile app, an AI extraction pipeline already wired to the Anthropic API, and a glassmorphic design system. The marginal cost of this feature is far lower than building a standalone habit app.</li>
+  </ul>
+
+  <h3>The user problem</h3>
+  <p>People know <em>what</em> they should do — drink water, move, read, sleep on time, take medication. They fail at <em>when</em> and <em>consistently</em>. Existing habit apps mostly fail in one of three ways:</p>
+  <ol>
+    <li><strong>Too much setup friction</strong> — the user must design their own system before getting any value.</li>
+    <li><strong>Dumb reminders</strong> — fixed-time pings that ignore context, so users mute them within a week.</li>
+    <li><strong>Guilt mechanics</strong> — broken streaks punish users into abandoning the app entirely.</li>
+  </ol>
+  <p>The opportunity: use AI to remove the setup friction (the questionnaire + AI planner designs the system <em>for</em> the user), and design streaks that forgive rather than punish.</p>
+
+  <div class="callout idea">
+    <div class="title">💡 Positioning idea</div>
+    "NeverExpire keeps your documents alive. Now it keeps your good habits alive too." — habits, like documents, <em>expire</em> when neglected. The metaphor is unusually coherent for a feature bolt-on.
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section id="principles">
+  <h2><span class="num">02</span> Guiding principles</h2>
+  <p class="lede">Decisions already made for this exploration, plus non-negotiables.</p>
+
+  <div class="callout decision">
+    <div class="title">✅ Decided: personal scope only</div>
+    Habits belong to the <strong>account owner</strong>, not family members. This deliberately diverges from the document model (per-Person). Rationale: habits are intimate and self-directed; tracking someone else's habits raises consent and nagging-by-proxy problems. Family/shared habits could be revisited later as "accountability partners" (see Open Questions).
+  </div>
+
+  <div class="callout decision">
+    <div class="title">✅ Decided: mobile-first</div>
+    The feature ships on the Expo app first. Push notifications, voice input, and health data are all native-mobile capabilities. Web gets a read-mostly companion view (dashboard + manual check-in) in a later phase, if at all.
+  </div>
+
+  <div class="callout danger">
+    <div class="title">⛔ Non-negotiable: no medical advice, ever</div>
+    The app may <em>remind</em> ("time for your 8pm tablet") but must never <em>advise</em> (dosage, drug names suggestions, interactions, symptoms, diagnoses). This applies to every AI-generated string in the feature. Dietary/exercise suggestions are framed as general wellness ideas with a visible disclaimer, never as prescriptions. See §12–13 for the enforcement design.
+  </div>
+
+  <h3>Other principles</h3>
+  <ul>
+    <li><strong>Forgiving by design.</strong> A missed day bends the streak, it doesn't break it (streak freezes / "repair" mechanics). Guilt is the #1 churn driver in this category.</li>
+    <li><strong>Two-tap check-in.</strong> Marking a habit done must be possible from the notification itself, without opening the app.</li>
+    <li><strong>Privacy-first health data.</strong> Health data is read on-device, aggregated on-device where possible, and only summary metrics (not raw samples) ever reach the backend. Every permission is asked in context, with a plain-language explanation, and every integration is optional.</li>
+    <li><strong>AI proposes, user disposes.</strong> The AI planner drafts habit plans and adjustments; nothing activates without explicit user confirmation.</li>
+    <li><strong>Offline-tolerant.</strong> Check-ins queue locally and sync later — a habit tracker that fails without connectivity fails at its one job.</li>
+  </ul>
+</section>
+
+<!-- ================================================================ -->
+<section id="pillars">
+  <h2><span class="num">03</span> Feature pillars overview</h2>
+  <p class="lede">Ten pillars, mapped to the phase where they first ship. Each gets its own section below.</p>
+  <div class="pillars">
+    <div class="pillar"><div class="icon">⏰</div><div class="name">Habits &amp; Reminders</div><div class="phase"><span class="badge p1">Phase 1</span></div></div>
+    <div class="pillar"><div class="icon">🗂️</div><div class="name">Classification</div><div class="phase"><span class="badge p1">Phase 1</span></div></div>
+    <div class="pillar"><div class="icon">📊</div><div class="name">Dashboard &amp; Streaks</div><div class="phase"><span class="badge p1">Phase 1</span></div></div>
+    <div class="pillar"><div class="icon">✨</div><div class="name">Motivational Quotes</div><div class="phase"><span class="badge p1">Phase 1</span></div></div>
+    <div class="pillar"><div class="icon">💊</div><div class="name">Medication Reminders</div><div class="phase"><span class="badge p2">Phase 2</span></div></div>
+    <div class="pillar"><div class="icon">📋</div><div class="name">Questionnaire</div><div class="phase"><span class="badge p2">Phase 2</span></div></div>
+    <div class="pillar"><div class="icon">🤖</div><div class="name">AI Planning</div><div class="phase"><span class="badge p2">Phase 2</span></div></div>
+    <div class="pillar"><div class="icon">🎙️</div><div class="name">Voice Interface</div><div class="phase"><span class="badge p3">Phase 3</span></div></div>
+    <div class="pillar"><div class="icon">❤️</div><div class="name">Native Health Data</div><div class="phase"><span class="badge p3">Phase 3</span></div></div>
+    <div class="pillar"><div class="icon">🥗</div><div class="name">Diet &amp; Exercise Ideas</div><div class="phase"><span class="badge p4">Phase 4</span></div></div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section id="taxonomy">
+  <h2><span class="num">04</span> Habit classification</h2>
+  <p class="lede">A fixed, curated taxonomy — not free-form tags. Classification powers the dashboard breakdowns, AI suggestions, and quote selection.</p>
+
+  <div class="tbl-scroll"><table>
+    <tr><th>Category</th><th>Examples</th><th>Notes</th></tr>
+    <tr><td>🏃 Physical Health</td><td>Drink water, move/walk, stretch, sleep by 11pm, no sugar after 8pm</td><td>The classic set; where health-data auto-tracking applies most (Phase 3).</td></tr>
+    <tr><td>🧠 Mental &amp; Personality</td><td>Read 20 min, journal, gratitude note, meditate, learn a language</td><td>"Personality development" bucket from the original brief.</td></tr>
+    <tr><td>⏱️ Productivity &amp; Time</td><td>Plan tomorrow tonight, deep-work block, inbox zero, no phone first hour</td><td>Time-management habits; pairs well with a "focus window" reminder style.</td></tr>
+    <tr><td>💊 Medication &amp; Care</td><td>Morning tablet, evening insulin check-in, vitamin D</td><td>Special category: stricter reminder guarantees, zero AI-generated content, no advice. See §13.</td></tr>
+    <tr><td>🕌 Personal &amp; Spiritual</td><td>Prayer times, family call, charity, digital sabbath</td><td>Important for the UAE-first market; prayer-time-relative scheduling is a differentiator (see §5).</td></tr>
+    <tr><td>🧹 Home &amp; Life Admin</td><td>10-min tidy, water plants, meal prep</td><td>Low-stakes starter habits; good for building the check-in reflex.</td></tr>
+  </table></div>
+
+  <p>Each category carries metadata used across the feature: an icon/emoji (consistent with the app's new emoji icon system), a color token from <code>theme.js</code>, a default reminder tone (gentle vs. firm), and an AI-suggestion eligibility flag (off for Medication).</p>
+
+  <h3>Struggling vs. thriving</h3>
+  <p>Classification is what makes the "where am I struggling / where am I doing well" view possible. Per category and per habit, compute a rolling 14-day completion rate:</p>
+  <ul>
+    <li><strong>Thriving</strong> ≥ 80% — celebrate it, consider suggesting a level-up (e.g. 10 min reading → 20 min).</li>
+    <li><strong>Wobbling</strong> 50–79% — the interesting zone; AI coach targets its suggestions here first.</li>
+    <li><strong>Struggling</strong> &lt; 50% — the app proposes making the habit <em>easier</em> (smaller scope, better time slot) rather than pushing harder. Shrinking a habit is presented as smart, not as failure.</li>
+  </ul>
+</section>
+
+<!-- ================================================================ -->
+<section id="reminders">
+  <h2><span class="num">05</span> Habit creation &amp; reminders</h2>
+  <p class="lede">The MVP core. If reminders aren't excellent, nothing else in this document matters.</p>
+
+  <h3>Creating a habit</h3>
+  <p>Three entry paths, in order of shipping:</p>
+  <ol>
+    <li><strong>Template gallery (Phase 1).</strong> ~40 curated habits ("Drink water", "Read", "Stretch", "Walk 10 min"…) with sensible pre-filled schedules. One tap to add, then tweak. This kills setup friction for 80% of users.</li>
+    <li><strong>Custom habit (Phase 1).</strong> Name, category, schedule, target (boolean "did it" vs. quantity "8 glasses"), reminder times.</li>
+    <li><strong>AI / voice creation (Phases 2–3).</strong> Describe a goal, get a drafted habit plan; or say it out loud. See §9 and §10.</li>
+  </ol>
+
+  <h3>Schedule types</h3>
+  <div class="tbl-scroll"><table>
+    <tr><th>Type</th><th>Example</th><th>Streak semantics</th></tr>
+    <tr><td>Daily</td><td>Drink water every day</td><td>Classic daily streak</td></tr>
+    <tr><td>Specific weekdays</td><td>Gym Mon/Wed/Fri</td><td>Streak counts only scheduled days; Tuesday can't break it</td></tr>
+    <tr><td>N times per week</td><td>Read 4×/week, any days</td><td>Weekly quota; flexible and forgiving</td></tr>
+    <tr><td>Interval</td><td>Stretch every 2 hours, 9am–6pm</td><td>Counts "windows hit today"; ideal for water/movement</td></tr>
+    <tr><td>Times per day</td><td>Medication 3×/day at fixed times</td><td>Each slot tracked separately; used by the medication category</td></tr>
+  </table></div>
+
+  <h3>Reminder behavior</h3>
+  <ul>
+    <li><strong>Actionable notifications.</strong> Every reminder carries <em>Done ✓</em> and <em>Snooze 30m</em> actions (notification category actions in <code>expo-notifications</code>). Two-tap check-in without opening the app.</li>
+    <li><strong>Quiet hours.</strong> Global do-not-disturb window (default 10pm–7am) that all non-medication reminders respect.</li>
+    <li><strong>Anchored scheduling.</strong> Beyond clock times, allow anchors: "after Fajr", "30 min after my usual wake time", "at lunch". Prayer-time anchoring (via a local calculation library — no network needed) is a genuine differentiator for the UAE/Gulf market and costs little.</li>
+    <li><strong>Escalation only where it belongs.</strong> Habit reminders fire once (plus optional snooze). Medication reminders may re-fire after 15 min if unacknowledged (see §13). Nothing else nags twice — nagging kills notification permission.</li>
+    <li><strong>Smart batching (later).</strong> If three habits land at 9:00pm, send one combined "Evening check-in — 3 habits" notification instead of three pings.</li>
+  </ul>
+
+  <div class="callout idea">
+    <div class="title">💡 Design detail worth stealing</div>
+    The best habit apps make the <em>check-in itself</em> pleasurable — a satisfying animation, a haptic tick, the streak counter visibly incrementing. Budget real design time for the "done" moment; it's the emotional core of the loop and pairs perfectly with the new glossy 3D icon-puck style already in the mobile app.
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section id="dashboard">
+  <h2><span class="num">06</span> Dashboard, statistics &amp; streaks</h2>
+  <p class="lede">The daily home for the feature. Answers three questions in one glance: <em>What's left today? Am I consistent? Where do I need help?</em></p>
+
+  <h3>Layout concept (mobile)</h3>
+  <ol>
+    <li><strong>Today strip</strong> — horizontally scrollable cards for today's habits, sorted by next-due time. Tap to check in. Completed ones sink to the end with a ✓.</li>
+    <li><strong>Streak hero</strong> — the single most motivating number (current best active streak) with a flame/plant visual that grows with the streak.</li>
+    <li><strong>Consistency heatmap</strong> — GitHub-style month grid of overall completion. Universally understood, dense, and glanceable.</li>
+    <li><strong>Category breakdown</strong> — per-category completion rings (daily/weekly/monthly toggle), feeding the thriving/wobbling/struggling classification from §4.</li>
+    <li><strong>Insight card</strong> — one rotating card: "You complete 'Read' 3× more often when reminded at 9pm vs 7pm" (rule-based at first, AI-written in Phase 2).</li>
+  </ol>
+
+  <h3>Statistics catalogue</h3>
+  <div class="tbl-scroll"><table>
+    <tr><th>Stat</th><th>Window</th><th>Notes</th></tr>
+    <tr><td>Completion rate</td><td>Day / week / month</td><td>Per habit, per category, overall</td></tr>
+    <tr><td>Current streak</td><td>Rolling</td><td>Schedule-aware (unscheduled days never break it)</td></tr>
+    <tr><td>Best streak</td><td>All-time</td><td>Preserved forever; "personal record" framing</td></tr>
+    <tr><td>Streak freezes used</td><td>Month</td><td>See forgiveness mechanics below</td></tr>
+    <tr><td>Best time-of-day</td><td>30 days</td><td>When check-ins actually happen vs. reminder time → feeds AI rescheduling</td></tr>
+    <tr><td>Weekday pattern</td><td>30 days</td><td>"Weekends are your weak spot" style insight</td></tr>
+    <tr><td>Perfect days</td><td>Month</td><td>Days where every scheduled habit was done</td></tr>
+  </table></div>
+
+  <h3>Forgiveness mechanics (important)</h3>
+  <ul>
+    <li><strong>Streak freeze:</strong> 2 auto-applied freezes per month — a missed day consumes a freeze instead of resetting the streak. Duolingo proved this mechanic dramatically reduces churn after a miss.</li>
+    <li><strong>Repair window:</strong> yesterday's habit can be checked in until noon today, marked as "late" (counts for streak, flagged in stats for honesty).</li>
+    <li><strong>Vacation mode:</strong> pause all habits for N days without penalty. Travel is a top habit-abandonment trigger, and this user base literally tracks passports.</li>
+  </ul>
+</section>
+
+<!-- ================================================================ -->
+<section id="quotes">
+  <h2><span class="num">07</span> Motivational quotes</h2>
+  <p class="lede">Small feature, cheap to build, high perceived warmth — if it stays contextual and never spammy.</p>
+  <ul>
+    <li><strong>Where quotes appear:</strong> (a) inside reminder notifications as the subtitle line, (b) on the dashboard as a daily quote card, (c) on streak milestones (7/30/100 days) as part of the celebration screen.</li>
+    <li><strong>Contextual matching:</strong> quotes are tagged by category and moment — a persistence quote after a broken streak, a health quote on a water reminder, a focus quote on a deep-work habit. A generic random quote feels like a fortune cookie; a matched one feels like coaching.</li>
+    <li><strong>Source strategy:</strong> Phase 1 ships a curated local bundle (~200 quotes, tagged, reviewed once by a human — public-domain and properly attributed). Phase 2 can add AI-generated <em>personalized</em> encouragement lines ("Day 12 of reading — you've read more this month than all of last month"), which are actually stats-driven observations rather than quotes, and land much harder.</li>
+    <li><strong>User control:</strong> a single toggle to turn quotes off entirely. Some users love them; others find them saccharine. Respect both.</li>
+    <li><strong>Localization note:</strong> for the UAE market, include wisdom-tradition and Arabic-proverb options in the curated set; tone matters culturally.</li>
+  </ul>
+</section>
+
+<!-- ================================================================ -->
+<section id="questionnaire">
+  <h2><span class="num">08</span> Onboarding questionnaire</h2>
+  <p class="lede">An interactive, conversational intake that turns "I want to be healthier" into a concrete, personalized starter plan. This is the front door to the AI planner (§9).</p>
+
+  <h3>Design shape</h3>
+  <p>Not a form — a chat-like, one-question-per-screen flow with tappable chips, ~3 minutes total, skippable at any point ("Just let me add habits manually"). Progressively disclosed: early answers prune later questions.</p>
+
+  <h3>Question domains</h3>
+  <div class="tbl-scroll"><table>
+    <tr><th>Domain</th><th>Sample questions</th><th>Feeds into</th></tr>
+    <tr><td>Goals</td><td>"What matters most right now?" (energy / fitness / focus / learning / calm / faith &amp; family)</td><td>Category weighting, template pre-selection</td></tr>
+    <tr><td>Constraints</td><td>Work schedule, commute, family duties, "when is your day truly yours?"</td><td>Reminder time slots, realistic habit count</td></tr>
+    <tr><td>Chronotype</td><td>Morning person or night owl? When do you naturally have energy?</td><td>Anchor times for new habits</td></tr>
+    <tr><td>History</td><td>"Have you tried habit tracking before? What made you stop?"</td><td>Forgiveness settings, reminder tone, starting difficulty</td></tr>
+    <tr><td>Health context (optional)</td><td>Activity level, sleep satisfaction — explicitly <em>not</em> medical conditions</td><td>Diet/exercise suggestion eligibility (Phase 4)</td></tr>
+    <tr><td>Current strengths</td><td>"What do you already do consistently?"</td><td>Habit stacking — attach new habits to existing routines (the highest-evidence technique in the behavior literature)</td></tr>
+  </table></div>
+
+  <div class="callout idea">
+    <div class="title">💡 Output contract</div>
+    The questionnaire's output is a structured <code>user_profile</code> JSON (goals ranked, constraints, chronotype, anchors, tone preference). This exact object is the input to every AI-planner call — which means the questionnaire can be improved, re-taken, or partially edited without touching the AI layer. A "retake / update my profile" entry lives in settings; profiles go stale as life changes.
+  </div>
+
+  <p><strong>Re-engagement questionnaires:</strong> beyond onboarding, short 3-question check-ins ("How's the plan feeling — too easy, right, too much?") every few weeks keep the profile current and give the AI coach honest signal that completion data alone can't provide.</p>
+</section>
+
+<!-- ================================================================ -->
+<section id="ai">
+  <h2><span class="num">09</span> AI planning &amp; execution</h2>
+  <p class="lede">The differentiator. NeverExpire already runs an Anthropic-powered extraction pipeline; this reuses that muscle for coaching. The AI has three jobs, shipped in this order.</p>
+
+  <h3>Job 1 — Plan generation (Phase 2)</h3>
+  <p>Input: the <code>user_profile</code> from §8. Output: a draft plan of 3–5 starter habits — deliberately few. Each proposed habit comes with schedule, target, anchor, and a one-line "why this, why now" rationale. The user reviews the draft as editable cards: accept all, tweak any, or reject. <em>Nothing activates without confirmation.</em></p>
+
+  <h3>Job 2 — Adaptive coaching (Phase 2–3)</h3>
+  <p>A periodic (weekly) analysis pass over completion data + profile, producing at most <strong>one suggestion at a time</strong>:</p>
+  <ul>
+    <li>"You've hit 'Stretch' at 3pm only 20% of the time, but you're very consistent at 8am. Move it?"</li>
+    <li>"Reading has been at 100% for 3 weeks. Ready to go from 10 to 20 minutes?"</li>
+    <li>"'Gym 5×/week' is at 30%. Dropping to 3×/week would let you build a real streak first."</li>
+  </ul>
+  <p>Suggestions arrive as dismissible cards on the dashboard — never as push notifications (unsolicited AI pings feel invasive; on-dashboard advice feels available).</p>
+
+  <h3>Job 3 — Conversational assistant (Phase 3, with voice)</h3>
+  <p>Free-text/voice: "I keep failing my evening reading, what should I try?" → grounded response using that user's actual data. This is the most expensive and most guard-rail-sensitive job; it comes last.</p>
+
+  <h3>Architecture sketch</h3>
+  <pre><code>mobile ──POST /api/v1/habits/ai/plan──▶ Flask ──▶ Anthropic API (claude-sonnet-4-6 or newer)
+                                          │   system prompt: coach persona + hard rules
+                                          │   input: user_profile + habit stats (aggregates only)
+                                          │   output: strict JSON (tool-use schema) → validated
+                                          ▼
+                              draft plan / suggestion cards (never auto-applied)</code></pre>
+  <ul>
+    <li><strong>Server-side only.</strong> API key stays on the Flask backend, same as the extraction pipeline. Mobile never talks to Anthropic directly.</li>
+    <li><strong>Structured output.</strong> Use tool-use/JSON schema so the model returns machine-checkable plans, not prose to parse. Validate every field (times sane, categories valid, count ≤ 5) before showing anything.</li>
+    <li><strong>Hard guardrails in the system prompt <em>and</em> in code:</strong> medication category is excluded from all AI inputs and outputs at the code level — not just prompt level. Any output string mentioning dosage/drug names in suggestion contexts is rejected by a post-filter. Defense in depth, because prompts alone are not a compliance strategy.</li>
+    <li><strong>Cost control:</strong> weekly batch analysis, cached plans, and a small model (Haiku-class) for quote-matching and insight phrasing; the bigger model only for plan generation and conversation. Estimated cost per active user per month is pennies, but meter it from day one.</li>
+  </ul>
+</section>
+
+<!-- ================================================================ -->
+<section id="voice">
+  <h2><span class="num">10</span> Voice interface</h2>
+  <p class="lede">Scoped tightly: voice is for <em>creation</em> and <em>confirmation</em> — not a general voice assistant.</p>
+
+  <h3>Two interactions</h3>
+  <ol>
+    <li><strong>Voice creation.</strong> Mic button on the Habits screen → user says "Remind me to drink water every two hours during work" → speech-to-text → the AI planner parses it into a structured habit draft → visual confirmation card ("Drink water · every 2h · 9am–6pm · Mon–Fri — correct?") → tap or say "yes" to save. The confirmation step is mandatory; voice parsing will mishear, and a silently wrong reminder schedule destroys trust.</li>
+    <li><strong>Voice check-in.</strong> From a reminder notification or the today screen: "done", "skip today", "snooze an hour". Small vocabulary, high reliability.</li>
+  </ol>
+
+  <h3>Technical route</h3>
+  <ul>
+    <li><strong>Speech-to-text:</strong> <code>expo-speech-recognition</code> (community module wrapping the native iOS/Android speech recognizers) keeps recognition on-device/OS-managed — no audio ever leaves the phone to our servers. Requires microphone + speech-recognition permissions, requested in context on first mic tap.</li>
+    <li><strong>Understanding:</strong> the transcribed <em>text</em> goes through the same AI parse endpoint as typed input — one NLU path to maintain, voice is just another keyboard.</li>
+    <li><strong>Feedback:</strong> <code>expo-speech</code> (TTS) can read back the confirmation for eyes-free use, off by default.</li>
+    <li><strong>Arabic/English:</strong> OS recognizers handle both; the parse layer is language-agnostic since the model handles multilingual input natively. Worth testing early for the UAE market.</li>
+  </ul>
+
+  <div class="callout open">
+    <div class="title">⚠ Expo managed-workflow check</div>
+    <code>expo-speech-recognition</code> needs a config plugin (works with EAS builds / dev clients, not plain Expo Go). This is fine — the project already anticipates dev-client builds — but it makes voice a Phase 3 item by dependency, not just by priority.
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section id="health">
+  <h2><span class="num">11</span> Native health data</h2>
+  <p class="lede">Auto-completing habits from the phone's health store turns tracking from a chore into magic: the walk habit checks itself off.</p>
+
+  <h3>Platform reality</h3>
+  <div class="tbl-scroll"><table>
+    <tr><th>Platform</th><th>Store</th><th>Route</th><th>Notes</th></tr>
+    <tr><td>iOS</td><td>HealthKit</td><td><code>@kingstinct/react-native-healthkit</code> (or similar) + config plugin, EAS build</td><td>Per-datatype read permissions; user can grant steps but deny sleep</td></tr>
+    <tr><td>Android</td><td>Health Connect</td><td><code>react-native-health-connect</code> + config plugin</td><td>Health Connect is standard on Android 14+; ships as an app on 13-</td></tr>
+  </table></div>
+
+  <h3>What to read (deliberately minimal)</h3>
+  <ul>
+    <li><strong>Steps / distance</strong> → auto-complete "walk / move" habits when the daily threshold is met.</li>
+    <li><strong>Workouts</strong> → auto-complete exercise habits when any workout session is recorded.</li>
+    <li><strong>Sleep duration</strong> → auto-complete "sleep by 11pm / 7h sleep" habits.</li>
+    <li><strong>Mindfulness minutes</strong> (iOS) → auto-complete meditation habits.</li>
+  </ul>
+  <p>Explicitly <em>not</em> reading: heart rate, blood glucose, medications, reproductive health, clinical records. Reading less than we could is a feature — it keeps the permission dialog short and the privacy story clean.</p>
+
+  <h3>Permission &amp; privacy design</h3>
+  <ul>
+    <li><strong>In-context asks.</strong> The permission prompt appears only when the user links a specific habit to a data type ("Auto-track this from your steps?"), never as an onboarding wall.</li>
+    <li><strong>On-device evaluation.</strong> The threshold check (steps ≥ 8000?) runs on the phone. The backend receives only the resulting check-in event — identical in shape to a manual tap. Raw health samples never leave the device. This one design choice removes most compliance surface (and is the honest thing to do anyway).</li>
+    <li><strong>Graceful denial.</strong> Every auto-tracked habit falls back to manual check-in if permission is denied or revoked. No dead ends.</li>
+    <li><strong>Store policy note:</strong> Apple and Google both scrutinize health-data usage. App Store review will require a privacy policy update, purpose strings, and (Google) a Health Connect declaration form. Budget review-cycle time in Phase 3.</li>
+  </ul>
+</section>
+
+<!-- ================================================================ -->
+<section id="diet">
+  <h2><span class="num">12</span> Dietary &amp; exercise suggestions</h2>
+  <p class="lede">The most sensitive pillar after medication. Framed strictly as <em>general wellness ideas</em>, never personalized health prescriptions.</p>
+
+  <h3>What it is</h3>
+  <ul>
+    <li>A library of habit-sized suggestions: "add a vegetable to lunch", "swap one soda for water", "10-minute walk after dinner", "5-minute morning stretch routine (with illustrated steps)".</li>
+    <li>Filtered by the questionnaire's <em>lifestyle</em> answers (activity level, time available) — not by medical data.</li>
+    <li>Delivered as browsable cards in the template gallery ("Ideas for you") and occasionally by the AI coach when the user's stated goal is fitness or energy.</li>
+  </ul>
+
+  <h3>What it is not</h3>
+  <ul>
+    <li>No calorie targets, no meal plans "for weight loss", no macros, no supplement advice, no exercise prescriptions based on health conditions, nothing that responds to medical information — because we don't collect medical information (§8 deliberately excludes conditions).</li>
+    <li>Every suggestion surface carries a persistent, non-dismissable footer: <em>"General wellness ideas — not medical, dietary, or fitness advice. Consult a professional for guidance specific to you."</em></li>
+    <li>The AI coach's system prompt forbids generating novel dietary/medical content; it may only <em>select and schedule</em> items from the human-reviewed suggestion library. This "AI picks from a vetted menu, never cooks" pattern is the key safety design of this pillar.</li>
+  </ul>
+
+  <div class="callout idea">
+    <div class="title">💡 Regional angle</div>
+    Ramadan mode: during fasting, hydration and meal-timing habits auto-shift to iftar/suhoor windows and daytime water reminders pause. Almost no competitor does this well, and for the UAE market it signals the app truly gets its users.
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section id="meds">
+  <h2><span class="num">13</span> Medication reminders — no advice, by construction</h2>
+  <p class="lede">Valuable and asked-for, but designed as a <em>dumb, reliable alarm clock with a checkbox</em> — deliberately the least intelligent part of the feature.</p>
+
+  <h3>Scope</h3>
+  <ul>
+    <li>User enters: a label (free text — "morning tablet", "Vitamin D"), times per day, and times. That's all. <strong>No drug database, no autocomplete of medication names, no dosage fields beyond a free-text note.</strong> The moment the app has a structured drug model, it invites interaction-checking expectations and regulatory classification as a medical device in some jurisdictions. A label and a clock time keep it firmly a reminder app.</li>
+    <li>Reminders are the most reliable in the app: they ignore quiet hours by default (user-overridable), re-fire once after 15 minutes if unacknowledged, and show a missed-dose indicator on the dashboard — <em>indicator</em>, not advice ("Missed — see your notes", never "take it now" or "double next dose").</li>
+    <li>Adherence history (taken/missed log) is exportable as a simple list — useful for the user's own doctor conversations, at their initiative.</li>
+  </ul>
+
+  <h3>Hard rules (enforced in code, not just policy)</h3>
+  <ul>
+    <li>Medication habits are <strong>excluded from every AI code path</strong>: never sent as AI input, never the subject of AI suggestions, never mentioned in AI-generated insight text. Enforced by filtering at the query layer, so no prompt change can leak them.</li>
+    <li>No quotes, no gamification, no streak-freeze mechanics on medication items — a "streak" framing on medication trivializes it and forgiveness mechanics misrepresent adherence. Plain taken/missed record.</li>
+    <li>A one-time acknowledgment on first medication habit: <em>"NeverExpire reminds you — it never gives medical advice. Always follow your doctor's and pharmacist's instructions."</em></li>
+    <li>Voice creation for medication is allowed (it's just label + times) but voice <em>confirmation</em> reads back the full schedule and requires visual confirm — mishearing a medication time is the one place voice error is unacceptable.</li>
+  </ul>
+</section>
+
+<!-- ================================================================ -->
+<section id="roadmap">
+  <h2><span class="num">14</span> Phased roadmap</h2>
+  <p class="lede">Each phase is independently shippable and delivers standalone user value. Sizes are rough build-effort tiers, not calendar promises.</p>
+
+  <div class="phase-block ph1">
+    <h3><span class="badge p1">Phase 1 · MVP</span> &nbsp;The reliable core</h3>
+    <p><strong>Goal:</strong> a habit tracker people actually use daily. <strong>Effort tier: M</strong></p>
+    <ul>
+      <li>Habit CRUD with template gallery (~40 curated habits) + custom habits</li>
+      <li>All five schedule types; local notifications with Done/Snooze actions; quiet hours</li>
+      <li>Streaks with freeze + repair mechanics; vacation mode</li>
+      <li>Dashboard: today strip, streak hero, heatmap, category rings (daily/weekly/monthly)</li>
+      <li>Habit classification (6 fixed categories); struggling/thriving computation</li>
+      <li>Curated motivational quotes (local bundle, contextual tags, off-switch)</li>
+      <li>Backend: habit + checkin models, REST endpoints, offline check-in queue</li>
+    </ul>
+    <p><em>Success gate:</em> ≥ 40% of users who create a habit are still checking in after 21 days.</p>
+  </div>
+
+  <div class="phase-block ph2">
+    <h3><span class="badge p2">Phase 2 · Intelligence</span> &nbsp;Questionnaire, AI planner, medication</h3>
+    <p><strong>Goal:</strong> the app designs the system for the user. <strong>Effort tier: M–L</strong></p>
+    <ul>
+      <li>Onboarding questionnaire → <code>user_profile</code>; retake/update flow; periodic 3-question check-ins</li>
+      <li>AI plan generation (draft → confirm) + weekly adaptive coaching cards</li>
+      <li>Stats-driven personalized encouragement lines (replacing generic quotes where data allows)</li>
+      <li>Medication reminders (isolated category, hard AI exclusion, re-fire, adherence export)</li>
+      <li>AI cost metering + guardrail post-filters</li>
+    </ul>
+    <p><em>Success gate:</em> users who complete the questionnaire retain measurably better than those who skip it; zero guardrail violations in logged AI output.</p>
+  </div>
+
+  <div class="phase-block ph3">
+    <h3><span class="badge p3">Phase 3 · Senses</span> &nbsp;Voice + native health data</h3>
+    <p><strong>Goal:</strong> reduce interaction cost to near zero. <strong>Effort tier: L</strong> (requires EAS dev-client builds + store review cycles)</p>
+    <ul>
+      <li>Voice habit creation and voice check-in (on-device STT → shared parse endpoint → visual confirm)</li>
+      <li>HealthKit / Health Connect integration: steps, workouts, sleep, mindfulness → auto check-ins, evaluated on-device</li>
+      <li>In-context permission flows; graceful manual fallbacks; privacy policy + store declarations</li>
+      <li>Conversational AI assistant (text + voice), grounded in the user's own aggregates</li>
+    </ul>
+    <p><em>Success gate:</em> auto-tracked habits show higher 30-day retention than manual equivalents; voice parse accuracy ≥ 95% on the confirmation screen.</p>
+  </div>
+
+  <div class="phase-block ph4">
+    <h3><span class="badge p4">Phase 4 · Guidance</span> &nbsp;Wellness library + regional polish</h3>
+    <p><strong>Goal:</strong> from tracker to companion. <strong>Effort tier: M</strong></p>
+    <ul>
+      <li>Human-reviewed dietary &amp; exercise suggestion library ("AI picks from a vetted menu")</li>
+      <li>Ramadan mode; prayer-anchored scheduling polish; Arabic content pass</li>
+      <li>Web companion view (dashboard + manual check-in)</li>
+      <li>Exploration: accountability partners / shared family challenges (revisits the personal-only decision with a consent-first design)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section id="datamodel">
+  <h2><span class="num">15</span> Data model sketch</h2>
+  <p class="lede">Rough shape only — enough to sanity-check feasibility against the existing SQLAlchemy stack. Not a migration plan.</p>
+
+  <pre><code>Habit
+  id, user_id (FK → User)          -- personal scope: user, never person_id
+  name, category (enum: physical|mental|productivity|medication|spiritual|life_admin)
+  schedule_type (daily|weekdays|weekly_quota|interval|times_per_day)
+  schedule_config (JSON: days, quota, interval_minutes, slots[], window)
+  target_type (boolean|quantity), target_value, target_unit
+  anchor (nullable: clock|prayer|relative)     -- "after Fajr", "+30m wake"
+  reminder_enabled, reminder_times (JSON)
+  auto_track_source (nullable: steps|workout|sleep|mindfulness)   -- Phase 3
+  is_paused, paused_until (vacation mode)
+  created_at, archived_at
+
+HabitCheckin
+  id, habit_id (FK), user_id (FK)
+  date (local date), slot_index (nullable, for times_per_day)
+  status (done|skipped|missed|late)
+  value (nullable quantity), source (manual|notification_action|voice|auto_health)
+  created_at                        -- unique(habit_id, date, slot_index)
+
+StreakState                          -- denormalized for fast dashboard reads
+  habit_id (PK/FK), current_streak, best_streak,
+  freezes_remaining_month, last_checkin_date
+
+UserHabitProfile                     -- questionnaire output (Phase 2)
+  user_id (PK/FK), profile (JSON: goals[], constraints, chronotype,
+  anchors, tone), version, updated_at
+
+AiSuggestion                         -- coaching cards (Phase 2)
+  id, user_id, type (plan|adjust|levelup|reduce), payload (JSON),
+  status (pending|accepted|dismissed), created_at
+
+QuoteBundle                          -- shipped as static JSON in the app,
+                                     -- not a DB table (updatable via app release)</code></pre>
+
+  <ul>
+    <li><strong>Streak computation:</strong> event-sourced from check-ins, cached in <code>StreakState</code>. Recompute on write; never trust the cache for disputes — the check-in log is truth.</li>
+    <li><strong>Timezones:</strong> store the user's IANA timezone on the profile; "a day" is a local-date concept. Travel across timezones is a known hard edge — decide the rule early (recommend: local date at time of check-in wins) and never revisit streak history retroactively.</li>
+    <li><strong>Offline queue:</strong> check-ins write to AsyncStorage/SQLite locally and sync with idempotency keys (<code>habit_id + date + slot</code> uniqueness makes replays safe).</li>
+    <li><strong>API surface (sketch):</strong> <code>/api/v1/habits</code> CRUD, <code>/habits/:id/checkins</code>, <code>/habits/dashboard</code> (one aggregate call for the whole screen), <code>/habits/ai/plan</code>, <code>/habits/ai/suggestions</code>. Same <code>{data, error}</code> envelope as the rest of V2.</li>
+  </ul>
+</section>
+
+<!-- ================================================================ -->
+<section id="tech">
+  <h2><span class="num">16</span> Technical considerations</h2>
+
+  <h3>Notifications (the load-bearing wall)</h3>
+  <ul>
+    <li><strong>Local, not push, for reminders.</strong> Habit reminders are scheduled on-device with <code>expo-notifications</code> — they fire offline, cost nothing, and need no server fan-out. Push stays reserved for the document-expiry features.</li>
+    <li><strong>OS limits are real:</strong> iOS caps pending local notifications at 64 per app. A user with 10 interval habits can exceed that fast. Mitigation: schedule a rolling 48-hour window and re-plan on every app open / background task — a solved problem, but it must be designed in from day one, not patched later.</li>
+    <li><strong>Android 13+ needs runtime notification permission</strong> and exact-alarm permission for to-the-minute medication reminders (<code>SCHEDULE_EXACT_ALARM</code>). Ask in context; degrade to inexact alarms for ordinary habits.</li>
+    <li><strong>Notification actions</strong> (Done/Snooze) work in both platforms via notification categories; the response must be handled both in foreground and via the background handler.</li>
+  </ul>
+
+  <h3>Architecture fit</h3>
+  <ul>
+    <li>Follows the existing 3-layer mobile rule: <code>HabitsScreen → useHabits (context) → habitService → ApiService</code>. New nav routes in <code>routes.js</code>; all colors/spacing from <code>theme.js</code>; emoji icon system already in place fits the category icons naturally.</li>
+    <li>Backend follows the blueprint pattern: <code>routes/habits.py</code>, repository functions in <code>db/repository.py</code>, aggregations in <code>db/queries.py</code>. The 90-day threshold constant discipline (backend ↔ mobile sync) has a sibling here: streak/forgiveness rules must live in <em>one</em> place — recommend backend-computed, mobile-displayed.</li>
+    <li>AI endpoints reuse the existing Anthropic client setup from the extraction pipeline (<code>extractor.py</code> patterns), with a separate system prompt module and post-filters.</li>
+  </ul>
+
+  <h3>Feature flag</h3>
+  <p>Ship behind a <code>habits_enabled</code> flag (per-user or global config) so the PoC audience can test it without exposing every account. Cheap insurance for a feature this size.</p>
+</section>
+
+<!-- ================================================================ -->
+<section id="competitors">
+  <h2><span class="num">17</span> Competitive landscape (brief)</h2>
+  <div class="tbl-scroll"><table>
+    <tr><th>App</th><th>What they nail</th><th>Where they leave room</th></tr>
+    <tr><td>Streaks (iOS)</td><td>Beautiful minimal check-ins, health auto-tracking</td><td>No intelligence, no coaching, iOS-only</td></tr>
+    <tr><td>Habitica</td><td>Deep gamification (RPG)</td><td>Overwhelming for normal users; guilt-heavy on failure</td></tr>
+    <tr><td>Fabulous</td><td>Science-flavored guided journeys, gorgeous onboarding</td><td>Rigid programs, aggressive paywall, weak custom habits</td></tr>
+    <tr><td>Loop (Android)</td><td>Free, private, great stats</td><td>Utilitarian; zero motivation layer or guidance</td></tr>
+    <tr><td>Duolingo (pattern ref)</td><td>Streak freezes, forgiveness psychology, milestone celebration</td><td>— (pattern source, not a competitor)</td></tr>
+  </table></div>
+  <p><strong>The gap this feature can own:</strong> AI-designed personal plans (nobody does the questionnaire → tailored plan → adaptive coaching loop well), voice-first creation, genuine regional fit (prayer anchors, Ramadan mode, Arabic), and the trust halo of an app that already guards the family's most important documents.</p>
+</section>
+
+<!-- ================================================================ -->
+<section id="risks">
+  <h2><span class="num">18</span> Risks &amp; open questions</h2>
+
+  <h3>Risks</h3>
+  <div class="tbl-scroll"><table>
+    <tr><th>Risk</th><th>Severity</th><th>Mitigation</th></tr>
+    <tr><td>Scope creep — this is a whole app inside an app</td><td><span class="badge p4">High</span></td><td>Phase gates with success metrics; Phase 1 must earn Phase 2</td></tr>
+    <tr><td>Notification fatigue → permission revoked → feature dead</td><td><span class="badge p4">High</span></td><td>Batching, quiet hours, one-fire rule, easy per-habit mute</td></tr>
+    <tr><td>iOS 64-notification cap breaks interval reminders</td><td><span class="badge p3">Med</span></td><td>Rolling 48h scheduling window, designed in from day 1</td></tr>
+    <tr><td>AI output crossing into medical advice</td><td><span class="badge p4">High</span></td><td>Code-level exclusion of medication data, vetted-menu pattern for wellness content, output post-filters, logged audits</td></tr>
+    <tr><td>Health-data handling triggers store rejection / privacy concerns</td><td><span class="badge p3">Med</span></td><td>On-device evaluation, minimal datatypes, in-context permissions, updated privacy policy</td></tr>
+    <tr><td>Brand dilution — "is this a document app or a lifestyle app?"</td><td><span class="badge p2">Low–Med</span></td><td>Frame as one promise ("we remember for you"); keep habit UI in its own tab; feature flag the rollout</td></tr>
+    <tr><td>Voice module requires dev-client builds (leaves plain Expo Go)</td><td><span class="badge p2">Low</span></td><td>Already the project's direction; sequence voice in Phase 3</td></tr>
+  </table></div>
+
+  <h3>Open questions</h3>
+  <ul>
+    <li><strong>Monetization:</strong> is Habit Tracker part of the core free offering, or the anchor of a premium tier (AI coaching + health sync as paid)? Affects Phase 2 architecture (entitlement checks).</li>
+    <li><strong>Accountability partners:</strong> the personal-only decision is right for v1, but "share my streak with my spouse" is a proven retention lever. Revisit in Phase 4 with consent-first design?</li>
+    <li><strong>Quote licensing:</strong> curated bundle must stick to public-domain / properly-licensed content — needs one review pass before ship.</li>
+    <li><strong>Prayer-time anchors:</strong> local calculation vs. user's preferred prayer app's times (they differ slightly by method) — offer calculation-method setting?</li>
+    <li><strong>Web companion:</strong> worth building at all, or is this feature 100% mobile forever?</li>
+    <li><strong>Wearables:</strong> Apple Watch / WearOS check-ins are the natural Phase 5 — out of scope for this doc, but the data model (check-in <code>source</code> field) already leaves room.</li>
+    <li><strong>Analytics:</strong> which product metrics do we log (privacy-respecting) to judge the Phase 1 success gate — and where do they live?</li>
+  </ul>
+
+  <div class="callout open">
+    <div class="title">⚠ The single biggest decision</div>
+    Phase 1 is deliberately buildable with zero AI and zero native modules — pure CRUD + local notifications + good design. If Phase 1 doesn't hit its retention gate, Phases 2–4 shouldn't be built. Committing to that discipline up front is the difference between a focused bet and a two-month detour.
+  </div>
+</section>
+
+<footer>
+  NeverExpire V2 · Habit Tracker research &amp; concept brainstorm · docs/habit-tracker-research.html · July 2026<br>
+  Brainstorm document — nothing here is committed scope.
+</footer>
+
+</div>
+</body>
+</html>

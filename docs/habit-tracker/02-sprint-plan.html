@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Tracker — Sprint Plan | NeverExpire V2</title>
+<style>
+  :root{--bg1:#0f1224;--bg2:#1a1f3d;--glass:rgba(255,255,255,.06);--gb:rgba(255,255,255,.12);
+  --text:#e8eaf6;--dim:#a3aacb;--acc:#7c6cff;--acc2:#4dd0e1;--good:#66d9a3;--warn:#ffb74d;--bad:#ef7373;
+  --mono:'Cascadia Code',Consolas,monospace;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(160deg,var(--bg1),var(--bg2) 60%,#241a3d);
+  background-attachment:fixed;color:var(--text);line-height:1.6;padding:40px 20px 80px}
+  .wrap{max-width:1000px;margin:0 auto}
+  header{text-align:center;padding:40px 24px;border-radius:24px;background:var(--glass);border:1px solid var(--gb);
+  backdrop-filter:blur(14px);margin-bottom:28px}
+  .kicker{font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--acc2)}
+  h1{font-size:34px;margin:8px 0}
+  .sub{color:var(--dim);max-width:640px;margin:0 auto;font-size:16px}
+  h2.phase-hd{font-size:22px;margin:34px 0 14px;padding-left:6px}
+  .sprint{background:var(--glass);border:1px solid var(--gb);backdrop-filter:blur(14px);border-radius:18px;
+  padding:26px 30px;margin-bottom:18px;border-left:4px solid var(--acc)}
+  .sprint.ph1{border-left-color:var(--good)} .sprint.ph2{border-left-color:var(--acc2)}
+  .sprint.ph3{border-left-color:var(--warn)} .sprint.ph4{border-left-color:var(--bad)}
+  .sprint h3{font-size:19px;margin-bottom:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .sprint .goal{color:var(--dim);font-size:14.5px;margin-bottom:14px}
+  .sprint h4{font-size:13px;text-transform:uppercase;letter-spacing:1.2px;color:var(--acc2);margin:14px 0 6px}
+  ul{margin:0 0 6px 20px} li{margin-bottom:5px;font-size:14.5px} li::marker{color:var(--acc)}
+  strong{color:#fff}
+  code{font-family:var(--mono);font-size:12.5px;background:rgba(124,108,255,.12);color:#c3baff;padding:1px 6px;border-radius:5px}
+  a{color:var(--acc2);text-decoration:none} a:hover{text-decoration:underline}
+  .badge{display:inline-block;padding:2px 11px;border-radius:999px;font-size:11.5px;font-weight:600}
+  .p1{background:rgba(102,217,163,.15);color:var(--good);border:1px solid rgba(102,217,163,.35)}
+  .p2{background:rgba(77,208,225,.15);color:var(--acc2);border:1px solid rgba(77,208,225,.35)}
+  .p3{background:rgba(255,183,77,.15);color:var(--warn);border:1px solid rgba(255,183,77,.35)}
+  .p4{background:rgba(239,115,115,.15);color:var(--bad);border:1px solid rgba(239,115,115,.35)}
+  .pts{background:rgba(124,108,255,.15);color:#b3a8ff;border:1px solid rgba(124,108,255,.35)}
+  .stories{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px}
+  .story{background:rgba(0,0,0,.25);border:1px solid var(--gb);border-radius:8px;padding:4px 10px;font-size:12.5px}
+  .story b{color:var(--acc2);font-family:var(--mono);font-weight:600}
+  .checks li::marker{content:"☐ ";color:var(--good)}
+  .exit{margin-top:12px;padding:10px 14px;border-radius:10px;background:rgba(102,217,163,.07);
+  border:1px solid rgba(102,217,163,.25);font-size:13.5px}
+  .exit b{color:var(--good)}
+  .gate{margin:6px 0 24px;padding:14px 18px;border-radius:14px;background:rgba(255,183,77,.08);
+  border:1px solid rgba(255,183,77,.35);font-size:14.5px}
+  .gate b{color:var(--warn)}
+  footer{text-align:center;color:var(--dim);font-size:13px;margin-top:36px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="kicker">NeverExpire V2 · Habit Tracker · Planning Package 2/10</span>
+  <h1>🏃 Sprint Plan</h1>
+  <p class="sub">15 one-week sprints across 4 phases. Story details in <a href="03-user-stories.html">03-user-stories.html</a> · live status in <a href="04-status-board.html">04-status-board.html</a>.</p>
+</header>
+
+<!-- ==================== PHASE 1 ==================== -->
+<h2 class="phase-hd">🟢 Phase 1 — The Reliable Core <span class="badge p1">Sprints 1–4</span></h2>
+
+<div class="sprint ph1">
+  <h3>Sprint 1 — Backend foundation <span class="badge p1">Phase 1</span><span class="badge pts">17 pts</span></h3>
+  <div class="goal">Goal: the entire habit data layer exists, tested, behind a flag — before any UI is written.</div>
+  <h4>Stories</h4>
+  <div class="stories">
+    <span class="story"><b>HT-901</b> Feature flag habits_enabled (1)</span>
+    <span class="story"><b>HT-101</b> Habit data model &amp; migrations (5)</span>
+    <span class="story"><b>HT-102</b> Habit CRUD API (3)</span>
+    <span class="story"><b>HT-103</b> Check-in API + idempotency (3)</span>
+    <span class="story"><b>HT-104</b> Streak engine + StreakState cache (5)</span>
+  </div>
+  <h4>Technical notes</h4>
+  <ul>
+    <li>New tables: <code>habits</code>, <code>habit_checkins</code>, <code>habit_streak_state</code> (see research doc §15). <code>user_id</code> FK only — never <code>person_id</code>.</li>
+    <li>Blueprint <code>routes/habits.py</code>; repository + queries functions follow existing V2 layering. Envelope: <code>{data, error}</code>.</li>
+    <li>Streak rules (schedule-aware, freeze, repair, vacation) computed backend-only; unit tests cover every schedule type × miss pattern.</li>
+    <li>Idempotency: unique <code>(habit_id, date, slot_index)</code> — replayed offline check-ins are safe no-ops.</li>
+    <li>User timezone (IANA) added to the user profile; "a day" = local date.</li>
+  </ul>
+  <h4>Verification</h4>
+  <ul class="checks">
+    <li>pytest suite green (streak engine: ≥15 cases incl. weekly-quota + interval edge cases)</li>
+    <li>All endpoints exercised via REST client with JWT; 401/403/422 paths checked</li>
+    <li>Flag off → habit endpoints return 404-style disabled response</li>
+  </ul>
+  <div class="exit"><b>Exit:</b> mobile team (Sprint 2) can build against a stable, documented API without backend changes.</div>
+</div>
+
+<div class="sprint ph1">
+  <h3>Sprint 2 — Mobile habit core <span class="badge p1">Phase 1</span><span class="badge pts">19 pts</span></h3>
+  <div class="goal">Goal: create, see, and check in habits on the phone — the feature exists end-to-end (no reminders yet).</div>
+  <h4>Stories</h4>
+  <div class="stories">
+    <span class="story"><b>HT-105</b> Habits tab + list screen (3)</span>
+    <span class="story"><b>HT-106</b> Create/edit habit screen (5)</span>
+    <span class="story"><b>HT-107</b> Template gallery, ~40 habits (3)</span>
+    <span class="story"><b>HT-108</b> Check-in interaction (3)</span>
+    <span class="story"><b>HT-109</b> Offline queue + sync (5)</span>
+  </div>
+  <h4>Technical notes</h4>
+  <ul>
+    <li>3-layer rule: <code>HabitsScreen → useHabits → habitService → ApiService</code>. New routes in <code>routes.js</code>; colors from <code>theme.js</code>; category icons use the emoji icon system.</li>
+    <li>Templates ship as static JSON in the app (name, category, schedule preset, emoji) — one tap adds, then opens editor pre-filled.</li>
+    <li>Check-in = haptic + tick animation + streak count increment; this is the emotional core — budget polish time.</li>
+    <li>Offline queue in AsyncStorage; flush on foreground + connectivity change; server idempotency makes retries safe.</li>
+  </ul>
+  <h4>Verification</h4>
+  <ul class="checks">
+    <li>Variable-scope check on all new components; build + on-device render, clean console</li>
+    <li>Airplane-mode test: check in offline → reconnect → exactly one check-in on server</li>
+    <li>All 5 schedule types creatable and correctly displayed</li>
+  </ul>
+  <div class="exit"><b>Exit:</b> Nadeem uses the tracker for real habits, daily, on his own phone (flag on for his account).</div>
+</div>
+
+<div class="sprint ph1">
+  <h3>Sprint 3 — Reminders <span class="badge p1">Phase 1</span><span class="badge pts">15 pts</span></h3>
+  <div class="goal">Goal: excellent notifications — the load-bearing wall of the whole feature.</div>
+  <h4>Stories</h4>
+  <div class="stories">
+    <span class="story"><b>HT-201</b> Scheduling engine, rolling 48h window (8)</span>
+    <span class="story"><b>HT-202</b> Actionable Done/Snooze notifications (5)</span>
+    <span class="story"><b>HT-203</b> Quiet hours + per-habit mute (2)</span>
+  </div>
+  <h4>Technical notes</h4>
+  <ul>
+    <li><code>expo-notifications</code> local scheduling. iOS caps 64 pending — schedule a rolling 48h window, re-plan on app open/foreground; the re-planner is the 8-pointer.</li>
+    <li>Notification categories with Done/Snooze-30m actions; responses handled in foreground and background handlers; Done writes through the same check-in path (source: <code>notification_action</code>).</li>
+    <li>Android 13+ runtime notification permission asked in context (first reminder set), not at app start (part of HT-201 scope).</li>
+    <li>Quiet hours default 22:00–07:00; reminders falling inside shift to window edge or skip per user setting.</li>
+  </ul>
+  <h4>Verification</h4>
+  <ul class="checks">
+    <li>Device test matrix: app foreground / background / killed — Done action lands a check-in in all three</li>
+    <li>Create 10 interval habits → pending scheduled notifications stay under the iOS cap</li>
+    <li>Snooze fires 30m later; quiet hours respected across midnight boundary</li>
+  </ul>
+  <div class="exit"><b>Exit:</b> a week of real reminders without a single missed or duplicated notification.</div>
+</div>
+
+<div class="sprint ph1">
+  <h3>Sprint 4 — Dashboard, forgiveness &amp; quotes <span class="badge p1">Phase 1</span><span class="badge pts">20 pts (stretch)</span></h3>
+  <div class="goal">Goal: the daily home screen — stats, streak mechanics, and warmth. Phase 1 ships at sprint end.</div>
+  <h4>Stories</h4>
+  <div class="stories">
+    <span class="story"><b>HT-401</b> Dashboard aggregate API (5)</span>
+    <span class="story"><b>HT-402</b> Today strip (2)</span>
+    <span class="story"><b>HT-403</b> Streak hero (1)</span>
+    <span class="story"><b>HT-404</b> Consistency heatmap (2)</span>
+    <span class="story"><b>HT-405</b> Category rings + period toggle (2)</span>
+    <span class="story"><b>HT-406</b> Rule-based insight card (1)</span>
+    <span class="story"><b>HT-301</b> Streak freeze UI (1)</span>
+    <span class="story"><b>HT-302</b> Repair window UI (1)</span>
+    <span class="story"><b>HT-303</b> Vacation mode UI (1)</span>
+    <span class="story"><b>HT-501</b> Quote bundle (1)</span>
+    <span class="story"><b>HT-502</b> Contextual quote placement (1)</span>
+    <span class="story"><b>HT-902</b> Phase 1 E2E + metrics (2)</span>
+  </div>
+  <h4>Technical notes</h4>
+  <ul>
+    <li>Wide but shallow: 12 stories, most 1–2 pts because the streak/forgiveness backend already exists from S1 — these are UI + wiring. HT-406 and HT-501/502 are cut-first candidates if the week runs hot.</li>
+    <li><code>GET /habits/dashboard</code> returns the whole screen in one call (today list, streaks, heatmap cells, category rates, insight, struggling/thriving flags — HT-407 folded into HT-401).</li>
+    <li>Visual reference: <a href="05-visual-dashboard.html">05-visual-dashboard.html</a> and <a href="07-visual-streaks.html">07-visual-streaks.html</a>.</li>
+    <li>Metrics events (HT-902) logged from this sprint: creation, check-ins, permission grants, D7/D21 cohort retention.</li>
+  </ul>
+  <h4>Verification</h4>
+  <ul class="checks">
+    <li>Full E2E on iOS + Android: create → remind → check in → streak → freeze → repair → dashboard reflects all of it</li>
+    <li>Dashboard renders in &lt;1s from the single aggregate call; commit batches ≤5 files with render checks between</li>
+    <li>Quotes toggle off works everywhere quotes appear</li>
+  </ul>
+  <div class="exit"><b>Exit:</b> flag on for the PoC feedback group. 21-day retention clock starts.</div>
+</div>
+
+<div class="gate"><b>🚧 Phase 1 gate:</b> ≥40% of users who create a habit still check in at day 21. Measured from status board metrics. Sprints 5–6 may be <em>built</em> during the measurement window, but Phase 2 does not <em>ship</em> until the gate passes.</div>
+
+<!-- ==================== PHASE 2 ==================== -->
+<h2 class="phase-hd">🔵 Phase 2 — Intelligence <span class="badge p2">Sprints 5–8</span></h2>
+
+<div class="sprint ph2">
+  <h3>Sprint 5 — Questionnaire &amp; profile <span class="badge p2">Phase 2</span><span class="badge pts">10 pts</span></h3>
+  <div class="goal">Goal: the conversational intake that produces the <code>user_profile</code> contract every AI call depends on.</div>
+  <h4>Stories</h4>
+  <div class="stories">
+    <span class="story"><b>HT-601</b> Questionnaire UI flow (5)</span>
+    <span class="story"><b>HT-602</b> user_profile model + API (3)</span>
+    <span class="story"><b>HT-603</b> Retake/update flow (2)</span>
+  </div>
+  <h4>Technical notes</h4>
+  <ul>
+    <li>One-question-per-screen, tappable chips, progress dots, skippable at any point; ~3 minutes; branching prunes irrelevant questions.</li>
+    <li>Output: versioned <code>user_profile</code> JSON (goals ranked, constraints, chronotype, anchors, tone) — schema fixed in <code>ai-prompts.md</code> §1 before UI work starts.</li>
+    <li>Explicitly no medical-condition questions; health-context questions are lifestyle-only.</li>
+    <li>Lighter sprint on purpose — buffer absorbs Phase 1 gate fixes from tester feedback.</li>
+  </ul>
+  <h4>Verification</h4>
+  <ul class="checks">
+    <li>Complete, skip-half, and skip-all paths all produce valid (possibly partial) profiles</li>
+    <li>Retake overwrites with version bump; old version retained</li>
+  </ul>
+  <div class="exit"><b>Exit:</b> profile JSON validated against the schema the AI planner will consume.</div>
+</div>
+
+<div class="sprint ph2">
+  <h3>Sprint 6 — AI plan generation <span class="badge p2">Phase 2</span><span class="badge pts">15 pts</span></h3>
+  <div class="goal">Goal: profile in → reviewed, editable 3–5 habit plan out. Nothing activates without confirmation.</div>
+  <h4>Stories</h4>
+  <div class="stories">
+    <span class="story"><b>HT-701</b> AI plan endpoint, structured output (8)</span>
+    <span class="story"><b>HT-702</b> Plan review UI (5)</span>
+    <span class="story"><b>HT-706</b> AI cost metering (2)</span>
+  </div>
+  <h4>Technical notes</h4>
+  <ul>
+    <li><code>POST /habits/ai/plan</code> → Anthropic (server-side key, reuse extractor client patterns) with tool-use JSON schema; code-level validation of every field before anything reaches the UI (times sane, categories valid, ≤5 habits, no medication category ever).</li>
+    <li>System prompt = <code>ai-prompts.md</code> §2 verbatim — prompts live in a module, not inline strings.</li>
+    <li>Review UI: draft cards, accept-all / edit-any / reject; accepted cards create habits through the normal CRUD path.</li>
+    <li>This endpoint doubles as the text/voice parse endpoint later (S9) — design the request shape for both from day one.</li>
+    <li>Token metering per user per week with config alert threshold, from the first call.</li>
+  </ul>
+  <h4>Verification</h4>
+  <ul class="checks">
+    <li>Schema-invalid model output → graceful retry/fallback, never a crash or raw JSON on screen</li>
+    <li>Guardrail suite (ai-prompts.md §7) run against the plan endpoint: zero violations</li>
+    <li>10 varied profiles → all plans have 3–5 habits with sane schedules</li>
+  </ul>
+  <div class="exit"><b>Exit:</b> a new user can go questionnaire → AI plan → active habits in under 5 minutes.</div>
+</div>
+
+<div class="sprint ph2">
+  <h3>Sprint 7 — Medication reminders <span class="badge p2">Phase 2</span><span class="badge pts">13 pts</span></h3>
+  <div class="goal">Goal: the most reliable, least intelligent part of the app — a dumb alarm with a checkbox, by construction.</div>
+  <h4>Stories</h4>
+  <div class="stories">
+    <span class="story"><b>HT-801</b> Category isolation + AI exclusion (3)</span>
+    <span class="story"><b>HT-802</b> Reminder reliability: re-fire, exact alarms (5)</span>
+    <span class="story"><b>HT-803</b> Adherence log + export (3)</span>
+    <span class="story"><b>HT-804</b> Acknowledgment + missed-dose indicator (2)</span>
+  </div>
+  <h4>Technical notes</h4>
+  <ul>
+    <li>HT-801 merges <strong>first</strong>: query-layer filter excludes medication habits from every AI input/output path — no prompt change can leak them. Landed before any coaching job (S8) exists.</li>
+    <li>Free-text label + times only. No drug database, no structured dosage — keeps the app out of medical-device territory.</li>
+    <li>Ignores quiet hours (user-overridable); re-fires once after 15 min unacknowledged; Android <code>SCHEDULE_EXACT_ALARM</code> asked in context, inexact fallback for ordinary habits.</li>
+    <li>No streaks, freezes, quotes, or gamification on medication items — plain taken/missed record; export as simple text list.</li>
+  </ul>
+  <h4>Verification</h4>
+  <ul class="checks">
+    <li>Grep-level + test-level proof: medication rows absent from every AI query fixture</li>
+    <li>Re-fire verified with app killed on both platforms; exact-time delivery on Android 14</li>
+    <li>Missed dose shows indicator text only — never advice ("see your notes", never "take it now")</li>
+  </ul>
+  <div class="exit"><b>Exit:</b> medication reminders trusted enough to use for a real daily medication.</div>
+</div>
+
+<div class="sprint ph2">
+  <h3>Sprint 8 — Adaptive coaching &amp; guardrails <span class="badge p2">Phase 2</span><span class="badge pts">13 pts</span></h3>
+  <div class="goal">Goal: the weekly coach — one suggestion at a time, on the dashboard, never pushed. Phase 2 ships at sprint end.</div>
+  <h4>Stories</h4>
+  <div class="stories">
+    <span class="story"><b>HT-703</b> Weekly coaching job + suggestion cards (5)</span>
+    <span class="story"><b>HT-704</b> Personalized encouragement lines (3)</span>
+    <span class="story"><b>HT-705</b> Guardrail post-filters + audit log (3)</span>
+    <span class="story"><b>HT-604</b> Periodic 3-question check-ins (2)</span>
+  </div>
+  <h4>Technical notes</h4>
+  <ul>
+    <li>Weekly batch analysis (aggregates only, never raw health data) → at most one <code>AiSuggestion</code> card: move-time / level-up / reduce-load, with accept/dismiss. Accepting applies the change through normal CRUD.</li>
+    <li>Encouragement lines are stats-driven observations (Haiku-class model), replacing generic quotes where data allows; same off-toggle as quotes.</li>
+    <li>Post-filter (ai-prompts.md §6) rejects any output containing medical/dosage content; every AI response logged to an audit table with filter verdict.</li>
+    <li>Check-in questionnaire ("too easy / right / too much?") every 3 weeks feeds profile freshness.</li>
+  </ul>
+  <h4>Verification</h4>
+  <ul class="checks">
+    <li>Full guardrail suite green across plan + coach + encouragement endpoints</li>
+    <li>Suggestion accept → habit actually changes; dismiss → not re-suggested for 2 weeks</li>
+    <li>Phase 2 E2E on both platforms; audit log populated for 100% of AI calls</li>
+  </ul>
+  <div class="exit"><b>Exit:</b> Phase 2 gate measurement starts (questionnaire-completer retention vs. skippers; zero guardrail violations).</div>
+</div>
+
+<div class="gate"><b>🚧 Phase 2 gate:</b> questionnaire completers retain measurably better than skippers · zero guardrail violations in the audit log · AI cost per active user within threshold.</div>
+
+<!-- ==================== PHASE 3 ==================== -->
+<h2 class="phase-hd">🟠 Phase 3 — Senses <span class="badge p3">Sprints 9–12</span></h2>
+
+<div class="sprint ph3">
+  <h3>Sprint 9 — EAS dev-client &amp; voice creation <span class="badge p3">Phase 3</span><span class="badge pts">10 pts</span></h3>
+  <div class="goal">Goal: leave plain Expo Go; speak a habit into existence with mandatory visual confirm.</div>
+  <h4>Stories</h4>
+  <div class="stories">
+    <span class="story"><b>HT-1001</b> EAS dev-client + expo-speech-recognition (5)</span>
+    <span class="story"><b>HT-1002</b> Voice habit creation flow (5)</span>
+  </div>
+  <h4>Technical notes</h4>
+  <ul>
+    <li>EAS build profiles (dev/preview) — one-time infra cost that unblocks all Phase 3 native modules. Nadeem handles Expo/Apple/Google account steps; Claude does config.</li>
+    <li>On-device/OS STT only — audio never reaches our servers. Mic + speech permissions asked on first mic tap, in context.</li>
+    <li>Transcript → same AI parse endpoint as S6 (voice is just another keyboard) → confirmation card, mandatory tap/say-yes. Parse-endpoint hardening for noisy voice input is in HT-1002's scope.</li>
+  </ul>
+  <h4>Verification</h4>
+  <ul class="checks">
+    <li>Dev-client builds install and run on both physical devices</li>
+    <li>20-phrase test script: parse-to-confirm accuracy measured (target ≥95% at confirm screen)</li>
+    <li>Permission denial → mic button explains and falls back to typing</li>
+  </ul>
+  <div class="exit"><b>Exit:</b> "Remind me to drink water every two hours at work" → correct confirmed habit.</div>
+</div>
+
+<div class="sprint ph3">
+  <h3>Sprint 10 — Voice check-in &amp; languages <span class="badge p3">Phase 3</span><span class="badge pts">8 pts</span></h3>
+  <div class="goal">Goal: small-vocabulary, high-reliability voice check-in; Arabic + English verified.</div>
+  <h4>Stories</h4>
+  <div class="stories">
+    <span class="story"><b>HT-1003</b> Voice check-in: done/skip/snooze (3)</span>
+    <span class="story"><b>HT-1004</b> TTS confirmation read-back, off by default (2)</span>
+    <span class="story"><b>HT-1005</b> Arabic/English recognition pass (3)</span>
+  </div>
+  <h4>Technical notes</h4>
+  <ul>
+    <li>Check-in vocabulary is a fixed small set matched locally where possible — the AI parse is fallback, not first resort.</li>
+    <li><code>expo-speech</code> TTS for eyes-free confirm; medication voice flows always require visual confirm (S7 rule).</li>
+    <li>Lighter sprint — buffer for EAS/build fallout from S9.</li>
+  </ul>
+  <h4>Verification</h4>
+  <ul class="checks">
+    <li>Done/skip/snooze via voice from today screen works on both platforms</li>
+    <li>Arabic phrase set tested with a native speaker (Nadeem/PoC group)</li>
+  </ul>
+  <div class="exit"><b>Exit:</b> hands-busy check-in works reliably in both languages.</div>
+</div>
+
+<div class="sprint ph3">
+  <h3>Sprint 11 — Health data: steps &amp; workouts <span class="badge p3">Phase 3</span><span class="badge pts">13 pts</span></h3>
+  <div class="goal">Goal: the walk habit checks itself off — HealthKit + Health Connect, evaluated on-device.</div>
+  <h4>Stories</h4>
+  <div class="stories">
+    <span class="story"><b>HT-1101</b> HealthKit integration (5)</span>
+    <span class="story"><b>HT-1102</b> Health Connect integration (5)</span>
+    <span class="story"><b>HT-1103</b> On-device threshold → auto check-in (3)</span>
+  </div>
+  <h4>Technical notes</h4>
+  <ul>
+    <li>Read-only, minimal datatypes: steps, distance, workouts. Threshold check runs on the phone; backend receives only a normal check-in event (source: <code>auto_health</code>). Raw samples never leave the device.</li>
+    <li>Permission asked only when a user links a specific habit to a data type ("Auto-track from steps?"). Denial → manual fallback, no dead ends.</li>
+    <li>Evaluation on app open + background fetch where the OS allows; catch-up evaluation covers missed background windows.</li>
+  </ul>
+  <h4>Verification</h4>
+  <ul class="checks">
+    <li>Walk 8k steps → habit auto-completes on both platforms; dashboard marks source as auto</li>
+    <li>Revoke permission in OS settings → app degrades gracefully to manual</li>
+    <li>Network inspection: no health payloads in any API call</li>
+  </ul>
+  <div class="exit"><b>Exit:</b> step-based habits complete themselves for a full week without manual input.</div>
+</div>
+
+<div class="sprint ph3">
+  <h3>Sprint 12 — Sleep, mindfulness, assistant &amp; store prep <span class="badge p3">Phase 3</span><span class="badge pts">15 pts</span></h3>
+  <div class="goal">Goal: finish auto-tracking, ship the grounded conversational assistant, clear store review. Phase 3 ships at sprint end.</div>
+  <h4>Stories</h4>
+  <div class="stories">
+    <span class="story"><b>HT-1104</b> Sleep + mindfulness auto-tracking (3)</span>
+    <span class="story"><b>HT-1105</b> Permission flow polish + fallbacks (2)</span>
+    <span class="story"><b>HT-1106</b> Privacy policy + store declarations (2)</span>
+    <span class="story"><b>HT-707</b> Conversational assistant, text + voice (8)</span>
+  </div>
+  <h4>Technical notes</h4>
+  <ul>
+    <li>Assistant is grounded in the user's own aggregates (stats summary injected as context — ai-prompts.md §5); free chat scoped to habit topics; medication data excluded by the S7 query filter; post-filter applies to every reply.</li>
+    <li>Apple purpose strings + Google Health Connect declaration form; privacy policy updated before submission. Review-cycle wait is budgeted here.</li>
+  </ul>
+  <h4>Verification</h4>
+  <ul class="checks">
+    <li>Guardrail suite extended with assistant red-team cases (dosage bait, diagnosis bait) — zero violations</li>
+    <li>Sleep habit auto-completes from a real night's data on both platforms</li>
+    <li>Store review passed (or submitted with tracked follow-ups)</li>
+  </ul>
+  <div class="exit"><b>Exit:</b> Phase 3 gate measurement: auto-tracked vs. manual retention; voice accuracy stats.</div>
+</div>
+
+<div class="gate"><b>🚧 Phase 3 gate:</b> auto-tracked habits show higher 30-day retention than manual equivalents · voice parse ≥95% at confirm · store review cleared.</div>
+
+<!-- ==================== PHASE 4 ==================== -->
+<h2 class="phase-hd">🔴 Phase 4 — Guidance &amp; Polish <span class="badge p4">Sprints 13–15</span></h2>
+
+<div class="sprint ph4">
+  <h3>Sprint 13 — Wellness suggestion library <span class="badge p4">Phase 4</span><span class="badge pts">11 pts</span></h3>
+  <div class="goal">Goal: "AI picks from a vetted menu, never cooks" — dietary &amp; exercise ideas as habit-sized cards.</div>
+  <h4>Stories</h4>
+  <div class="stories">
+    <span class="story"><b>HT-1201</b> Vetted library + review workflow (5)</span>
+    <span class="story"><b>HT-1202</b> "Ideas for you" gallery + disclaimers (3)</span>
+    <span class="story"><b>HT-1203</b> AI vetted-menu selection (3)</span>
+  </div>
+  <h4>Technical notes</h4>
+  <ul>
+    <li>Library items are human-reviewed content rows; the AI may only <em>select and schedule</em> from them (by ID) — it cannot generate novel dietary/exercise text. Enforced by schema: the coach returns library IDs, not strings.</li>
+    <li>Persistent non-dismissable disclaimer footer on every suggestion surface.</li>
+    <li>Filtering by lifestyle answers only — never by medical data (we don't collect any).</li>
+  </ul>
+  <h4>Verification</h4>
+  <ul class="checks">
+    <li>Schema test: coach responses referencing non-existent library IDs are rejected</li>
+    <li>Disclaimer present on every surface, both platforms</li>
+  </ul>
+  <div class="exit"><b>Exit:</b> fitness/energy-goal users see relevant, safe, vetted ideas.</div>
+</div>
+
+<div class="sprint ph4">
+  <h3>Sprint 14 — Regional: Ramadan, prayer anchors, Arabic <span class="badge p4">Phase 4</span><span class="badge pts">11 pts</span></h3>
+  <div class="goal">Goal: the features that make the UAE market feel seen.</div>
+  <h4>Stories</h4>
+  <div class="stories">
+    <span class="story"><b>HT-1301</b> Ramadan mode (5)</span>
+    <span class="story"><b>HT-1302</b> Prayer anchors + calculation-method setting (3)</span>
+    <span class="story"><b>HT-1303</b> Arabic content pass (3)</span>
+  </div>
+  <h4>Technical notes</h4>
+  <ul>
+    <li>Prayer times via local calculation library (e.g. adhan) — offline, with a calculation-method setting since methods differ slightly.</li>
+    <li>Ramadan mode: hydration/meal habits auto-shift to iftar/suhoor windows; daytime water reminders pause; opt-in with date-range detection.</li>
+    <li>Arabic pass: quotes/proverbs set, questionnaire strings, notification templates; RTL layout check.</li>
+  </ul>
+  <h4>Verification</h4>
+  <ul class="checks">
+    <li>Prayer-anchored reminder fires at the right offset across a week of shifting times</li>
+    <li>Simulated Ramadan window: water reminders correctly pause/shift</li>
+    <li>RTL rendering clean on all habit screens</li>
+  </ul>
+  <div class="exit"><b>Exit:</b> a fasting user's reminders make sense all day.</div>
+</div>
+
+<div class="sprint ph4">
+  <h3>Sprint 15 — Web companion &amp; wrap-up <span class="badge p4">Phase 4</span><span class="badge pts">12 pts</span></h3>
+  <div class="goal">Goal: read-mostly web view, smart batching, accountability-partner spike, v1 close-out.</div>
+  <h4>Stories</h4>
+  <div class="stories">
+    <span class="story"><b>HT-1401</b> Web companion dashboard (5)</span>
+    <span class="story"><b>HT-1402</b> Web manual check-in (2)</span>
+    <span class="story"><b>HT-206</b> Smart notification batching (2)</span>
+    <span class="story"><b>HT-1403</b> Accountability partners design spike (3)</span>
+  </div>
+  <h4>Technical notes</h4>
+  <ul>
+    <li>Web reuses the dashboard aggregate endpoint; React + Vite page under the existing web app; no reminders on web.</li>
+    <li>Batching: N habits due within the same 15-min slot → one combined notification with a multi-check-in screen.</li>
+    <li>Spike output: a short written design (consent-first shared streaks) appended to the research doc's open questions — no code.</li>
+  </ul>
+  <h4>Verification</h4>
+  <ul class="checks">
+    <li>Web dashboard renders same numbers as mobile for the same account</li>
+    <li>3 same-time habits → exactly one notification</li>
+    <li>Full-feature regression pass; all statuses finalized on the board</li>
+  </ul>
+  <div class="exit"><b>Exit:</b> 🏁 Habit Tracker v1 complete — retro + backlog for v2 (wearables, partners, monetization).</div>
+</div>
+
+<footer>NeverExpire V2 · Habit Tracker planning package · 02-sprint-plan.html · July 2026</footer>
+</div>
+</body>
+</html>

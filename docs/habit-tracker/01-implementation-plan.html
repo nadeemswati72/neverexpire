@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Tracker — Implementation Plan | NeverExpire V2</title>
+<style>
+  :root{--bg1:#0f1224;--bg2:#1a1f3d;--glass:rgba(255,255,255,.06);--gb:rgba(255,255,255,.12);
+  --text:#e8eaf6;--dim:#a3aacb;--acc:#7c6cff;--acc2:#4dd0e1;--good:#66d9a3;--warn:#ffb74d;--bad:#ef7373;
+  --mono:'Cascadia Code',Consolas,monospace;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(160deg,var(--bg1),var(--bg2) 60%,#241a3d);
+  background-attachment:fixed;color:var(--text);line-height:1.6;padding:40px 20px 80px}
+  .wrap{max-width:1000px;margin:0 auto}
+  header{text-align:center;padding:40px 24px;border-radius:24px;background:var(--glass);border:1px solid var(--gb);
+  backdrop-filter:blur(14px);margin-bottom:28px}
+  .kicker{font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--acc2)}
+  h1{font-size:34px;margin:8px 0}
+  .sub{color:var(--dim);max-width:640px;margin:0 auto;font-size:16px}
+  .meta{margin-top:16px;font-size:13px;color:var(--dim);display:flex;gap:22px;justify-content:center;flex-wrap:wrap}
+  .meta b{color:var(--text)}
+  section{background:var(--glass);border:1px solid var(--gb);backdrop-filter:blur(14px);border-radius:20px;
+  padding:32px 36px;margin-bottom:24px}
+  h2{font-size:24px;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  h2 .num{font-size:13px;font-family:var(--mono);color:var(--acc2);background:rgba(77,208,225,.1);
+  border:1px solid rgba(77,208,225,.25);border-radius:8px;padding:2px 10px}
+  h3{font-size:18px;margin:22px 0 8px;color:#cfd3f0}
+  p{margin-bottom:10px;font-size:15px}
+  ul,ol{margin:0 0 12px 22px}
+  li{margin-bottom:6px;font-size:15px}
+  li::marker{color:var(--acc)}
+  strong{color:#fff}
+  code{font-family:var(--mono);font-size:13px;background:rgba(124,108,255,.12);color:#c3baff;padding:2px 7px;border-radius:6px}
+  a{color:var(--acc2);text-decoration:none} a:hover{text-decoration:underline}
+  .badge{display:inline-block;padding:2px 11px;border-radius:999px;font-size:12px;font-weight:600}
+  .p1{background:rgba(102,217,163,.15);color:var(--good);border:1px solid rgba(102,217,163,.35)}
+  .p2{background:rgba(77,208,225,.15);color:var(--acc2);border:1px solid rgba(77,208,225,.35)}
+  .p3{background:rgba(255,183,77,.15);color:var(--warn);border:1px solid rgba(255,183,77,.35)}
+  .p4{background:rgba(239,115,115,.15);color:var(--bad);border:1px solid rgba(239,115,115,.35)}
+  table{width:100%;border-collapse:collapse;font-size:14px;background:rgba(0,0,0,.18);border-radius:12px;overflow:hidden;margin:14px 0}
+  th{text-align:left;padding:10px 14px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--acc2);
+  background:rgba(124,108,255,.1);border-bottom:1px solid var(--gb)}
+  td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td:first-child{font-weight:600;color:#fff}
+  .callout{border-radius:14px;padding:14px 18px;margin:14px 0;border:1px solid;font-size:14.5px}
+  .callout .title{font-weight:700;margin-bottom:4px}
+  .decision{background:rgba(102,217,163,.07);border-color:rgba(102,217,163,.3)} .decision .title{color:var(--good)}
+  .danger{background:rgba(239,115,115,.08);border-color:rgba(239,115,115,.35)} .danger .title{color:var(--bad)}
+  .open{background:rgba(255,183,77,.07);border-color:rgba(255,183,77,.3)} .open .title{color:var(--warn)}
+
+  /* phase cards */
+  .phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:16px 0}
+  .pcard{background:rgba(0,0,0,.22);border:1px solid var(--gb);border-radius:16px;padding:18px}
+  .pcard h4{font-size:16px;margin:8px 0 6px;color:#fff}
+  .pcard .g{font-size:13px;color:var(--dim)}
+  .pcard .gate{margin-top:10px;font-size:12.5px;color:var(--warn);border-top:1px dashed var(--gb);padding-top:8px}
+
+  /* gantt */
+  .gantt{overflow-x:auto;margin:18px 0}
+  .gantt-grid{display:grid;grid-template-columns:150px repeat(15,minmax(42px,1fr));gap:4px;min-width:820px;font-size:11.5px}
+  .gantt-grid .hd{color:var(--acc2);text-align:center;font-family:var(--mono);padding:4px 0}
+  .gantt-grid .lbl{color:var(--dim);padding:6px 8px;text-align:right;white-space:nowrap}
+  .bar{border-radius:6px;height:26px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#0f1224}
+  .b1{background:linear-gradient(90deg,#66d9a3,#4dd0a0)} .b2{background:linear-gradient(90deg,#4dd0e1,#4da6e1)}
+  .b3{background:linear-gradient(90deg,#ffb74d,#ff9d4d)} .b4{background:linear-gradient(90deg,#ef7373,#e15b8f)}
+  .gate-cell{display:flex;align-items:center;justify-content:center;font-size:15px}
+  .empty{background:rgba(255,255,255,.03);border-radius:6px;height:26px}
+  footer{text-align:center;color:var(--dim);font-size:13px;margin-top:36px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="kicker">NeverExpire V2 · Habit Tracker · Planning Package 1/10</span>
+  <h1>🗺️ Implementation Plan</h1>
+  <p class="sub">Master plan: phases, timeline, dependencies, working agreements and quality gates for building the Habit Tracker feature.</p>
+  <div class="meta">
+    <span>Cadence: <b>1-week sprints</b></span>
+    <span>Team: <b>Nadeem + Claude Code</b></span>
+    <span>Total: <b>15 sprints · 4 phases</b></span>
+    <span>Status: <b>Planned — not started</b></span>
+  </div>
+</header>
+
+<section>
+  <h2><span class="num">01</span> Package map</h2>
+  <table>
+    <tr><th>File</th><th>What it holds</th></tr>
+    <tr><td><a href="01-implementation-plan.html">01-implementation-plan.html</a></td><td>This file — phases, timeline, gates, working agreements</td></tr>
+    <tr><td><a href="02-sprint-plan.html">02-sprint-plan.html</a></td><td>All 15 sprints in detail: goals, stories, verification, exit criteria</td></tr>
+    <tr><td><a href="03-user-stories.html">03-user-stories.html</a></td><td>61 user stories with acceptance criteria, points, platform tags (Jira-ready)</td></tr>
+    <tr><td><a href="04-status-board.html">04-status-board.html</a></td><td>Live kanban — updated as we build; source for Jira sync</td></tr>
+    <tr><td><a href="05-visual-dashboard.html">05-visual-dashboard.html</a></td><td>Dashboard mockup: today strip, streak hero, heatmap, rings, charts</td></tr>
+    <tr><td><a href="06-visual-reminders.html">06-visual-reminders.html</a></td><td>Notification &amp; reminder flow mockups incl. medication re-fire</td></tr>
+    <tr><td><a href="07-visual-streaks.html">07-visual-streaks.html</a></td><td>Streak growth, freeze/repair mechanics, milestone celebration</td></tr>
+    <tr><td>ai-prompts.md</td><td>Full AI system prompts + guardrails + JSON schemas + test cases</td></tr>
+    <tr><td>claude-skills.md</td><td>Claude Code skills proposed for this feature's dev workflow</td></tr>
+    <tr><td>README.md</td><td>Index + reading order + update workflow</td></tr>
+  </table>
+  <p>Concept background lives in <a href="../habit-tracker-research.html">docs/habit-tracker-research.html</a>.</p>
+</section>
+
+<section>
+  <h2><span class="num">02</span> Planning parameters</h2>
+  <ul>
+    <li><strong>Sprint length:</strong> 1 week. Each sprint ends with a working, on-device-verified increment — never "code complete but unverified".</li>
+    <li><strong>Team:</strong> Nadeem (product decisions, device testing, accounts) + Claude Code (implementation, tests, docs). Claude does everything possible; Nadeem handles account-gated actions only.</li>
+    <li><strong>Branching:</strong> one branch per sprint — <code>habit-s&lt;N&gt;-&lt;short-desc&gt;</code> (e.g. <code>habit-s1-backend-models</code>), merged to the active feature line at sprint close.</li>
+    <li><strong>Feature flag:</strong> everything ships behind <code>habits_enabled</code> from Sprint 1 — the tab simply doesn't render when off. PoC testers get it turned on per-account.</li>
+    <li><strong>Estimation:</strong> Fibonacci story points (1/2/3/5/8). A 1-week solo+Claude sprint targets <strong>~10–20 points</strong> depending on story depth (many 1–2 pt wiring stories vs. one 8-pt centerpiece). Total: 61 stories · 202 points.</li>
+    <li><strong>Story IDs:</strong> <code>HT-xxx</code> throughout this package; they become Jira keys when tickets are created (Jira sync is a separate, explicit step).</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="num">03</span> Phases at a glance</h2>
+  <div class="phases">
+    <div class="pcard"><span class="badge p1">Phase 1 · Sprints 1–4</span>
+      <h4>The Reliable Core</h4>
+      <div class="g">Habit CRUD, templates, 5 schedule types, actionable local notifications, streaks + forgiveness, dashboard, classification, quotes.</div>
+      <div class="gate">🚧 Gate: ≥40% of habit creators still checking in after 21 days</div>
+    </div>
+    <div class="pcard"><span class="badge p2">Phase 2 · Sprints 5–8</span>
+      <h4>Intelligence</h4>
+      <div class="g">Questionnaire → user profile, AI plan generation, weekly coaching, personalized encouragement, medication reminders, guardrails + cost metering.</div>
+      <div class="gate">🚧 Gate: questionnaire-completers retain better than skippers; zero guardrail violations in logs</div>
+    </div>
+    <div class="pcard"><span class="badge p3">Phase 3 · Sprints 9–12</span>
+      <h4>Senses</h4>
+      <div class="g">Voice creation &amp; check-in (on-device STT), HealthKit / Health Connect auto-tracking, conversational assistant. Requires EAS dev-client builds.</div>
+      <div class="gate">🚧 Gate: auto-tracked habits retain better than manual; voice parse ≥95% accurate at confirm screen</div>
+    </div>
+    <div class="pcard"><span class="badge p4">Phase 4 · Sprints 13–15</span>
+      <h4>Guidance &amp; Polish</h4>
+      <div class="g">Vetted wellness suggestion library, Ramadan mode, prayer anchors, Arabic pass, web companion, accountability-partner spike.</div>
+      <div class="gate">🏁 Feature considered v1-complete</div>
+    </div>
+  </div>
+
+  <div class="callout danger">
+    <div class="title">⛔ Phase discipline</div>
+    Each phase must pass its gate before the next begins. If Phase 1 misses its retention gate, we fix Phase 1 or stop — we do not build AI on top of a tracker nobody uses.
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">04</span> Timeline (15 sprints)</h2>
+  <div class="gantt"><div class="gantt-grid">
+    <div class="lbl"></div>
+    <div class="hd">S1</div><div class="hd">S2</div><div class="hd">S3</div><div class="hd">S4</div>
+    <div class="hd">S5</div><div class="hd">S6</div><div class="hd">S7</div><div class="hd">S8</div>
+    <div class="hd">S9</div><div class="hd">S10</div><div class="hd">S11</div><div class="hd">S12</div>
+    <div class="hd">S13</div><div class="hd">S14</div><div class="hd">S15</div>
+
+    <div class="lbl">Backend / API</div>
+    <div class="bar b1">models+API</div><div class="empty"></div><div class="empty"></div><div class="bar b1">dashboard API</div>
+    <div class="bar b2">profile</div><div class="bar b2">AI plan</div><div class="bar b2">meds</div><div class="bar b2">coach</div>
+    <div class="empty"></div><div class="empty"></div><div class="empty"></div><div class="bar b3">assistant</div>
+    <div class="bar b4">library</div><div class="bar b4">ramadan</div><div class="empty"></div>
+
+    <div class="lbl">Mobile UI</div>
+    <div class="empty"></div><div class="bar b1">habits core</div><div class="bar b1">reminders</div><div class="bar b1">dashboard</div>
+    <div class="bar b2">questionnaire</div><div class="bar b2">plan review</div><div class="bar b2">meds UI</div><div class="bar b2">coach cards</div>
+    <div class="bar b3">voice create</div><div class="bar b3">voice checkin</div><div class="bar b3">health</div><div class="bar b3">health 2</div>
+    <div class="bar b4">ideas gallery</div><div class="bar b4">arabic</div><div class="empty"></div>
+
+    <div class="lbl">Native / builds</div>
+    <div class="empty"></div><div class="empty"></div><div class="bar b1">notif perms</div><div class="empty"></div>
+    <div class="empty"></div><div class="empty"></div><div class="bar b2">exact alarm</div><div class="empty"></div>
+    <div class="bar b3">EAS + STT</div><div class="bar b3">TTS</div><div class="bar b3">HK / HC</div><div class="bar b3">store review</div>
+    <div class="empty"></div><div class="empty"></div><div class="empty"></div>
+
+    <div class="lbl">Web</div>
+    <div class="empty"></div><div class="empty"></div><div class="empty"></div><div class="empty"></div>
+    <div class="empty"></div><div class="empty"></div><div class="empty"></div><div class="empty"></div>
+    <div class="empty"></div><div class="empty"></div><div class="empty"></div><div class="empty"></div>
+    <div class="empty"></div><div class="empty"></div><div class="bar b4">companion</div>
+
+    <div class="lbl">Phase gates</div>
+    <div class="empty"></div><div class="empty"></div><div class="empty"></div><div class="gate-cell">🚧</div>
+    <div class="empty"></div><div class="empty"></div><div class="empty"></div><div class="gate-cell">🚧</div>
+    <div class="empty"></div><div class="empty"></div><div class="empty"></div><div class="gate-cell">🚧</div>
+    <div class="empty"></div><div class="empty"></div><div class="gate-cell">🏁</div>
+  </div></div>
+  <p style="font-size:13px;color:var(--dim)">Note: the Phase 1 gate (21-day retention) needs ~3 weeks of tester data after Sprint 4 ships. Phase 2 backend work (Sprint 5–6) can start during that measurement window since the questionnaire doesn't depend on retention results — the go/no-go applies before Phase 2 <em>ships</em>, not before it's coded.</p>
+</section>
+
+<section>
+  <h2><span class="num">05</span> Dependencies &amp; sequencing logic</h2>
+  <table>
+    <tr><th>Dependency</th><th>Consequence in the plan</th></tr>
+    <tr><td>Streak engine before dashboard</td><td>S1 builds computation; S4 renders it. Streak rules live backend-side only — mobile displays, never recomputes.</td></tr>
+    <tr><td>Notification engine before medication</td><td>Medication (S7) reuses the S3 scheduling engine, adding re-fire + exact-alarm on top.</td></tr>
+    <tr><td>Questionnaire before AI planner</td><td>The planner's input contract is the <code>user_profile</code> JSON — S5 must finish before S6.</td></tr>
+    <tr><td>One parse endpoint for text + voice</td><td>S6 builds the AI parse/plan endpoint; S9 voice reuses it — voice is "just another keyboard".</td></tr>
+    <tr><td>EAS dev-client gate</td><td>S9 leaves plain Expo Go (config plugins for STT, later HealthKit/Health Connect). All Phase 3 device testing happens on dev-client builds.</td></tr>
+    <tr><td>Store review lead time</td><td>Health permissions need privacy-policy updates + declarations; S12 budgets a review cycle before Phase 3 closes.</td></tr>
+    <tr><td>AI exclusion before medication ships</td><td>The query-layer medication filter (HT-801) merges <em>before</em> any coaching job runs against real data.</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2><span class="num">06</span> Definition of Done</h2>
+  <h3>Per story</h3>
+  <ul>
+    <li>Acceptance criteria in <a href="03-user-stories.html">03-user-stories.html</a> all pass.</li>
+    <li><strong>Variable-scope check</strong> done on every touched component (no parent-scope variables used without props — the blank-page bug class).</li>
+    <li><code>npm run build</code> passes <em>and</em> the screen renders on a real device / emulator with a clean console. Build passing ≠ runtime working.</li>
+    <li>Backend stories: unit tests for repository/queries logic; API tested via the envelope contract <code>{data, error}</code>.</li>
+    <li>Status updated on <a href="04-status-board.html">04-status-board.html</a>.</li>
+  </ul>
+  <h3>Per sprint</h3>
+  <ul>
+    <li>Max 4–5 files per commit for new components; verify build + render between batches.</li>
+    <li>Sprint verification checklist (in <a href="02-sprint-plan.html">02-sprint-plan.html</a>) executed on device.</li>
+    <li>Jira tickets (once created) transitioned with platform tracking: <code>Platforms: Web ✓ | iOS ✓ | Android ✓</code> — Done only when all targeted platforms work.</li>
+    <li>Sprint branch merged; status board updated.</li>
+  </ul>
+  <h3>Per phase</h3>
+  <ul>
+    <li>Phase gate metric measured and recorded on the status board.</li>
+    <li>E2E pass of the phase's flows on iOS (Expo Go / dev-client) and Android.</li>
+    <li>AI-touching phases: guardrail test suite (in <code>ai-prompts.md</code>) passes with zero violations.</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="num">07</span> Rollout &amp; measurement</h2>
+  <ul>
+    <li><strong>Rollout:</strong> <code>habits_enabled</code> per-user flag → Nadeem's account first, then PoC feedback group after Sprint 4.</li>
+    <li><strong>Metrics logged from Sprint 1</strong> (privacy-respecting, counts only): habits created, check-ins per day, notification permission grant rate, reminder→check-in conversion, D7/D21 habit retention, streak-freeze usage, AI suggestion accept/dismiss rate (Phase 2+), voice parse confirm-rate (Phase 3+).</li>
+    <li><strong>AI cost meter</strong> from the first Anthropic call: tokens per user per week, alert threshold set in config.</li>
+  </ul>
+  <div class="callout decision">
+    <div class="title">✅ Standing safety rails (apply to every sprint)</div>
+    Personal scope only (user_id, never person_id) · medication excluded from all AI code paths at the query layer · no medical advice in any generated string · health data evaluated on-device, raw samples never uploaded · AI proposes, user confirms.
+  </div>
+</section>
+
+<footer>NeverExpire V2 · Habit Tracker planning package · 01-implementation-plan.html · July 2026</footer>
+</div>
+</body>
+</html>

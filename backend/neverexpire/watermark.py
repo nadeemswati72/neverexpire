@@ -34,8 +34,12 @@ def apply_watermark(source_path: str | Path, subtext: str | None = None, tag: st
         font = ImageFont.truetype("arial.ttf", font_size)
         sub_font = ImageFont.truetype("arial.ttf", sub_font_size)
     except OSError:
-        font = ImageFont.load_default()
-        sub_font = font
+        # arial.ttf only exists on Windows dev machines — Railway's Linux container
+        # falls back here. load_default() with a size arg (Pillow >= 10.1) gives a
+        # scalable font instead of a tiny fixed-size bitmap, so the watermark stays
+        # legible in production.
+        font = ImageFont.load_default(size=font_size)
+        sub_font = ImageFont.load_default(size=sub_font_size)
 
     # Build a single tile with both lines
     dummy = ImageDraw.Draw(Image.new("RGBA", (1, 1)))

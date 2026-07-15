@@ -23,6 +23,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
   const [permissionLevel, setPermissionLevel] = useState<'read' | 'edit' | 'download'>('read');
   const [isInvite, setIsInvite] = useState(false);
   const [includeFuture, setIncludeFuture] = useState(true);
+  const [watermark, setWatermark] = useState(true);
   const [expiresInDays, setExpiresInDays] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -50,6 +51,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         permission_level: permissionLevel,
         is_invite: isInvite,
         expires_in_days: expiresInDays ? Number(expiresInDays) : null,
+        watermark,
       };
       if (isPersonMode) {
         await api.post(`/persons/${personId}/share-all`, { ...body, include_future: includeFuture });
@@ -61,6 +63,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
       setPermissionLevel('read');
       setIsInvite(false);
       setIncludeFuture(true);
+      setWatermark(true);
       setExpiresInDays('');
       onShareSuccess?.();
       onClose();
@@ -177,6 +180,24 @@ export const ShareModal: React.FC<ShareModalProps> = ({
               <option value="edit">Edit (modify fields)</option>
               <option value="download">Download (download file)</option>
             </select>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '10px 12px', background: '#f9fafb', borderRadius: '6px' }}>
+            <input
+              type="checkbox"
+              id="watermark"
+              checked={watermark}
+              onChange={(e) => setWatermark(e.target.checked)}
+              style={{ width: '16px', height: '16px', cursor: 'pointer', marginTop: '2px' }}
+            />
+            <label htmlFor="watermark" style={{ fontSize: '14px', color: '#374151', cursor: 'pointer' }}>
+              Add watermark to shared copy <strong>(recommended)</strong>
+              <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>
+                {watermark
+                  ? 'Recipient sees a personalized stamped copy — traceable if it leaks.'
+                  : '⚠️ Recipient gets the clean original — not traceable if shared further.'}
+              </div>
+            </label>
           </div>
 
           <div>

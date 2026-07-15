@@ -66,7 +66,30 @@ FROM: noreply@neverexpire.test
         print(log_entry)
 
         # Log to file
-        with open(MockEmailService.LOG_FILE, "a") as f:
+        with open(MockEmailService.LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(log_entry)
+
+    @staticmethod
+    def log_reminder_digest(to_email: str, subject: str, body: str):
+        """
+        Mirror a reminder digest into the Mock Inbox log so it can be viewed
+        in-app. The real email always goes out via Gmail SMTP separately
+        (see reminder_email.send_email) — this is just for demo visibility,
+        since the demo accounts' fake addresses can't receive real mail.
+        """
+        MockEmailService._ensure_log_file()
+
+        log_entry = f"""
+[MOCK EMAIL - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]
+TO: {to_email}
+SUBJECT: {subject}
+FROM: noreply@neverexpire.test
+{body}
+{'=' * 80}
+
+"""
+        print(log_entry)
+        with open(MockEmailService.LOG_FILE, "a", encoding="utf-8") as f:
             f.write(log_entry)
 
     @staticmethod
@@ -111,5 +134,5 @@ FROM: noreply@neverexpire.test
         print(log_entry)
 
         # Log to file
-        with open(MockEmailService.LOG_FILE, "a") as f:
+        with open(MockEmailService.LOG_FILE, "a", encoding="utf-8") as f:
             f.write(log_entry)

@@ -134,12 +134,15 @@ def get_doc(doc_id: int):
         is_owner = doc.person and doc.person.user_id == g.current_user_id
         if is_owner:
             permission_level = "edit"
+            watermarked_for_viewer = True  # owner's in-app preview stays watermarked; only their download is clean
         else:
             share = get_effective_share(session, g.current_user_id, doc_id)
             permission_level = share["permission_level"] if share else "read"
+            watermarked_for_viewer = share["watermark"] if share else True
 
         response_data = document_detail(doc, today, horizon)
         response_data["user_permission"] = permission_level
+        response_data["watermarked_for_viewer"] = watermarked_for_viewer
         return jsonify({"data": response_data, "error": None})
 
 
@@ -237,6 +240,7 @@ def get_access_log(doc_id: int):
                 "id": entry.id,
                 "user_email": user.email if user else "unknown",
                 "action": entry.action,
+                "watermarked": entry.watermarked,
                 "created_at": entry.created_at.isoformat() if entry.created_at else None,
             })
         return jsonify({"data": data, "error": None})

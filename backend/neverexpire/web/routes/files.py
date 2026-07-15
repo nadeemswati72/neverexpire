@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload
 
 from ...db.models import Document, DocumentAccessLog, DocumentFile, Person
 from ...db.session import get_session
-from ...db.sharing import can_user_access_document
+from ...db.sharing import can_user_access_document, get_effective_share
 from ...storage import gdrive_cache_path, get_storage_backend_for_id
 from ...watermark import WATERMARKABLE_EXTENSIONS, apply_watermark, watermarked_path_for
 from ..jwt_utils import jwt_required
@@ -71,12 +71,24 @@ def serve_file(file_id: int):
         if not (is_owner or has_shared_access):
             abort(403)
 
+        # Owner explicitly downloading their own file gets the clean original —
+        # it's already theirs, watermarking it protects against nothing. Their
+        # in-app preview stays watermarked (a glance over their shoulder still
+        # shows a stamped copy). A shared recipient's copy depends on the
+        # sharer's per-share choice (defaults to watermarked either way).
+        if is_owner:
+            will_watermark = not as_attachment
+        else:
+            effective_share = get_effective_share(session, g.current_user_id, doc_file.document_id)
+            will_watermark = effective_share["watermark"] if effective_share else True
+
         # Log accesses by non-owners so the owner can see who viewed/downloaded their document.
         if not is_owner:
             session.add(DocumentAccessLog(
                 document_id=doc_file.document_id,
                 user_id=g.current_user_id,
                 action="download" if as_attachment else "view",
+                watermarked=will_watermark,
             ))
             session.commit()
 
@@ -86,7 +98,7 @@ def serve_file(file_id: int):
 
         suffix = file_path.suffix.lower()
 
-        if suffix in WATERMARKABLE_EXTENSIONS:
+        if suffix in WATERMARKABLE_EXTENSIONS and will_watermark:
             if is_owner:
                 wm_path = watermarked_path_for(file_path)
                 if not wm_path.exists():
@@ -101,6 +113,7 @@ def serve_file(file_id: int):
                     wm_path = apply_watermark(file_path, subtext=subtext, tag=tag) or file_path
             serve_path = wm_path
         else:
+            # Owner's explicit download, or a share the owner marked "no watermark".
             serve_path = file_path
 
         return send_file(

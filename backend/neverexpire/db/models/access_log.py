@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, String
+from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..base import Base, utcnow
@@ -24,6 +24,9 @@ class DocumentAccessLog(Base):
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
     action: Mapped[str] = mapped_column(String(10), nullable=False)
+    # Whether this specific view/download was watermarked. Owners always get False
+    # (it's their own document); non-owners reflect the share's `watermark` choice.
+    watermarked: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
 
     document: Mapped["Document"] = relationship(viewonly=True)

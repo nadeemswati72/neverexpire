@@ -44,7 +44,7 @@ export default function MockInboxPage() {
             </label>
           </div>
           <p style={{ fontSize: 12, color: '#8a9ab5', marginTop: 0, marginBottom: 20 }}>
-            NeverExpire doesn't send real emails in this PoC — sharing/revoke notifications are logged here so the flow can be demoed live.
+            Sharing/revoke notifications are mock-only and logged here so the flow can be demoed live. Reminder digests are logged here too, but are also sent as a real email (see Reminders page).
           </p>
 
           {loading ? (

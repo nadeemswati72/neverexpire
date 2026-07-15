@@ -18,6 +18,7 @@ def share_document(
     permission_level: str = "read",
     is_invite: bool = False,
     expires_at: datetime | None = None,
+    watermark: bool = True,
 ) -> DocumentShare:
     """
     Share a document with another user.
@@ -30,6 +31,8 @@ def share_document(
         permission_level: 'read', 'edit', or 'download'
         is_invite: If True, requires acceptance; if False, grants immediately
         expires_at: If set, access auto-expires at this time
+        watermark: If False, recipient gets the clean original instead of a
+            personalized-tagged copy — an explicit owner choice.
 
     Returns:
         DocumentShare record
@@ -48,6 +51,7 @@ def share_document(
         existing.responded_at = None
         existing.response = None
         existing.expires_at = expires_at
+        existing.watermark = watermark
         session.commit()
         return existing
 
@@ -61,6 +65,7 @@ def share_document(
         responded_at=None if is_invite else datetime.utcnow(),
         response="granted" if not is_invite else None,
         expires_at=expires_at,
+        watermark=watermark,
     )
     session.add(share)
     session.commit()
@@ -164,6 +169,7 @@ def share_person_all(
     include_future: bool = False,
     is_invite: bool = False,
     expires_at: datetime | None = None,
+    watermark: bool = True,
 ) -> PersonShareGrant:
     """Share all documents for a person with another user."""
     grant = PersonShareGrant(
@@ -176,6 +182,7 @@ def share_person_all(
         responded_at=None if is_invite else datetime.utcnow(),
         response="granted" if not is_invite else None,
         expires_at=expires_at,
+        watermark=watermark,
     )
     session.add(grant)
     session.commit()
@@ -218,6 +225,7 @@ def get_effective_share(session: Session, user_id: int, document_id: int) -> dic
             "permission_level": share.permission_level,
             "shared_by_user_id": share.shared_by_user_id,
             "expires_at": share.expires_at,
+            "watermark": share.watermark,
         }
 
     grant = session.query(PersonShareGrant).filter(
@@ -230,6 +238,7 @@ def get_effective_share(session: Session, user_id: int, document_id: int) -> dic
             "permission_level": grant.permission_level,
             "shared_by_user_id": grant.granted_by_user_id,
             "expires_at": grant.expires_at,
+            "watermark": grant.watermark,
         }
 
     return None
@@ -302,6 +311,7 @@ def share_document_by_email(
     permission_level: str = "read",
     is_invite: bool = False,
     expires_at: datetime | None = None,
+    watermark: bool = True,
 ) -> dict:
     """
     Share a document with a user by email address.
@@ -331,6 +341,7 @@ def share_document_by_email(
         permission_level,
         is_invite,
         expires_at,
+        watermark,
     )
 
     # Send mock email
@@ -362,6 +373,7 @@ def share_person_all_by_email(
     include_future: bool = False,
     is_invite: bool = False,
     expires_at: datetime | None = None,
+    watermark: bool = True,
 ) -> dict:
     """
     Share all documents of a person with a user by email address.
@@ -393,6 +405,7 @@ def share_person_all_by_email(
         include_future,
         is_invite,
         expires_at,
+        watermark,
     )
 
     # Send mock email

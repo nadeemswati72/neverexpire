@@ -11,6 +11,7 @@ from .files import files_bp
 from .health import health_bp
 from .mock_inbox import mock_inbox_bp
 from .notifications import notifications_bp
+from .reminders import reminders_bp
 from .sharing import sharing_bp
 
 
@@ -27,3 +28,4 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(mock_inbox_bp)
     app.register_blueprint(notifications_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(reminders_bp)

@@ -49,6 +49,7 @@ def share_doc(doc_id: int):
     permission_level = body.get("permission_level", "read")
     is_invite = body.get("is_invite", False)
     expires_at = _compute_expires_at(body)
+    watermark = body.get("watermark", True)
 
     if not recipient_email or permission_level not in ("read", "edit", "download"):
         return jsonify({"data": None, "error": "Email and permission_level are required"}), 400
@@ -73,6 +74,7 @@ def share_doc(doc_id: int):
             permission_level=permission_level,
             is_invite=is_invite,
             expires_at=expires_at,
+            watermark=watermark,
         )
 
         if not result["success"]:
@@ -88,6 +90,7 @@ def share_doc(doc_id: int):
                 "is_invite": share.is_invite,
                 "response": share.response,
                 "expires_at": share.expires_at.isoformat() if share.expires_at else None,
+                "watermark": share.watermark,
             },
             "error": None,
         }), 201
@@ -113,6 +116,7 @@ def list_doc_shares(doc_id: int):
                     "is_invite": s.is_invite,
                     "response": s.response,
                     "created_at": s.created_at.isoformat() if s.created_at else None,
+                    "watermark": s.watermark,
                 }
                 for s in shares
             ],
@@ -198,6 +202,7 @@ def share_all_docs(person_id: int):
     include_future = body.get("include_future", False)
     is_invite = body.get("is_invite", False)
     expires_at = _compute_expires_at(body)
+    watermark = body.get("watermark", True)
 
     if not recipient_email or permission_level not in ("read", "edit", "download"):
         return jsonify({"data": None, "error": "Email and permission_level are required"}), 400
@@ -218,6 +223,7 @@ def share_all_docs(person_id: int):
             include_future=include_future,
             is_invite=is_invite,
             expires_at=expires_at,
+            watermark=watermark,
         )
 
         if not result["success"]:
@@ -232,6 +238,7 @@ def share_all_docs(person_id: int):
                 "permission_level": grant.permission_level,
                 "include_future": grant.include_future,
                 "is_invite": grant.is_invite,
+                "watermark": grant.watermark,
             },
             "error": None,
         }), 201

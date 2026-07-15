@@ -47,6 +47,10 @@ class DocumentShare(Base, TimestampMixin):
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     notes: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    # Defaults to True (watermarked) so any share created before this column existed
+    # keeps today's safe behavior. When False, the recipient gets the clean original
+    # instead of a personalized-tagged copy — an explicit owner choice, not a leak.
+    watermark: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     document: Mapped["Document"] = relationship(back_populates="shares")
     shared_by_user: Mapped["User"] = relationship(
@@ -92,6 +96,7 @@ class PersonShareGrant(Base, TimestampMixin):
     response: Mapped[str | None] = mapped_column(String(20), nullable=True)
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    watermark: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     person: Mapped["Person"] = relationship(back_populates="share_grants")
     granted_by_user: Mapped["User"] = relationship(

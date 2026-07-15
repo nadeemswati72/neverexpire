@@ -25,8 +25,8 @@ export const EMOJI_ICONS = {
   "arrow-down-outline": "⬇️",
   "arrow-up-outline": "⬆️",
 
-  // Brand
-  "shield-checkmark": "🛡️",
+  // Brand — matches the web app's ⏰ logo (Sidebar.tsx) for cross-platform consistency
+  "shield-checkmark": "⏰",
 
   // Bottom tabs
   home: "🏠",

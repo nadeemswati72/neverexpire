@@ -2,12 +2,27 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { login } from '../auth'
 
+const DEMO_PASSWORD = 'Demo@1234'
+
+const DEMO_USERS = [
+  { name: 'Ahmed Al Rashid', email: 'ahmed.alrashid@neverexpire.test', color: '#34c9ba' },
+  { name: 'Fatima Al Rashid', email: 'fatima.alrashid@neverexpire.test', color: '#e879a0' },
+  { name: 'Imran Khan', email: 'imran.khan@neverexpire.test', color: '#3182ce' },
+  { name: 'Sara Khan', email: 'sara.khan@neverexpire.test', color: '#d53f8c' },
+]
+
 export default function LoginPage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  function fillDemoAccount(demoEmail: string) {
+    setEmail(demoEmail)
+    setPassword(DEMO_PASSWORD)
+    setError('')
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -167,9 +182,36 @@ export default function LoginPage() {
           Create new account
         </Link>
 
-        <p style={{ textAlign: 'center', fontSize: 13, color: '#8a9ab5', marginTop: 20 }}>
-          Demo: <strong style={{ color: '#4a5568' }}>alice@neverexpire.test</strong> / <strong style={{ color: '#4a5568' }}>Demo@1234</strong>
-        </p>
+        {/* Demo accounts */}
+        <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid rgba(30,45,80,0.1)' }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: '#15203a', margin: 0 }}>Demo accounts</p>
+          <p style={{ fontSize: 12, color: '#8a9ab5', marginTop: 2, marginBottom: 12 }}>Click an account to autofill, then Sign in.</p>
+          {DEMO_USERS.map(u => (
+            <button
+              key={u.email}
+              type="button"
+              onClick={() => fillDemoAccount(u.email)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 12, width: '100%',
+                padding: '8px 6px', marginBottom: 2, background: 'none', border: 'none',
+                borderRadius: 8, cursor: 'pointer', textAlign: 'left',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(30,45,80,0.04)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+            >
+              <div style={{
+                width: 32, height: 32, borderRadius: '50%', background: u.color,
+                color: 'white', fontWeight: 700, fontSize: 13,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}>{u.name.charAt(0)}</div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#15203a' }}>{u.name}</div>
+                <div style={{ fontSize: 11, color: '#8a9ab5' }}>{u.email}</div>
+              </div>
+            </button>
+          ))}
+          <p style={{ fontSize: 11, color: '#8a9ab5', marginTop: 10, marginBottom: 0 }}>Password: <strong style={{ color: '#4a5568' }}>{DEMO_PASSWORD}</strong></p>
+        </div>
       </div>
     </div>
   )

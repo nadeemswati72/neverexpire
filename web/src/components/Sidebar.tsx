@@ -15,10 +15,10 @@ interface Props {
 const NAV_ITEMS = [
   { label: 'Dashboard', icon: '▦', path: '/', id: 'dashboard' },
   { label: 'Documents', icon: '📄', path: '/documents', id: 'documents' },
-  { label: 'Family', icon: '👥', path: '/family', id: 'family' },
+  { label: 'Family', icon: '👨‍👩‍👧', path: '/family', id: 'family' },
   { label: 'Sharing', icon: '🔗', path: '/sharing', id: 'sharing' },
   { label: 'Mock Inbox', icon: '📬', path: '/mock-inbox', id: 'mock-inbox' },
-  { label: 'Reminders', icon: '🔔', path: '/reminders', id: 'reminders', soon: true },
+  { label: 'Reminders', icon: '🔔', path: '/reminders', id: 'reminders' },
 ]
 
 const RELATION_ICONS: Record<string, string> = {
@@ -77,27 +77,23 @@ export default function Sidebar({ user, family, selectedPersonId, onSelectPerson
           return (
             <div
               key={item.label}
-              onClick={() => !item.soon && navigate(item.path)}
+              onClick={() => navigate(item.path)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 10,
                 padding: '9px 10px', borderRadius: 9, marginBottom: 2,
-                cursor: item.soon ? 'default' : 'pointer',
+                cursor: 'pointer',
                 background: isActive ? 'rgba(52,201,186,0.12)' : 'transparent',
                 color: isActive ? '#15203a' : '#4a5568',
                 fontWeight: isActive ? 600 : 400,
                 fontSize: 14,
-                opacity: item.soon ? 0.5 : 1,
                 transition: 'background 0.15s',
               }}
-              onMouseEnter={e => { if (!item.soon) (e.currentTarget as HTMLDivElement).style.background = isActive ? 'rgba(52,201,186,0.12)' : 'rgba(30,45,80,0.04)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = isActive ? 'rgba(52,201,186,0.12)' : 'rgba(30,45,80,0.04)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = isActive ? 'rgba(52,201,186,0.12)' : 'transparent' }}
             >
               <span style={{ fontSize: 16 }}>{item.icon}</span>
               <span>{item.label}</span>
-              {item.soon && (
-                <span style={{ marginLeft: 'auto', fontSize: 10, background: 'rgba(30,45,80,0.08)', color: '#8a9ab5', padding: '1px 6px', borderRadius: 4, fontWeight: 600 }}>Soon</span>
-              )}
-              {isActive && !item.soon && (
+              {isActive && (
                 <span style={{ marginLeft: 'auto', width: 6, height: 6, borderRadius: '50%', background: '#34c9ba' }} />
               )}
             </div>

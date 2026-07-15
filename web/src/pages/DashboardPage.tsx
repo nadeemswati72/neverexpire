@@ -191,7 +191,7 @@ export default function DashboardPage() {
                     <div style={{ fontSize: 11, color: '#8a9ab5', marginTop: 2 }}>{user.email}</div>
                   </div>
                 )}
-                <button onClick={() => { setUserMenuOpen(false); navigate('/family') }} style={{ display: 'block', width: '100%', padding: '10px 16px', textAlign: 'left', background: 'none', border: 'none', fontSize: 13, color: '#15203a', cursor: 'pointer' }}>👥 Family</button>
+                <button onClick={() => { setUserMenuOpen(false); navigate('/family') }} style={{ display: 'block', width: '100%', padding: '10px 16px', textAlign: 'left', background: 'none', border: 'none', fontSize: 13, color: '#15203a', cursor: 'pointer' }}>👨‍👩‍👧 Family</button>
                 <button onClick={() => { setUserMenuOpen(false); navigate('/documents') }} style={{ display: 'block', width: '100%', padding: '10px 16px', textAlign: 'left', background: 'none', border: 'none', fontSize: 13, color: '#15203a', cursor: 'pointer' }}>📄 Documents</button>
                 <div style={{ height: 1, background: 'rgba(30,45,80,0.06)' }} />
                 <button onClick={() => { import('../auth').then(m => m.logout()) }} style={{ display: 'block', width: '100%', padding: '10px 16px', textAlign: 'left', background: 'none', border: 'none', fontSize: 13, color: '#c53030', cursor: 'pointer', fontWeight: 500 }}>🚪 Sign out</button>

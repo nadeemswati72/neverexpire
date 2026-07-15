@@ -13,11 +13,13 @@ interface Props {
 
 export default function MemberAvatar({ personId, initials, color, size = 62, hasPhoto, onPhotoChange, editable = false }: Props) {
   const [blobUrl, setBlobUrl] = useState<string | null>(null)
+  const [imgFailed, setImgFailed] = useState(false)
   const [hovering, setHovering] = useState(false)
   const [uploading, setUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
+    setImgFailed(false)
     if (!hasPhoto) { setBlobUrl(null); return }
     let url: string | null = null
     const token = localStorage.getItem('ne_token')
@@ -71,14 +73,14 @@ export default function MemberAvatar({ personId, initials, color, size = 62, has
       {/* Photo or initials */}
       <div style={{
         width: size, height: size, borderRadius: '50%',
-        background: blobUrl ? 'transparent' : `linear-gradient(135deg, ${color}33, ${color}55)`,
+        background: (blobUrl && !imgFailed) ? 'transparent' : `linear-gradient(135deg, ${color}33, ${color}55)`,
         border: `2px solid ${color}55`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: size / 3, fontWeight: 800, color,
         overflow: 'hidden',
       }}>
-        {blobUrl
-          ? <img src={blobUrl} alt={initials} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        {(blobUrl && !imgFailed)
+          ? <img src={blobUrl} alt={initials} onError={() => setImgFailed(true)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           : (uploading ? '⏳' : initials)
         }
       </div>

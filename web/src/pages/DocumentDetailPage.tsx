@@ -40,6 +40,7 @@ interface AccessLogEntry {
   id: number
   user_email: string
   action: 'view' | 'download'
+  watermarked: boolean
   created_at: string
 }
 
@@ -66,6 +67,7 @@ interface DocumentDetail {
   extraction_runs: Array<{ id: number; model_name: string; confidence: string; created_at: string }>
   created_at: string
   user_permission?: 'read' | 'edit' | 'download'
+  watermarked_for_viewer?: boolean
 }
 
 function formatDate(d: string | null) {
@@ -246,18 +248,17 @@ export default function DocumentDetailPage() {
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {/* Top bar */}
         <div style={{ background: 'rgba(255,255,255,0.45)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255,255,255,0.55)', padding: '14px 28px', display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 10 }}>
-          <button onClick={() => navigate('/documents')} style={{ background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(30,45,80,0.1)', borderRadius: 8, padding: '6px 14px', fontSize: 13, color: '#4a5568', cursor: 'pointer' }}>← Documents</button>
+          <button onClick={() => navigate('/documents')} style={{ background: '#64748b', color: 'white', border: 'none', borderRadius: 8, padding: '7px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>← Documents</button>
           <div style={{ flex: 1 }}>
             {editing
               ? <input value={editTitle} onChange={e => setEditTitle(e.target.value)} style={{ fontSize: 16, fontWeight: 700, color: '#15203a', background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(52,201,186,0.4)', borderRadius: 7, padding: '4px 10px', width: 320, outline: 'none' }} />
               : <span style={{ fontSize: 16, fontWeight: 700, color: '#15203a' }}>{doc.title}</span>
             }
           </div>
-          <StatusBadge status={doc.status} />
           <div style={{ display: 'flex', gap: 8 }}>
             {editing ? (
               <>
-                <button onClick={() => setEditing(false)} style={{ background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(30,45,80,0.12)', borderRadius: 8, padding: '7px 16px', fontSize: 13, color: '#4a5568', cursor: 'pointer' }}>Cancel</button>
+                <button onClick={() => setEditing(false)} style={{ background: '#64748b', color: 'white', border: 'none', borderRadius: 8, padding: '7px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
                 <button onClick={handleSave} disabled={saving} style={{ background: 'linear-gradient(135deg, #34c9ba, #22a99c)', color: 'white', border: 'none', borderRadius: 8, padding: '7px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
                   {saving ? 'Saving…' : 'Save'}
                 </button>
@@ -265,23 +266,23 @@ export default function DocumentDetailPage() {
             ) : (
               <>
                 {canDownload && previewFile && (
-                  <button onClick={() => downloadFile(previewFile.id, previewFile.original_filename)} style={{ background: 'rgba(30,45,80,0.06)', border: '1px solid rgba(30,45,80,0.12)', borderRadius: 8, padding: '7px 14px', fontSize: 13, color: '#4a5568', cursor: 'pointer' }}>⬇ Download</button>
+                  <button onClick={() => downloadFile(previewFile.id, previewFile.original_filename)} style={{ background: '#64748b', color: 'white', border: 'none', borderRadius: 8, padding: '7px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>⬇ Download</button>
                 )}
                 {isOwner && (
                   <>
                     <input ref={addPictureRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }} onChange={e => { if (e.target.files?.[0]) handleAddPicture(e.target.files[0]); e.target.value = '' }} />
-                    <button onClick={() => addPictureRef.current?.click()} disabled={uploadingPicture} style={{ background: 'rgba(30,45,80,0.06)', border: '1px solid rgba(30,45,80,0.12)', borderRadius: 8, padding: '7px 14px', fontSize: 13, color: '#4a5568', cursor: 'pointer' }}>
+                    <button onClick={() => addPictureRef.current?.click()} disabled={uploadingPicture} style={{ background: '#64748b', color: 'white', border: 'none', borderRadius: 8, padding: '7px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
                       {uploadingPicture ? 'Uploading…' : '📎 Add Picture'}
                     </button>
                   </>
                 )}
                 {isOwner && (
-                  <button onClick={handleDelete} disabled={deleting} style={{ background: 'rgba(229,62,62,0.08)', border: '1px solid rgba(229,62,62,0.2)', borderRadius: 8, padding: '7px 14px', fontSize: 13, color: '#c53030', cursor: 'pointer' }}>
+                  <button onClick={handleDelete} disabled={deleting} style={{ background: '#e53e3e', color: 'white', border: 'none', borderRadius: 8, padding: '7px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
                     {deleting ? 'Deleting…' : '🗑 Delete'}
                   </button>
                 )}
                 {canShare && (
-                  <button onClick={() => setShowShareModal(true)} style={{ background: 'rgba(52,201,186,0.1)', border: '1px solid rgba(52,201,186,0.3)', borderRadius: 8, padding: '7px 16px', fontSize: 13, color: '#22a99c', cursor: 'pointer', fontWeight: 600 }}>👥 Share</button>
+                  <button onClick={() => setShowShareModal(true)} style={{ background: 'linear-gradient(135deg, #34c9ba, #22a99c)', color: 'white', border: 'none', borderRadius: 8, padding: '7px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>👥 Share</button>
                 )}
                 {canEdit && (
                   <button onClick={() => setEditing(true)} style={{ background: 'linear-gradient(135deg, #34c9ba, #22a99c)', color: 'white', border: 'none', borderRadius: 8, padding: '7px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>✏️ Edit</button>
@@ -382,6 +383,9 @@ export default function DocumentDetailPage() {
                         <div style={{ color: '#15203a' }}>
                           <strong>{entry.user_email}</strong>{' '}
                           <span style={{ color: '#8a9ab5' }}>{entry.action === 'download' ? 'downloaded' : 'viewed'} this document</span>
+                          {!entry.watermarked && (
+                            <span style={{ marginLeft: 6, fontSize: 11, fontWeight: 700, color: '#b45309', background: 'rgba(180,83,9,0.1)', borderRadius: 99, padding: '1px 7px' }}>⚠️ unwatermarked</span>
+                          )}
                         </div>
                         <div style={{ color: '#8a9ab5', fontSize: 12, whiteSpace: 'nowrap' }}>{formatDateTime(entry.created_at)}</div>
                       </div>
@@ -398,7 +402,9 @@ export default function DocumentDetailPage() {
                   <div style={{ padding: '14px 18px', borderBottom: '1px solid rgba(30,45,80,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#15203a' }}>📎 Document Preview</div>
-                      <div style={{ fontSize: 11, color: '#8a9ab5', marginTop: 2 }}>Watermarked copy</div>
+                      <div style={{ fontSize: 11, color: doc.watermarked_for_viewer === false ? '#b45309' : '#8a9ab5', marginTop: 2 }}>
+                        {doc.watermarked_for_viewer === false ? '⚠️ Original copy — no watermark' : 'Watermarked copy'}
+                      </div>
                     </div>
                     {doc.files.length > 1 && (
                       <div style={{ display: 'flex', gap: 4 }}>
@@ -411,7 +417,7 @@ export default function DocumentDetailPage() {
                   {/* Preview image */}
                   <FilePreview file={previewFile} isReadOnly={!isOwner && doc.user_permission === 'read'} canDownload={canDownload} />
                   <div style={{ padding: '10px 18px', borderTop: '1px solid rgba(30,45,80,0.07)', fontSize: 11, color: '#8a9ab5', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span>🔒</span> For NeverExpire use only · Watermarked
+                    <span>🔒</span> {doc.watermarked_for_viewer === false ? 'For NeverExpire use only · No watermark' : 'For NeverExpire use only · Watermarked'}
                   </div>
                 </div>
               </div>

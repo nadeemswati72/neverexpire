@@ -1,0 +1,57 @@
+<svg viewBox="0 0 900 560" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
+  <rect width="900" height="560" fill="#f2f2f2"/>
+  <text x="20" y="20" font-size="13" fill="#999">CONCEPT SKETCH — Iteration 1 — Family</text>
+
+  <rect x="20" y="35" width="860" height="45" fill="#fff" stroke="#333" stroke-width="2"/>
+  <text x="35" y="63" font-size="13" fill="#333" font-weight="bold">Family Members</text>
+  <rect x="760" y="47" width="105" height="20" fill="#333"/>
+  <text x="812" y="61" font-size="9" fill="#fff" text-anchor="middle">+ ADD MEMBER</text>
+
+  <rect x="20" y="95" width="860" height="60" fill="none" stroke="#333" stroke-width="2" stroke-dasharray="4,2"/>
+  <text x="35" y="120" font-size="11" fill="#555">Summary strip — N members, total docs, expired/expiring counts</text>
+
+  <!-- member card row -->
+  <g>
+    <rect x="20" y="175" width="270" height="150" fill="#fff" stroke="#333" stroke-width="2"/>
+    <circle cx="60" cy="215" r="22" fill="none" stroke="#333" stroke-width="2"/>
+    <text x="90" y="212" font-size="11" fill="#333" font-weight="bold">Member Name</text>
+    <text x="90" y="228" font-size="9" fill="#777">Relation type</text>
+    <line x1="35" y1="250" x2="275" y2="250" stroke="#ccc"/>
+    <rect x="35" y="260" width="55" height="40" fill="none" stroke="#999"/>
+    <rect x="100" y="260" width="55" height="40" fill="none" stroke="#999"/>
+    <rect x="165" y="260" width="55" height="40" fill="none" stroke="#999"/>
+    <rect x="230" y="260" width="40" height="40" fill="none" stroke="#999"/>
+
+    <rect x="310" y="175" width="270" height="150" fill="#fff" stroke="#333" stroke-width="2"/>
+    <circle cx="350" cy="215" r="22" fill="none" stroke="#333" stroke-width="2"/>
+    <text x="380" y="212" font-size="11" fill="#333" font-weight="bold">Member Name</text>
+    <text x="380" y="228" font-size="9" fill="#777">Relation type</text>
+    <line x1="325" y1="250" x2="565" y2="250" stroke="#ccc"/>
+    <rect x="325" y="260" width="55" height="40" fill="none" stroke="#999"/>
+    <rect x="390" y="260" width="55" height="40" fill="none" stroke="#999"/>
+    <rect x="455" y="260" width="55" height="40" fill="none" stroke="#999"/>
+    <rect x="520" y="260" width="40" height="40" fill="none" stroke="#999"/>
+
+    <rect x="600" y="175" width="270" height="150" fill="#fff" stroke="#333" stroke-width="2"/>
+    <circle cx="640" cy="215" r="22" fill="none" stroke="#333" stroke-width="2"/>
+    <text x="670" y="212" font-size="11" fill="#333" font-weight="bold">Member Name</text>
+    <text x="670" y="228" font-size="9" fill="#777">Relation type</text>
+    <line x1="615" y1="250" x2="855" y2="250" stroke="#ccc"/>
+    <rect x="615" y="260" width="55" height="40" fill="none" stroke="#999"/>
+    <rect x="680" y="260" width="55" height="40" fill="none" stroke="#999"/>
+    <rect x="745" y="260" width="55" height="40" fill="none" stroke="#999"/>
+    <rect x="810" y="260" width="40" height="40" fill="none" stroke="#999"/>
+  </g>
+
+  <g>
+    <rect x="20" y="345" width="270" height="150" fill="#fff" stroke="#333" stroke-width="2"/>
+    <circle cx="60" cy="385" r="22" fill="none" stroke="#333" stroke-width="2"/>
+    <text x="90" y="382" font-size="11" fill="#333" font-weight="bold">Member Name</text>
+    <text x="90" y="398" font-size="9" fill="#777">Relation type</text>
+
+    <rect x="310" y="345" width="270" height="150" fill="#fff" stroke="#333" stroke-width="2"/>
+    <circle cx="350" cy="385" r="22" fill="none" stroke="#333" stroke-width="2"/>
+    <text x="380" y="382" font-size="11" fill="#333" font-weight="bold">Member Name</text>
+    <text x="380" y="398" font-size="9" fill="#777">Relation type</text>
+  </g>
+</svg>

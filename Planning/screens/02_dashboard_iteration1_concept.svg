@@ -1,0 +1,55 @@
+<svg viewBox="0 0 900 560" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
+  <rect width="900" height="560" fill="#f2f2f2"/>
+  <text x="20" y="20" font-size="13" fill="#999">CONCEPT SKETCH — Iteration 1 — Dashboard</text>
+
+  <!-- sidebar -->
+  <rect x="20" y="35" width="170" height="500" fill="#fff" stroke="#333" stroke-width="2"/>
+  <text x="35" y="60" font-size="11" fill="#333" font-weight="bold">NeverExpire</text>
+  <line x1="20" y1="75" x2="190" y2="75" stroke="#ccc"/>
+  <text x="35" y="100" font-size="10" fill="#555">Dashboard</text>
+  <text x="35" y="122" font-size="10" fill="#777">Documents</text>
+  <text x="35" y="144" font-size="10" fill="#777">Family</text>
+  <text x="35" y="166" font-size="10" fill="#777">Sharing</text>
+  <text x="35" y="188" font-size="10" fill="#777">Reminders</text>
+  <line x1="20" y1="210" x2="190" y2="210" stroke="#ccc"/>
+  <text x="35" y="230" font-size="9" fill="#999">FAMILY</text>
+  <text x="35" y="250" font-size="10" fill="#555">- Self</text>
+  <text x="35" y="270" font-size="10" fill="#555">- Child A</text>
+  <text x="35" y="290" font-size="10" fill="#555">- Child B</text>
+
+  <!-- top stat row -->
+  <g>
+    <rect x="210" y="35" width="160" height="70" fill="#fff" stroke="#333" stroke-width="2"/>
+    <text x="290" y="65" font-size="20" fill="#333" text-anchor="middle">12</text>
+    <text x="290" y="90" font-size="9" fill="#777" text-anchor="middle">TOTAL</text>
+
+    <rect x="380" y="35" width="160" height="70" fill="#fff" stroke="#333" stroke-width="2"/>
+    <text x="460" y="65" font-size="20" fill="#333" text-anchor="middle">2</text>
+    <text x="460" y="90" font-size="9" fill="#777" text-anchor="middle">EXPIRED</text>
+
+    <rect x="550" y="35" width="160" height="70" fill="#fff" stroke="#333" stroke-width="2"/>
+    <text x="630" y="65" font-size="20" fill="#333" text-anchor="middle">4</text>
+    <text x="630" y="90" font-size="9" fill="#777" text-anchor="middle">EXPIRING</text>
+
+    <rect x="720" y="35" width="160" height="70" fill="#fff" stroke="#333" stroke-width="2"/>
+    <text x="800" y="65" font-size="20" fill="#333" text-anchor="middle">6</text>
+    <text x="800" y="90" font-size="9" fill="#777" text-anchor="middle">VALID</text>
+  </g>
+
+  <!-- attention block -->
+  <rect x="210" y="120" width="670" height="90" fill="none" stroke="#333" stroke-width="2" stroke-dasharray="4,2"/>
+  <text x="225" y="140" font-size="11" fill="#555" font-weight="bold">NEEDS ATTENTION (placeholder rows)</text>
+  <line x1="225" y1="155" x2="860" y2="155" stroke="#ccc"/>
+  <line x1="225" y1="175" x2="860" y2="175" stroke="#ccc"/>
+  <line x1="225" y1="195" x2="860" y2="195" stroke="#ccc"/>
+
+  <!-- table -->
+  <rect x="210" y="225" width="670" height="300" fill="#fff" stroke="#333" stroke-width="2"/>
+  <text x="225" y="248" font-size="11" fill="#333" font-weight="bold">All documents (table placeholder)</text>
+  <line x1="210" y1="260" x2="880" y2="260" stroke="#666"/>
+  <line x1="210" y1="290" x2="880" y2="290" stroke="#ddd"/>
+  <line x1="210" y1="320" x2="880" y2="320" stroke="#ddd"/>
+  <line x1="210" y1="350" x2="880" y2="350" stroke="#ddd"/>
+  <line x1="210" y1="380" x2="880" y2="380" stroke="#ddd"/>
+  <line x1="210" y1="410" x2="880" y2="410" stroke="#ddd"/>
+</svg>

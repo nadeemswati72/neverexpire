@@ -231,6 +231,8 @@
 | **Offline behaviour** | 💬 Discussed | No offline handling. Friendly error message at minimum. |
 | **Navigation architecture review** | 💬 Discussed | Before adding Budgeting/Games features, review mobile navigation (bottom tabs vs stack). |
 | **MRZ parsing for passports** | 💬 Discussed | Passports have MRZ (2 lines of OCR-B at bottom). Python `mrz` library could parse reliably. Emirates ID does NOT have MRZ — has PDF417 barcode on back instead. |
+| **Web "Reminders" page (un-stub the "Soon" nav item)** | ⏸ Parked for demo | Backend `POST /api/v1/admin/run-reminder-check` already exists ("for demoing the email flow on demand" per its own docstring); APScheduler job, email templates, Gmail SMTP all done. Just needs a page + button. Parked 2026-07-15 — Nadeem chose the compliance-score widget and PDF export instead for the management demo. |
+| **Live Google Drive storage proof for demo** | ⏸ Parked for demo | GDriveStorageBackend + encryption already implemented and OAuth-consented earlier this session. Nothing to build — just confirm the OAuth token is still valid and add it to the demo script. Parked 2026-07-15 alongside the Reminders page. |
 
 ### Future Features (noted, not planned)
 

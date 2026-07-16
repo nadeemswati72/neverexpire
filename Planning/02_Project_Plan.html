@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeverExpire — Project Plan</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="doc-header">
+    <div class="wrap" style="padding:0;">
+      <div class="brand-row">
+        <div class="brand-logo">⏰</div>
+        <div>
+          <div class="brand-name">NeverExpire</div>
+          <div class="brand-tag">Family Document Expiry Tracker</div>
+        </div>
+      </div>
+      <div class="doc-title">Project Plan</div>
+      <p class="doc-subtitle">Full delivery roadmap, sprint history, workstreams, and risk register</p>
+      <div class="doc-meta">
+        <span>Version 1.0</span>
+        <span>Prepared for Management Review</span>
+        <span>Owner: Nadeem Ahmad</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="doc-nav">
+      <a href="index.html">🏠 Index</a>
+      <a href="01_Product_Requirements_Document.html">01 PRD</a>
+      <a href="02_Project_Plan.html" class="current">02 Project Plan</a>
+      <a href="03_Solution_Architecture.html">03 Architecture</a>
+      <a href="04_UI_Wireframes_and_Screen_Evolution.html">04 UI Evolution</a>
+      <a href="05_MVP_Backlog.html">05 Backlog</a>
+      <a href="06_Go_Live_Readiness_and_Risk_Register.html">06 Go-Live</a>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead><tr><th>Planning Driver</th><th>Decision</th></tr></thead>
+        <tbody>
+          <tr><td>Primary target customer</td><td>UAE families tracking documents across every member — self, spouse, children, domestic help</td></tr>
+          <tr><td>Product strategy</td><td>Web + mobile clients sharing one backend and one account system, so no data lives in only one place</td></tr>
+          <tr><td>MVP center of gravity</td><td>The dashboard is the product: family-wide expiry status, first glance tells you what needs attention</td></tr>
+          <tr><td>Delivery model</td><td>Solo product owner + AI-assisted engineering pair (Claude Code), iterative sprint delivery, direct hands-on testing after every sprint</td></tr>
+          <tr><td>Release approach</td><td>Web MVP first, mobile brought to full parity once the backend contract stabilized, then a dedicated feedback round for sharing/trust/notifications</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>1. Delivery Roadmap — What Actually Shipped</h2>
+      <table>
+        <thead><tr><th>Sprint</th><th>Theme</th><th>Status</th><th>Main Deliverable</th></tr></thead>
+        <tbody>
+          <tr><td>Sprint 0</td><td>Backend Foundation</td><td>✅ Done</td><td>Flask REST API, DB init/seed, JWT auth, health check</td></tr>
+          <tr><td>Sprint 1</td><td>Core CRUD API</td><td>✅ Done</td><td>Documents + family endpoints, AI extraction endpoints, ownership checks</td></tr>
+          <tr><td>Sprint 2</td><td>Web Dashboard</td><td>✅ Done</td><td>React + Vite web app, glassmorphic login/dashboard, real data</td></tr>
+          <tr><td>Sprint 3</td><td>Web Documents</td><td>✅ Done</td><td>Document list/detail, AI-extraction upload flow, watermarked preview</td></tr>
+          <tr><td>Sprint 4</td><td>Web Family + MVP Complete</td><td>✅ Done</td><td>Family management UI, full web MVP ready for user testing</td></tr>
+          <tr><td>Sprint 5</td><td>Mobile (Expo)</td><td>✅ Done</td><td>Full mobile app — auth, dashboard, documents, family, AI extraction on-device</td></tr>
+          <tr><td>PoC Feedback Round 1</td><td>Sharing, Trust &amp; Storage</td><td>✅ Done</td><td>Email-based sharing with permissions, personalized watermarking, access audit trail, notifications, Gmail reminders, encrypted Google Drive storage, realistic multi-family demo data</td></tr>
+          <tr><td>PoC Feedback Round 2</td><td>Mobile ↔ Backend Parity</td><td>✅ Done</td><td>Mobile moved off local demo storage onto the real backend; sharing, notifications, and access history at full parity with web</td></tr>
+          <tr><td>Round 3 — UI Iteration</td><td>Visual System Overhaul</td><td>✅ Done</td><td>App-wide icon system, 3D glossy icon puck component, donut chart polish, consistent color language across web + mobile</td></tr>
+          <tr><td>Round 4 — Trust Refinement</td><td>Watermark Control &amp; Reminders UI</td><td>✅ Done</td><td>Per-share watermark toggle (owner choice, defaults safe-on), owner-always-gets-clean-original rule, dedicated Reminders page with on-demand personalized digest send</td></tr>
+          <tr><td>Sprint 6</td><td>Mobile Store Readiness</td><td>⬜ Not started</td><td>Push notifications, TestFlight/Play Store builds, CI</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12px; font-style:italic;">Sprint numbering reflects delivery sequence, not fixed calendar durations — typical of a fast-moving PoC built with an AI engineering pair rather than a multi-person team on fixed iteration lengths.</p>
+    </div>
+
+    <div class="card">
+      <h2>2. Workstreams</h2>
+      <table>
+        <thead><tr><th>ID</th><th>Workstream</th><th>Scope</th></tr></thead>
+        <tbody>
+          <tr><td>W1</td><td>Product &amp; UX</td><td>Feature scope decisions, screen design, iteration based on direct usage feedback</td></tr>
+          <tr><td>W2</td><td>Backend &amp; Data</td><td>Flask/SQLAlchemy API, data model, ownership &amp; permission enforcement</td></tr>
+          <tr><td>W3</td><td>AI Extraction</td><td>Anthropic-powered document photo → structured field pipeline</td></tr>
+          <tr><td>W4</td><td>Trust &amp; Security</td><td>Sharing permissions, personalized watermarking, access audit trail</td></tr>
+          <tr><td>W5</td><td>Notifications</td><td>In-app bell, email digests, scheduled + on-demand reminder triggers</td></tr>
+          <tr><td>W6</td><td>Web Client</td><td>React + Vite glassmorphic UI, all core screens</td></tr>
+          <tr><td>W7</td><td>Mobile Client</td><td>React Native / Expo, full backend parity, on-device camera extraction</td></tr>
+          <tr><td>W8</td><td>Deployment &amp; Demo</td><td>Vercel (web) + Railway (backend) hosting, realistic seeded demo data for stakeholder walkthroughs</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>3. Release Gates</h2>
+      <table>
+        <thead><tr><th>Gate</th><th>Acceptance Criteria</th></tr></thead>
+        <tbody>
+          <tr><td>Gate 1 — Core Loop Demo</td><td>Add a document by photo, see it appear correctly on the dashboard with the right status color</td></tr>
+          <tr><td>Gate 2 — Family Breadth</td><td>Every relation type (including Domestic Help) tracked, filtered, and summarized correctly</td></tr>
+          <tr><td>Gate 3 — Trust Loop</td><td>Share a document, recipient sees the correct permission level and watermark behavior, owner sees it in the access log</td></tr>
+          <tr><td>Gate 4 — Reminder Loop</td><td>A due reminder can be triggered on demand and the resulting digest is visible in-app for verification</td></tr>
+          <tr><td>Gate 5 — Cross-Platform Parity</td><td>The same account, same data, same sharing state is correct on both web and mobile</td></tr>
+          <tr><td>Gate 6 — Stakeholder Demo Pack</td><td>Two realistic multi-member families seeded with real-looking documents, sharing scenarios, and reminder states, ready to walk through live</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>4. Staffing Model</h2>
+      <table>
+        <thead><tr><th>Role</th><th>Responsibility</th><th>Involvement</th></tr></thead>
+        <tbody>
+          <tr><td>Product Owner</td><td>Vision, prioritization, acceptance, direct hands-on testing after every change</td><td>Full involvement throughout</td></tr>
+          <tr><td>AI Engineering Pair (Claude Code)</td><td>Implementation, architecture decisions within scope, verification before hand-off, deployment execution under explicit approval</td><td>Full involvement throughout</td></tr>
+          <tr><td>QA</td><td>Owner-led manual testing on real device (iPhone via Expo Go) + live browser verification before every deploy</td><td>Every sprint</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12px; font-style:italic;">This is a deliberately lean, two-party delivery model — a solo product owner paired with an AI engineering partner — chosen to move from concept to a demo-ready, cross-platform product without a multi-person team overhead.</p>
+    </div>
+
+    <div class="card">
+      <h2>5. Risks, Challenges and Mitigation</h2>
+      <table>
+        <thead><tr><th>ID</th><th>Risk</th><th>Probability</th><th>Impact</th><th>Mitigation</th></tr></thead>
+        <tbody>
+          <tr><td>R1</td><td>Ephemeral database on current hosting (Railway free tier has no persistent volume)</td><td>High</td><td>High</td><td>Known and accepted for PoC stage; production launch requires a persistent Postgres volume before real user data is stored</td></tr>
+          <tr><td>R2</td><td>Reminder emails currently route to a single test inbox, not each real user</td><td>High</td><td>Low (PoC-only)</td><td>Deliberate PoC shortcut — demo accounts use fake addresses; digest content already labels which account each reminder belongs to</td></tr>
+          <tr><td>R3</td><td>Watermark-off sharing removes leak traceability</td><td>Medium</td><td>Medium</td><td>Off by default; only the document owner can choose it, per share, with a visible warning at the point of choice</td></tr>
+          <tr><td>R4</td><td>Mobile app store approval adds unplanned timeline</td><td>Medium</td><td>Medium</td><td>Deferred to Sprint 6, after core product-market validation from the PoC demo round</td></tr>
+          <tr><td>R5</td><td>AI extraction accuracy varies by document quality/type</td><td>Medium</td><td>Medium</td><td>User always reviews and confirms extracted fields before save; manual entry remains fully supported as a fallback</td></tr>
+          <tr><td>R6</td><td>Solo-plus-AI delivery model has no second reviewer</td><td>Medium</td><td>Medium</td><td>Mitigated by verifying every change against a running local server before deployment, not just reading code</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>6. Context</h2>
+      <p>UAE visa, Emirates ID, and vehicle registration lapses carry direct fines and blocked government-service transactions — this is the core motivation for a family-wide, always-current tracker rather than a general-purpose reminders app.</p>
+    </div>
+
+    <div class="footer-nav">
+      <a href="01_Product_Requirements_Document.html">← Back: PRD</a>
+      <a href="03_Solution_Architecture.html">Next: Solution Architecture →</a>
+    </div>
+  </div>
+</body>
+</html>

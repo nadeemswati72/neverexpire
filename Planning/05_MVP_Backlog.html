@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeverExpire — MVP Backlog</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="doc-header">
+    <div class="wrap" style="padding:0;">
+      <div class="brand-row">
+        <div class="brand-logo">⏰</div>
+        <div>
+          <div class="brand-name">NeverExpire</div>
+          <div class="brand-tag">Family Document Expiry Tracker</div>
+        </div>
+      </div>
+      <div class="doc-title">MVP Backlog</div>
+      <p class="doc-subtitle">Full feature-by-feature delivery record, by epic and platform</p>
+      <div class="doc-meta"><span>Version 1.0</span></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="doc-nav">
+      <a href="index.html">🏠 Index</a>
+      <a href="01_Product_Requirements_Document.html">01 PRD</a>
+      <a href="02_Project_Plan.html">02 Project Plan</a>
+      <a href="03_Solution_Architecture.html">03 Architecture</a>
+      <a href="04_UI_Wireframes_and_Screen_Evolution.html">04 UI Evolution</a>
+      <a href="05_MVP_Backlog.html" class="current">05 Backlog</a>
+      <a href="06_Go_Live_Readiness_and_Risk_Register.html">06 Go-Live</a>
+    </div>
+
+    <div class="card">
+      <div class="callout">Compiled from the actual delivered task history. Every row below shipped and was verified before hand-off — this is a record of what was built, not a forward-looking wishlist.</div>
+
+      <table>
+        <thead><tr><th>Epic</th><th>Feature</th><th>Priority</th><th>Status</th><th>Platform</th></tr></thead>
+        <tbody>
+          <tr><td>Foundation</td><td>Flask REST API, JWT auth, DB init/seed</td><td>MVP</td><td>✅ Done</td><td>Backend</td></tr>
+          <tr><td>Foundation</td><td>Document + family CRUD endpoints, ownership checks</td><td>MVP</td><td>✅ Done</td><td>Backend</td></tr>
+          <tr><td>Document Management</td><td>Document list, detail, manual entry</td><td>MVP</td><td>✅ Done</td><td>Web ✓ · Mobile ✓</td></tr>
+          <tr><td>Document Management</td><td>Status logic — expired / expiring soon / valid / no expiry</td><td>MVP</td><td>✅ Done</td><td>Web ✓ · Mobile ✓</td></tr>
+          <tr><td>AI Extraction</td><td>Photo → structured field extraction, review-before-save</td><td>MVP</td><td>✅ Done</td><td>Web ✓ · Mobile ✓</td></tr>
+          <tr><td>AI Extraction</td><td>Extraction confidence + model audit trail</td><td>MVP</td><td>✅ Done</td><td>Backend</td></tr>
+          <tr><td>Family Management</td><td>Family member CRUD, relation types incl. Domestic Help</td><td>MVP</td><td>✅ Done</td><td>Web ✓ · Mobile ✓</td></tr>
+          <tr><td>Family Management</td><td>Per-member document counts, avatar photo upload</td><td>MVP</td><td>✅ Done</td><td>Web ✓ · Mobile ✓</td></tr>
+          <tr><td>Dashboard</td><td>Family-wide summary, status donut chart, attention list</td><td>MVP</td><td>✅ Done</td><td>Web ✓ · Mobile ✓</td></tr>
+          <tr><td>Dashboard</td><td>Family member filter carried through to document list</td><td>MVP</td><td>✅ Done</td><td>Web ✓ · Mobile ✓</td></tr>
+          <tr><td>Sharing &amp; Trust</td><td>Email-based document sharing, 3 permission levels</td><td>MVP</td><td>✅ Done</td><td>Web ✓ · Mobile ✓</td></tr>
+          <tr><td>Sharing &amp; Trust</td><td>Bulk share all of a person's documents + future auto-include</td><td>MVP</td><td>✅ Done</td><td>Web ✓ · Mobile ✓</td></tr>
+          <tr><td>Sharing &amp; Trust</td><td>Share expiry (1/7/30 days or none), revoke anytime</td><td>MVP</td><td>✅ Done</td><td>Web ✓ · Mobile ✓</td></tr>
+          <tr><td>Sharing &amp; Trust</td><td>Personalized watermark (recipient + date, traceable)</td><td>MVP</td><td>✅ Done</td><td>Web ✓ · Mobile ✓</td></tr>
+          <tr><td>Sharing &amp; Trust</td><td>Per-share watermark on/off toggle, owner-only clean download</td><td>Iteration</td><td>✅ Done</td><td>Web</td></tr>
+          <tr><td>Sharing &amp; Trust</td><td>Access audit trail (who viewed/downloaded, watermark state)</td><td>MVP</td><td>✅ Done</td><td>Web ✓ · Mobile ✓</td></tr>
+          <tr><td>Notifications</td><td>In-app bell — sharing activity, unread badge</td><td>MVP</td><td>✅ Done</td><td>Web ✓ · Mobile ✓</td></tr>
+          <tr><td>Notifications</td><td>Mock email inbox for live demo visibility</td><td>MVP</td><td>✅ Done</td><td>Web</td></tr>
+          <tr><td>Reminders</td><td>Reminder rules (90/30/7/1 day thresholds)</td><td>MVP</td><td>✅ Done</td><td>Backend</td></tr>
+          <tr><td>Reminders</td><td>Daily scheduled digest (APScheduler) + real Gmail send, per-family routing</td><td>MVP</td><td>✅ Done</td><td>Backend</td></tr>
+          <tr><td>Reminders</td><td>Reminders page — per-user list, on-demand personalized send, dismiss</td><td>Iteration</td><td>✅ Done</td><td>Web</td></tr>
+          <tr><td>Auth &amp; Security</td><td>Rate limiting on login/register</td><td>Iteration</td><td>✅ Done</td><td>Backend</td></tr>
+          <tr><td>Auth &amp; Security</td><td>Real email-based password reset flow</td><td>Iteration</td><td>✅ Done</td><td>Web ✓ · Backend ✓</td></tr>
+          <tr><td>Database</td><td>Postgres (Neon) support alongside SQLite</td><td>Iteration</td><td>🟡 Code ready, pending live connection</td><td>Backend</td></tr>
+          <tr><td>Storage</td><td>Encrypted Google Drive storage for new uploads</td><td>MVP</td><td>✅ Done</td><td>Backend</td></tr>
+          <tr><td>Mobile</td><td>Full Expo app — auth, dashboard, documents, family, sharing</td><td>MVP</td><td>✅ Done</td><td>Mobile</td></tr>
+          <tr><td>Mobile</td><td>On-device camera AI extraction</td><td>MVP</td><td>✅ Done</td><td>Mobile</td></tr>
+          <tr><td>Mobile</td><td>Local scheduled expiry notifications</td><td>Iteration</td><td>✅ Done</td><td>Mobile</td></tr>
+          <tr><td>Mobile</td><td>Voice-to-document reminder creation</td><td>Iteration</td><td>✅ Done</td><td>Mobile</td></tr>
+          <tr><td>UI/Visual System</td><td>Glassmorphic design system, teal/navy brand language</td><td>MVP</td><td>✅ Done</td><td>Web</td></tr>
+          <tr><td>UI/Visual System</td><td>Mobile-responsive collapsible sidebar</td><td>Iteration</td><td>✅ Done</td><td>Web</td></tr>
+          <tr><td>UI/Visual System</td><td>App-wide emoji-based icon system, "Emoji Nav"</td><td>Iteration</td><td>✅ Done</td><td>Mobile</td></tr>
+          <tr><td>UI/Visual System</td><td>3D glossy icon puck component (nav, FAB, share, notifications)</td><td>Iteration</td><td>✅ Done</td><td>Mobile</td></tr>
+          <tr><td>UI/Visual System</td><td>Donut chart gloss/gradient/shadow polish</td><td>Iteration</td><td>✅ Done</td><td>Web ✓ · Mobile ✓</td></tr>
+          <tr><td>UI/Visual System</td><td>Cross-platform icon consistency pass</td><td>Iteration</td><td>✅ Done</td><td>Web ✓ · Mobile ✓</td></tr>
+          <tr><td>Deployment</td><td>Vercel (web) + Railway (backend) production hosting</td><td>MVP</td><td>✅ Done</td><td>Web ✓ · Backend ✓</td></tr>
+          <tr><td>Deployment</td><td>Realistic two-family demo dataset (49 documents, 10 sharing scenarios)</td><td>MVP</td><td>✅ Done</td><td>Backend</td></tr>
+        </tbody>
+      </table>
+
+      <p><strong>Not started (Phase 2):</strong> native push notifications, App Store / Play Store release, TestFlight mobile testing (pending Apple Developer enrollment), CI pipeline.</p>
+    </div>
+
+    <div class="footer-nav">
+      <a href="04_UI_Wireframes_and_Screen_Evolution.html">← Back: UI Evolution</a>
+      <a href="06_Go_Live_Readiness_and_Risk_Register.html">Next: Go-Live Readiness →</a>
+    </div>
+  </div>
+</body>
+</html>

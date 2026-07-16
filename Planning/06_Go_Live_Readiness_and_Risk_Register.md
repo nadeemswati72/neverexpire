@@ -16,14 +16,14 @@
 
 ## 2. Phase A — Required Before Go-Live
 
-| # | Item | Why it's a blocker at this scale | Solution | Effort |
-|---|---|---|---|---|
-| A1 | Database persistence | Railway's current SQLite is ephemeral — wipes on every redeploy/restart. A handful of real families losing real documents on day one is unacceptable, regardless of scale. | Migrate to Postgres on **Neon** (neon.tech) — genuine ongoing free tier, not a trial credit. SQLAlchemy already abstracts the schema; this is a connection-string + driver change, not a rewrite. Confirm current free-tier limits on Neon's pricing page before wiring up (limits can shift). | Small–Medium |
-| A2 | Self-registration security | Registration stays open to the public URL, so it must be genuinely secure, not just functional. | Rate limiting on login/register (`flask-limiter`), a real email-based password reset flow (token + email, not the current stub alert), confirm production `SECRET_KEY` is a real value and not the insecure code-level default. | Medium |
-| A3 | Reminder email routing | Every reminder currently routes to one test inbox regardless of whose data it is — real families need their own reminders in their own inbox. | Fix the recipient logic so each family's digest goes to their own real email address. Can stay on Gmail SMTP for now at this volume — the routing logic is the fix, not the provider. | Small |
-| A4 | Mobile web responsiveness | Confirmed broken: the sidebar takes ~64% of a phone screen width. Invited families will very likely open the web app on a phone before the native app is ready. | Collapsible/hamburger sidebar below ~768px. | Medium |
-| A5 | Minimal privacy note | Real families' passport/Emirates ID/visa numbers are being stored; some disclosure is warranted even for a private beta. | One short paragraph: what's stored, why, that it's a private beta. Not a full legal ToS (that's Phase B, see Section 3). | Small |
-| A6 | TestFlight setup | Mobile testing needs to reach real families, not just Nadeem's own device. | Apple Developer Program enrollment ($99/year), build submission, external-tester invite. Apple's external-tester review typically takes 1–2 days (can vary) — this has a real lead time, unlike the other items above. | Medium (+ external review wait) |
+| # | Item | Solution | Status |
+|---|---|---|---|
+| A1 | Database persistence | Migrate to Postgres on **Neon** (neon.tech, free tier). Code-side support built and verified (SQLite fallback intact, Postgres connection path proven). | 🟡 Code ready — waiting on a Neon connection string |
+| A2 | Self-registration security | Rate limiting on login/register (`flask-limiter`), real email-based password reset flow (token + email), production `SECRET_KEY` audited. | 🟢 Done — verified end-to-end |
+| A3 | Reminder email routing | Each family's digest now goes to their own real email address; demo accounts still redirect safely to the test inbox. | 🟢 Done — verified end-to-end |
+| A4 | Mobile web responsiveness | Collapsible/hamburger sidebar below ~768px, verified at both breakpoints. | 🟢 Done — verified end-to-end |
+| A5 | Minimal privacy note | Short private-beta disclosure added to Login and Register pages. | 🟢 Done |
+| A6 | TestFlight setup | Apple Developer Program enrollment ($99/year), build submission, external-tester invite. | 🔴 Waiting on Apple Developer account enrollment |
 
 ## 3. Phase B — Deferred Until Beyond This Group
 
@@ -61,13 +61,13 @@ A traditional user manual has low value for a family-facing consumer app — rea
 
 | ID | Risk | Severity | Status |
 |---|---|---|---|
-| A1 | Real data lost on redeploy | Critical | Planned — Phase A |
-| A2 | Account takeover / lockout with no recovery | High | Planned — Phase A |
-| A3 | Reminders not reaching real families | High | Planned — Phase A |
-| A4 | Broken mobile web experience | Medium–High | Planned — Phase A |
-| A5 | No disclosure of data handling | Medium | Planned — Phase A |
-| A6 | Mobile testing limited to one device | Medium | Planned — Phase A (TestFlight) |
+| A1 | Real data lost on redeploy | Critical | 🟡 Code ready — waiting on Neon connection string |
+| A2 | Account takeover / lockout with no recovery | High | 🟢 Resolved |
+| A3 | Reminders not reaching real families | High | 🟢 Resolved |
+| A4 | Broken mobile web experience | Medium–High | 🟢 Resolved |
+| A5 | No disclosure of data handling | Medium | 🟢 Resolved |
+| A6 | Mobile testing limited to one device | Medium | 🔴 Waiting on Apple Developer enrollment |
 | B1–B4 | Storage/email vendor maturity, observability, scheduler scaling | Low at this scale | Deferred — Phase B |
 | — | Social login absent | Low (evaluated, deliberately deferred) | Noted — Section 4 |
 
-*No infrastructure or code changes have been made as a result of this document — it records the go-live plan as discussed and agreed. Each Phase A item still requires its own explicit go-ahead before implementation begins.*
+*Updated after implementation: four of six Phase A items are built, verified end-to-end, and merged. The remaining two (A1, A6) are ready on the code/process side and are waiting on two account-creation steps only the Product Owner can perform (a Neon signup, and Apple Developer Program enrollment).*

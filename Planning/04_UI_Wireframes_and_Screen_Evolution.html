@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeverExpire — UI Wireframes &amp; Screen Evolution</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="doc-header">
+    <div class="wrap" style="padding:0;">
+      <div class="brand-row">
+        <div class="brand-logo">⏰</div>
+        <div>
+          <div class="brand-name">NeverExpire</div>
+          <div class="brand-tag">Family Document Expiry Tracker</div>
+        </div>
+      </div>
+      <div class="doc-title">UI Wireframes &amp; Screen Evolution</div>
+      <p class="doc-subtitle">Low-fidelity concept sketches showing how each core screen evolved before reaching the shipped glassmorphic design.</p>
+      <div class="doc-meta"><span>Version 1.0</span></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="doc-nav">
+      <a href="index.html">🏠 Index</a>
+      <a href="01_Product_Requirements_Document.html">01 PRD</a>
+      <a href="02_Project_Plan.html">02 Project Plan</a>
+      <a href="03_Solution_Architecture.html">03 Architecture</a>
+      <a href="04_UI_Wireframes_and_Screen_Evolution.html" class="current">04 UI Evolution</a>
+      <a href="05_MVP_Backlog.html">05 Backlog</a>
+      <a href="06_Go_Live_Readiness_and_Risk_Register.html">06 Go-Live</a>
+    </div>
+
+    <div class="card">
+      <div class="callout">These are reconstructed concept mockups for planning/review purposes — not literal historical screenshots — but they represent the real evolution: every screen went through a plain structural pass before the visual design system (glassmorphic cards, teal/navy branding, status color language) was layered on, and several went through further rounds of icon and polish iteration after that.</div>
+
+      <h2>1. Screen Inventory</h2>
+      <table>
+        <thead><tr><th>ID</th><th>Screen</th><th>Primary User</th><th>Objective</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>S-01</td><td>Login</td><td>All</td><td>Authenticate, quick demo-account access</td><td>✅ Shipped</td></tr>
+          <tr><td>S-02</td><td>Dashboard</td><td>All</td><td>Family-wide status at a glance, drill into what needs attention</td><td>✅ Shipped</td></tr>
+          <tr><td>S-03</td><td>Documents List</td><td>All</td><td>Browse/search/filter every tracked document</td><td>✅ Shipped</td></tr>
+          <tr><td>S-04</td><td>Document Detail</td><td>Owner / Recipient</td><td>Full record, watermarked preview, sharing, access history</td><td>✅ Shipped</td></tr>
+          <tr><td>S-05</td><td>Family</td><td>Owner</td><td>Manage members, per-member status breakdown</td><td>✅ Shipped</td></tr>
+          <tr><td>S-06</td><td>Sharing</td><td>Owner / Recipient</td><td>Manage outgoing/incoming shares</td><td>✅ Shipped</td></tr>
+          <tr><td>S-07</td><td>Reminders</td><td>Owner</td><td>Personal reminder list, on-demand digest send, dismiss</td><td>✅ Shipped</td></tr>
+          <tr><td>S-08</td><td>Mock Inbox</td><td>Owner (demo)</td><td>Live visibility into sharing + reminder emails for stakeholder walkthroughs</td><td>✅ Shipped</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>2. Evolution Pattern</h2>
+      <p>Every core screen followed the same two-stage pattern before further icon/visual polish rounds:</p>
+      <ol>
+        <li><strong>Concept sketch</strong> — structural layout only: where the navigation sits, what data groups exist, what the primary action is. No color system, no branding, no real content — the point is to validate information architecture before investing in visual design.</li>
+        <li><strong>Refined pass</strong> — the glassmorphic design system applied: teal/navy brand language, card-based layout, status color coding (red/amber/green), real iconography. This is much closer to what shipped, though still a simplified concept rendering rather than the pixel-exact production build.</li>
+      </ol>
+      <p>From there, the shipped product went through additional rounds not re-illustrated here in full: an app-wide icon system pass, a 3D "glossy puck" treatment for primary navigation chrome, donut-chart gloss/shadow refinement, and a cross-platform icon consistency pass (see <a href="05_MVP_Backlog.html">MVP Backlog</a>).</p>
+    </div>
+
+    <div class="card">
+      <h2>3. Login</h2>
+      <div class="screens-grid">
+        <div class="screen-frame">
+          <img src="screens/01_login_iteration1_concept.svg" alt="Login — concept sketch">
+          <div class="cap">Concept sketch</div>
+        </div>
+        <div class="screen-frame">
+          <img src="screens/01_login_iteration2_refined.svg" alt="Login — refined pass">
+          <div class="cap">Refined pass</div>
+        </div>
+      </div>
+      <p>Key decision validated at concept stage: a single centered card, minimal fields, with quick demo-account access below the fold — kept all the way through to what shipped.</p>
+    </div>
+
+    <div class="card">
+      <h2>4. Dashboard</h2>
+      <div class="screens-grid">
+        <div class="screen-frame">
+          <img src="screens/02_dashboard_iteration1_concept.svg" alt="Dashboard — concept sketch">
+          <div class="cap">Concept sketch</div>
+        </div>
+        <div class="screen-frame">
+          <img src="screens/02_dashboard_iteration2_refined.svg" alt="Dashboard — refined pass">
+          <div class="cap">Refined pass</div>
+        </div>
+      </div>
+      <p>Key decision validated at concept stage: sidebar + stat row + "needs attention" band + full table, in that vertical order — the "attention" band became the dark hero card that carries through the shipped design.</p>
+    </div>
+
+    <div class="card">
+      <h2>5. Document Detail</h2>
+      <div class="screens-grid">
+        <div class="screen-frame">
+          <img src="screens/03_document_detail_iteration1_concept.svg" alt="Document Detail — concept sketch">
+          <div class="cap">Concept sketch</div>
+        </div>
+        <div class="screen-frame">
+          <img src="screens/03_document_detail_iteration2_refined.svg" alt="Document Detail — refined pass">
+          <div class="cap">Refined pass</div>
+        </div>
+      </div>
+      <p>Key decision validated at concept stage: two-column layout (details + notes + access history on the left, file preview on the right) — this structure is exactly what made the later trust features (watermark labeling, access history) easy to add without a redesign.</p>
+    </div>
+
+    <div class="card">
+      <h2>6. Family</h2>
+      <div class="screens-grid">
+        <div class="screen-frame">
+          <img src="screens/04_family_iteration1_concept.svg" alt="Family — concept sketch">
+          <div class="cap">Concept sketch</div>
+        </div>
+        <div class="screen-frame">
+          <img src="screens/04_family_iteration2_refined.svg" alt="Family — refined pass">
+          <div class="cap">Refined pass</div>
+        </div>
+      </div>
+      <p>Key decision validated at concept stage: a summary strip above a grid of per-member cards, each carrying its own status counts — this is what let the dashboard's member-filter behavior stay consistent with the Family page itself.</p>
+    </div>
+
+    <div class="card">
+      <h2>7. Why This Matters for the Roadmap</h2>
+      <p>Screens that reached a stable structure at the concept stage (Dashboard, Document Detail, Family) absorbed every later feature — sharing, watermarking, access history, reminders — without a structural rebuild. That's the direct payoff of validating information architecture before visual polish, and it's why the same pattern is the recommended approach for any new screen going forward (e.g. a future native push-notifications settings screen, or the Sprint 6 mobile store-readiness work).</p>
+    </div>
+
+    <div class="footer-nav">
+      <a href="03_Solution_Architecture.html">← Back: Solution Architecture</a>
+      <a href="05_MVP_Backlog.html">Next: MVP Backlog →</a>
+    </div>
+  </div>
+</body>
+</html>

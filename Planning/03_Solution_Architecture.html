@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeverExpire — Solution Architecture</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="doc-header">
+    <div class="wrap" style="padding:0;">
+      <div class="brand-row">
+        <div class="brand-logo">⏰</div>
+        <div>
+          <div class="brand-name">NeverExpire</div>
+          <div class="brand-tag">Family Document Expiry Tracker</div>
+        </div>
+      </div>
+      <div class="doc-title">Solution Architecture &amp; Data Model</div>
+      <p class="doc-subtitle">Tech stack, system architecture, data model, API surface, and security design</p>
+      <div class="doc-meta"><span>Version 1.0</span></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="doc-nav">
+      <a href="index.html">🏠 Index</a>
+      <a href="01_Product_Requirements_Document.html">01 PRD</a>
+      <a href="02_Project_Plan.html">02 Project Plan</a>
+      <a href="03_Solution_Architecture.html" class="current">03 Architecture</a>
+      <a href="04_UI_Wireframes_and_Screen_Evolution.html">04 UI Evolution</a>
+      <a href="05_MVP_Backlog.html">05 Backlog</a>
+      <a href="06_Go_Live_Readiness_and_Risk_Register.html">06 Go-Live</a>
+    </div>
+
+    <div class="card">
+      <h2>1. Technology Stack</h2>
+      <table>
+        <thead><tr><th>Layer</th><th>Technology</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Backend</td><td>Flask + SQLAlchemy</td><td>REST API, JWT-authenticated, <code>{data, error}</code> response envelope</td></tr>
+          <tr><td>Web Client</td><td>React + Vite + TypeScript</td><td>Glassmorphic design system, deployed to Vercel</td></tr>
+          <tr><td>Mobile Client</td><td>React Native (Expo SDK 54)</td><td>Same backend/account system as web, deployed via Expo Go / TestFlight for pilot testing</td></tr>
+          <tr><td>Database</td><td>SQLite (dev/PoC) → PostgreSQL (production path)</td><td>Schema designed to migrate without structural rework</td></tr>
+          <tr><td>AI Extraction</td><td>Anthropic Claude (<code>claude-haiku-4-5</code>)</td><td>Document photo → structured fields</td></tr>
+          <tr><td>Email</td><td>Gmail SMTP (App Password)</td><td>Reminder digests + password resets; mock-inbox mirror for in-app demo visibility</td></tr>
+          <tr><td>File Storage</td><td>Local disk + Google Drive (encrypted, Fernet)</td><td>New uploads land in encrypted Drive storage; existing local files untouched</td></tr>
+          <tr><td>Hosting</td><td>Vercel (web) + Railway (backend)</td><td>Production-style deployment for stakeholder demos</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>2. High-Level Architecture</h2>
+      <pre>                    ┌─────────────────┐        ┌──────────────────┐
+                    │   Web (Vercel)   │        │ Mobile (Expo Go)  │
+                    │  React + Vite    │        │  React Native     │
+                    └────────┬─────────┘        └─────────┬─────────┘
+                             │        JWT Bearer            │
+                             └──────────────┬───────────────┘
+                                            │
+                                  ┌─────────▼──────────┐
+                                  │  Flask REST API     │
+                                  │  (Railway)           │
+                                  │  /api/v1/*           │
+                                  └──┬───────┬──────┬───┘
+                                     │       │      │
+                    ┌────────────────┘   ┌───▼──┐  ┌▼──────────────┐
+                    │                    │  DB   │  │ Anthropic API  │
+             ┌──────▼──────┐             │(SQLite│  │ (extraction)   │
+             │ Gmail SMTP   │             │/PgSQL)│  └────────────────┘
+             │ (reminders)  │             └───────┘
+             └──────────────┘
+                    │
+             ┌──────▼──────────┐
+             │ Google Drive     │
+             │ (encrypted files)│
+             └──────────────────┘</pre>
+    </div>
+
+    <div class="card">
+      <h2>3. Data Model</h2>
+      <table>
+        <thead><tr><th>Entity</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>User</code></td><td>Login identity — email, password hash, JWT subject</td></tr>
+          <tr><td><code>Person</code></td><td>Family member — name, relation type, DOB, photo</td></tr>
+          <tr><td><code>Document</code></td><td>Expiry-tracked record — type, title, dates, number, authority, holder, notes, status</td></tr>
+          <tr><td><code>DocumentFile</code></td><td>Uploaded file reference — local path or <code>gdrive:</code> reference</td></tr>
+          <tr><td><code>DocumentType</code></td><td>Configurable type catalogue (Passport, Visa, Emirates ID, Driving License, Insurance, Certificate, ...)</td></tr>
+          <tr><td><code>DocumentShare</code></td><td>Single-document share — recipient, permission level, watermark choice, expiry, invite state</td></tr>
+          <tr><td><code>PersonShareGrant</code></td><td>Bulk share of all of a person's documents, with optional auto-include of future documents</td></tr>
+          <tr><td><code>DocumentAccessLog</code></td><td>Every view/download of a shared document — who, when, action, whether watermarked</td></tr>
+          <tr><td><code>ReminderRule</code></td><td>Global threshold configuration (90/30/7/1 days before expiry)</td></tr>
+          <tr><td><code>DocumentReminder</code></td><td>One per (document, rule) pair — due date, status (pending/sent/dismissed)</td></tr>
+          <tr><td><code>PasswordResetToken</code></td><td>One-time, hashed, expiring token for the self-service password reset flow</td></tr>
+          <tr><td><code>Notification</code></td><td>In-app bell entries — sharing activity, read/unread</td></tr>
+          <tr><td><code>ExtractionRun</code></td><td>AI extraction audit — model used, confidence, linked document</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>4. API Surface (representative)</h2>
+      <table>
+        <thead><tr><th>Area</th><th>Example Endpoints</th></tr></thead>
+        <tbody>
+          <tr><td>Auth</td><td><code>POST /auth/login</code>, <code>POST /auth/register</code>, <code>GET /auth/me</code>, <code>POST /auth/forgot-password</code>, <code>POST /auth/reset-password</code></td></tr>
+          <tr><td>Documents</td><td><code>GET/POST /documents</code>, <code>GET/PUT/DELETE /documents/:id</code>, <code>POST /documents/:id/files</code></td></tr>
+          <tr><td>Family</td><td><code>GET/POST /family</code>, <code>GET/PUT/DELETE /family/:id</code>, <code>POST/GET/DELETE /family/:id/photo</code></td></tr>
+          <tr><td>Dashboard</td><td><code>GET /dashboard/summary</code></td></tr>
+          <tr><td>Sharing</td><td><code>POST /documents/:id/share</code>, <code>POST /persons/:id/share-all</code>, <code>DELETE /shares/:id</code>, <code>GET /sharing/incoming</code>, <code>GET /sharing/outgoing</code></td></tr>
+          <tr><td>Files</td><td><code>GET /files/:id</code> — serves watermarked or clean original depending on ownership + share settings</td></tr>
+          <tr><td>Reminders</td><td><code>GET /reminders</code>, <code>PUT /reminders/:id/dismiss</code>, <code>POST /admin/run-reminder-check</code></td></tr>
+          <tr><td>Notifications</td><td><code>GET /notifications</code>, <code>PUT /notifications/:id/read</code></td></tr>
+          <tr><td>Mock Inbox</td><td><code>GET /mock-inbox</code> — demo visibility into sharing + reminder emails</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>5. Security &amp; Trust Design</h2>
+      <ul>
+        <li><strong>Ownership enforcement</strong> — every endpoint checks <code>Person.user_id</code> against the authenticated caller before returning or mutating data; shared access is checked separately via <code>DocumentShare</code> / <code>PersonShareGrant</code>, never implicit.</li>
+        <li><strong>Personalized watermarking</strong> — the file-serving endpoint decides at request time, per viewer, whether to serve the clean original or a recipient-tagged watermarked copy. The owner's own document is only ever clean on an explicit download; their in-app preview stays watermarked as a screen-glance safeguard.</li>
+        <li><strong>Access audit trail</strong> — every non-owner view/download is logged with the actual watermark state that was served, so the owner's trust in a share is verifiable, not assumed.</li>
+        <li><strong>Rate limiting</strong> — login and registration are rate-limited to prevent brute-force and abuse.</li>
+        <li><strong>Self-service password recovery</strong> — one-time, hashed, expiring reset tokens; no stub or manual workaround.</li>
+        <li><strong>JWT-scoped API</strong> — every request is tied to a specific authenticated user; there is no session state shared across accounts.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>6. Deployment Topology</h2>
+      <ul>
+        <li><strong>Web</strong>: Vercel project <code>neverexpire-poc</code>, framework Vite, <code>rootDirectory: web</code>, production branch tracked, deployment protection disabled for open stakeholder access.</li>
+        <li><strong>Backend</strong>: Railway service <code>neverexpire-backend</code>, Gunicorn + Flask. Database support now includes Postgres (Neon) alongside SQLite, pending a live connection string.</li>
+        <li><strong>CORS</strong>: explicit origin allowlist covering the Vercel production domain and local dev hosts.</li>
+      </ul>
+    </div>
+
+    <div class="footer-nav">
+      <a href="02_Project_Plan.html">← Back: Project Plan</a>
+      <a href="04_UI_Wireframes_and_Screen_Evolution.html">Next: UI Evolution →</a>
+    </div>
+  </div>
+</body>
+</html>

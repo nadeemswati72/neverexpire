@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeverExpire — Go-Live Readiness</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="doc-header">
+    <div class="wrap" style="padding:0;">
+      <div class="brand-row">
+        <div class="brand-logo">⏰</div>
+        <div>
+          <div class="brand-name">NeverExpire</div>
+          <div class="brand-tag">Family Document Expiry Tracker</div>
+        </div>
+      </div>
+      <div class="doc-title">Go-Live Readiness &amp; Risk Register</div>
+      <p class="doc-subtitle">Private beta plan for personally-invited real families — not a public launch.</p>
+      <div class="doc-meta"><span>Version 1.0</span></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="doc-nav">
+      <a href="index.html">🏠 Index</a>
+      <a href="01_Product_Requirements_Document.html">01 PRD</a>
+      <a href="02_Project_Plan.html">02 Project Plan</a>
+      <a href="03_Solution_Architecture.html">03 Architecture</a>
+      <a href="04_UI_Wireframes_and_Screen_Evolution.html">04 UI Evolution</a>
+      <a href="05_MVP_Backlog.html">05 Backlog</a>
+      <a href="06_Go_Live_Readiness_and_Risk_Register.html" class="current">06 Go-Live</a>
+    </div>
+
+    <div class="card">
+      <div class="callout">Web goes live for real use; mobile goes to real families via TestFlight. Free at launch. Budget: ~$100/month available for new infrastructure, though Phase A is expected to cost far less at this scale.</div>
+
+      <h2>1. What "Go Live" Means Here</h2>
+      <table>
+        <thead><tr><th>Dimension</th><th>Decision</th></tr></thead>
+        <tbody>
+          <tr><td>Audience</td><td>A handful of invited real families (not public)</td></tr>
+          <tr><td>Web</td><td>Goes live for real use</td></tr>
+          <tr><td>Mobile</td><td>Real testing via TestFlight, not App Store/Play Store yet</td></tr>
+          <tr><td>Monetization</td><td>Free — no billing required at launch</td></tr>
+          <tr><td>Registration</td><td>Self-registration stays open, must be fully secure (not manual/invite-only onboarding)</td></tr>
+          <tr><td>Social login (Google/Facebook/Apple)</td><td>Evaluated, <strong>deferred</strong> — see Section 4</td></tr>
+          <tr><td>Data-loss tolerance</td><td>Zero — real families' documents must not be lost</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>2. Phase A — Required Before Go-Live</h2>
+      <table>
+        <thead><tr><th>#</th><th>Item</th><th>Solution</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>A1</td><td>Database persistence</td><td>Migrate to Postgres on <strong>Neon</strong> (free tier). Code-side support built and verified.</td><td>🟡 Code ready — waiting on a Neon connection string</td></tr>
+          <tr><td>A2</td><td>Self-registration security</td><td>Rate limiting, real email-based password reset, <code>SECRET_KEY</code> audited</td><td>🟢 Done — verified end-to-end</td></tr>
+          <tr><td>A3</td><td>Reminder email routing</td><td>Each family's digest goes to their own real email address</td><td>🟢 Done — verified end-to-end</td></tr>
+          <tr><td>A4</td><td>Mobile web responsiveness</td><td>Collapsible/hamburger sidebar below ~768px</td><td>🟢 Done — verified end-to-end</td></tr>
+          <tr><td>A5</td><td>Minimal privacy note</td><td>Short private-beta disclosure on Login/Register</td><td>🟢 Done</td></tr>
+          <tr><td>A6</td><td>TestFlight setup</td><td>Apple Developer Program enrollment ($99/yr), build submission, external-tester invite</td><td>🔴 Waiting on Apple Developer account enrollment</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>3. Phase B — Deferred Until Beyond This Group</h2>
+      <p>Not required for a handful of personally-invited families; revisit before any wider rollout.</p>
+      <table>
+        <thead><tr><th>Item</th><th>Why it can wait here</th></tr></thead>
+        <tbody>
+          <tr><td>Move file storage off personal Google Drive to a cloud bucket (S3/R2/GCS)</td><td>Legal/liability exposure is much lower with people the Product Owner personally knows and invited, versus the general public</td></tr>
+          <tr><td>Switch reminder email off personal Gmail SMTP to a transactional API</td><td>Current volume is far under personal Gmail's sending limits</td></tr>
+          <tr><td>Sentry / structured logging</td><td>With a handful of users, issues can be caught by direct contact with the Product Owner</td></tr>
+          <tr><td>Fix APScheduler's single-worker limitation</td><td>Irrelevant until running more than one gunicorn worker, not needed at this scale</td></tr>
+          <tr><td>Full legal-reviewed Privacy Policy / Terms of Service</td><td>The Phase A note covers a private beta of known people; real legal review needed before any wider audience</td></tr>
+          <tr><td>Email verification on registration</td><td>Lower priority while the group is small and personally known to the Product Owner</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>4. Social Login (Google / Facebook / Apple) — Noted, Not Built for This Launch</h2>
+      <p>Evaluated at the Product Owner's request; deliberately deferred rather than scoped into Phase A, because it is realistically its own small project rather than a quick add:</p>
+      <ul>
+        <li><strong>Google Sign-In</strong> — straightforward, roughly a day of work including testing.</li>
+        <li><strong>Apple Sign In</strong> — important constraint for later: Apple's App Store review guidelines <strong>require</strong> offering "Sign in with Apple" if any other third-party social login (Google/Facebook) is offered on an iOS app. Since mobile is heading toward TestFlight and eventually the App Store, adding Google or Facebook login later brings Apple Sign In along with it, not as a separate optional item.</li>
+        <li><strong>Facebook Login</strong> — standard OAuth, but Meta's app review can add lead time depending on requested permissions.</li>
+        <li>Each provider needs its own developer console registration, a backend token-exchange endpoint, and separate frontend flows for web and mobile.</li>
+      </ul>
+      <div class="callout"><strong>Recommendation when revisited:</strong> treat all three as one combined workstream, and schedule it after email/password registration has been live and stable for the initial family group.</div>
+    </div>
+
+    <div class="card">
+      <h2>5. Operational Readiness (Not a Customer Manual)</h2>
+      <p>A traditional user manual has low value for a family-facing consumer app — real users don't read them. What matters instead:</p>
+      <ul>
+        <li>A short in-app explanation of the sharing/watermark trust model at first use — the one genuinely non-obvious, differentiating feature.</li>
+        <li>Mobile already has a real Help/FAQ screen; worth mirroring the same content to web.</li>
+        <li><strong>Higher priority than either of the above</strong>: an internal ops runbook for the Product Owner — how to restore the database from a Neon backup, how to manually trigger a reminder digest, how to reset a locked-out user directly if the self-service flow ever fails, how to rotate credentials. At this scale, the Product Owner is the only operator, and this is what actually reduces operational risk during and after launch.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>6. Summary Risk Table</h2>
+      <table>
+        <thead><tr><th>ID</th><th>Risk</th><th>Severity</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>A1</td><td>Real data lost on redeploy</td><td>Critical</td><td>🟡 Code ready — waiting on Neon connection string</td></tr>
+          <tr><td>A2</td><td>Account takeover / lockout with no recovery</td><td>High</td><td>🟢 Resolved</td></tr>
+          <tr><td>A3</td><td>Reminders not reaching real families</td><td>High</td><td>🟢 Resolved</td></tr>
+          <tr><td>A4</td><td>Broken mobile web experience</td><td>Medium–High</td><td>🟢 Resolved</td></tr>
+          <tr><td>A5</td><td>No disclosure of data handling</td><td>Medium</td><td>🟢 Resolved</td></tr>
+          <tr><td>A6</td><td>Mobile testing limited to one device</td><td>Medium</td><td>🔴 Waiting on Apple Developer enrollment</td></tr>
+          <tr><td>B1–B4</td><td>Storage/email vendor maturity, observability, scheduler scaling</td><td>Low at this scale</td><td>Deferred — Phase B</td></tr>
+          <tr><td>—</td><td>Social login absent</td><td>Low (evaluated, deliberately deferred)</td><td>Noted — Section 4</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">Updated after implementation: four of six Phase A items are built, verified end-to-end, and merged. The remaining two (A1, A6) are ready on the code/process side and are waiting on two account-creation steps only the Product Owner can perform (a Neon signup, and Apple Developer Program enrollment).</div>
+    </div>
+
+    <div class="footer-nav">
+      <a href="05_MVP_Backlog.html">← Back: MVP Backlog</a>
+      <a href="index.html">Back to Index →</a>
+    </div>
+  </div>
+</body>
+</html>

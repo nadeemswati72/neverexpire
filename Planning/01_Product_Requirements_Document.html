@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeverExpire — PRD</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="doc-header">
+    <div class="wrap" style="padding:0;">
+      <div class="brand-row">
+        <div class="brand-logo">⏰</div>
+        <div>
+          <div class="brand-name">NeverExpire</div>
+          <div class="brand-tag">Family Document Expiry Tracker</div>
+        </div>
+      </div>
+      <div class="doc-title">Product Requirements Document</div>
+      <p class="doc-subtitle">Target Market: UAE Families &amp; Households</p>
+      <div class="doc-meta">
+        <span>Version 1.0</span>
+        <span>Product Owner: Nadeem Ahmad</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="doc-nav">
+      <a href="index.html">🏠 Index</a>
+      <a href="01_Product_Requirements_Document.html" class="current">01 PRD</a>
+      <a href="02_Project_Plan.html">02 Project Plan</a>
+      <a href="03_Solution_Architecture.html">03 Architecture</a>
+      <a href="04_UI_Wireframes_and_Screen_Evolution.html">04 UI Evolution</a>
+      <a href="05_MVP_Backlog.html">05 Backlog</a>
+      <a href="06_Go_Live_Readiness_and_Risk_Register.html">06 Go-Live</a>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead><tr><th>Summary Item</th><th>Decision</th></tr></thead>
+        <tbody>
+          <tr><td>Product Type</td><td>Family document tracker (web + mobile)</td></tr>
+          <tr><td>Primary Customer</td><td>UAE households tracking passports, visas, Emirates ID, licenses, insurance for every family member</td></tr>
+          <tr><td>MVP Core</td><td>Expiry-status dashboard, per-document detail, AI-assisted data entry</td></tr>
+          <tr><td>Main Value</td><td>Replace spreadsheets/memory with one place that shows what's expired, expiring, and valid — for the whole family</td></tr>
+          <tr><td>Primary Screen</td><td>Family Dashboard (status summary + attention list)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>1. Product Vision</h2>
+      <p>A simple, always-current dashboard that tells a UAE household exactly which family member's document needs attention next — passport, visa, Emirates ID, driving license, insurance, certificates — before it becomes a fine, a blocked renewal, or a missed flight.</p>
+
+      <h2>2. Problem Statement</h2>
+      <p>UAE residency and travel documents carry real financial and legal consequences when they lapse (visa overstay fines, blocked Emirates ID transactions, refused boarding). Families currently track this in memory, notes apps, or scattered spreadsheets, with no single view across every family member — including children and domestic staff, who often hold their own visas and IDs.</p>
+
+      <h2>3. Target Customer</h2>
+      <p>Primary target: UAE-based families with 3–6 tracked members (self, spouse, children, domestic help), each holding multiple expiry-bound documents. Comfortable with a mobile app or web dashboard; not looking for enterprise document management.</p>
+
+      <h2>4. Core Value Proposition</h2>
+      <ul>
+        <li><strong>One dashboard, whole family</strong> — every member's documents, one status view (Expired / Expiring Soon / Valid / No Expiry).</li>
+        <li><strong>AI-assisted entry</strong> — photograph a document, let extraction pre-fill the fields instead of typing.</li>
+        <li><strong>Share safely</strong> — hand a document to someone else (agent, employer, school) with a personalized watermark and a full access log, without losing control of the original.</li>
+        <li><strong>Get reminded</strong> — automatic email digest before anything expires, on a configurable threshold schedule.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>5. MVP Scope — Core Tracking</h2>
+      <p>Every document belongs to a family member (<code>Person</code>) and has: type, title, issued/expiry date, document number, issuing authority, holder name, notes, and an optional photo/file. Status is computed automatically (expired / expiring soon / valid / no expiry) against a configurable threshold (90 days).</p>
+
+      <h2>6. AI-Assisted Extraction</h2>
+      <p>A photographed or uploaded document is sent through an AI extraction pipeline (Anthropic Claude) that pre-fills title, dates, document number, and issuing authority. The user reviews and confirms before saving — extraction never saves silently.</p>
+
+      <h2>7. Family Management</h2>
+      <p>Family members (<code>Person</code>) support relation types: Self, Spouse, Child, Parent, Sibling, Domestic Help, Other. Each member has an avatar (photo or initials), a document count, and a per-member status breakdown, filterable from the dashboard.</p>
+
+      <h2>8. Sharing &amp; Trust</h2>
+      <p>Owners can share a single document or all of a family member's documents with another registered user, at one of three permission levels (Read / Edit / Download), optionally time-limited, optionally sent as an invite requiring acceptance.</p>
+      <div class="callout"><strong>Watermarking is a deliberate trust control, not a formality.</strong> By default every shared copy is personalized — recipient email and date baked into the image — so a leaked copy is traceable back to who it was shared with. The owner may explicitly turn this off per share (e.g. sharing with a spouse who is effectively a co-owner), but the default always protects.</div>
+
+      <h2>9. Access Audit Trail</h2>
+      <p>Every view and download of a shared document is logged with who, when, and whether the copy they received was watermarked — visible to the owner on the document's own page, so trust is verifiable, not assumed.</p>
+
+      <h2>10. Notifications &amp; Reminders</h2>
+      <p>Reminder rules fire at configurable thresholds before expiry (90 / 30 / 7 / 1 day). A user can trigger their own family's digest on demand from the Reminders page, or let the daily scheduled job handle it automatically. An in-app notification bell covers sharing activity (new share, revoked access) in real time.</p>
+
+      <h2>11. Mobile Parity</h2>
+      <p>The mobile app (React Native / Expo) is a first-class client of the same backend and accounts — not a demo shell. Dashboard, documents, family, sharing, and notifications all work against real data, including AI extraction from the phone camera.</p>
+    </div>
+
+    <div class="card">
+      <h2>12. Explicitly Deferred to Phase 2 / Future</h2>
+      <p>Native push notifications (APNs/FCM); App Store / Play Store release; multi-tenant business/enterprise accounts; billing/subscriptions; MRZ passport barcode parsing; production-grade persistent database (current PoC uses ephemeral storage by design); advanced document types beyond the UAE-common set; screenshot/OS-level capture prevention (watermarking is the deliberate mitigation instead — capture prevention is not reliably enforceable on the web).</p>
+
+      <h2>13. Product Definition in One Sentence</h2>
+      <p><strong>A family-wide, AI-assisted document expiry tracker for UAE households that replaces scattered spreadsheets and memory with one trustworthy dashboard, safe sharing, and automatic reminders.</strong></p>
+    </div>
+
+    <div class="footer-nav">
+      <span></span>
+      <a href="02_Project_Plan.html">Next: Project Plan →</a>
+    </div>
+  </div>
+</body>
+</html>

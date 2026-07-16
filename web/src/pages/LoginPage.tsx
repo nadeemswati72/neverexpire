@@ -161,13 +161,9 @@ export default function LoginPage() {
 
         {/* Forgot password */}
         <p style={{ textAlign: 'center', marginTop: 14, marginBottom: 0 }}>
-          <button
-            type="button"
-            onClick={() => alert('Password reset is not available in the demo version.\nPlease contact your administrator.')}
-            style={{ background: 'none', border: 'none', color: '#8a9ab5', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}
-          >
+          <Link to="/forgot-password" style={{ color: '#8a9ab5', fontSize: 13, textDecoration: 'underline' }}>
             Forgot password?
-          </button>
+          </Link>
         </p>
 
         {/* Divider */}
@@ -212,6 +208,10 @@ export default function LoginPage() {
           ))}
           <p style={{ fontSize: 11, color: '#8a9ab5', marginTop: 10, marginBottom: 0 }}>Password: <strong style={{ color: '#4a5568' }}>{DEMO_PASSWORD}</strong></p>
         </div>
+
+        <p style={{ textAlign: 'center', fontSize: 11, color: '#8a9ab5', marginTop: 16, marginBottom: 0, lineHeight: 1.5 }}>
+          NeverExpire is currently a private beta. We store your family's document details only to track expiry and enable the sharing features you choose to use.
+        </p>
       </div>
     </div>
   )

@@ -2,8 +2,10 @@ anthropic
 pydantic
 python-dotenv
 SQLAlchemy
+psycopg2-binary
 Flask
 Flask-Cors
+Flask-Limiter
 Pillow
 PyJWT
 gunicorn

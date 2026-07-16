@@ -5,6 +5,7 @@ from .document_share import DocumentShare, PersonShareGrant
 from .document_type import DocumentFieldDefinition, DocumentType, DocumentTypeTranslation
 from .language import Language
 from .notification import Notification
+from .password_reset import PasswordResetToken
 from .person import FamilyRelationType, Person, PersonRelationship
 from .reminder import DocumentReminder, ReminderRule
 from .user import User
@@ -23,6 +24,7 @@ __all__ = [
     "FamilyRelationType",
     "Language",
     "Notification",
+    "PasswordResetToken",
     "Person",
     "PersonRelationship",
     "PersonShareGrant",

@@ -61,8 +61,13 @@ def _urgency_color(days_remaining: int) -> str:
     return "#276749"
 
 
-def build_digest(items: list[ReminderItem]) -> tuple[str, str, str]:
-    """Returns (subject, html_body, text_body) for a digest covering all given items."""
+def build_digest(items: list[ReminderItem], redirected: bool = False) -> tuple[str, str, str]:
+    """
+    Returns (subject, html_body, text_body) for a digest covering all given items.
+    `redirected` is True only when this digest couldn't reach its real owner (a
+    fake demo address) and was routed to the test inbox instead — real families
+    with real email addresses get a clean digest with no PoC caveat.
+    """
     subject = f"NeverExpire: {len(items)} document{'s' if len(items) != 1 else ''} need attention"
 
     items_sorted = sorted(items, key=lambda i: i.days_remaining)
@@ -95,6 +100,13 @@ def build_digest(items: list[ReminderItem]) -> tuple[str, str, str]:
 
     text_body = "\n".join(text_lines)
 
+    redirect_note = """
+      <div style="padding:14px 4px;font-size:11px;color:#8a9ab5;">
+        PoC note: this account uses a demo address that can't receive real email, so this
+        digest was routed to the test inbox instead, with the intended account shown per row.
+      </div>
+    """ if redirected else ""
+
     html_body = f"""
     <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:640px;margin:0 auto;">
       <div style="background:linear-gradient(135deg,#34c9ba,#22a99c);padding:20px 24px;border-radius:12px 12px 0 0;">
@@ -104,10 +116,7 @@ def build_digest(items: list[ReminderItem]) -> tuple[str, str, str]:
       <table style="width:100%;border-collapse:collapse;background:white;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 12px 12px;">
         {''.join(row_html)}
       </table>
-      <div style="padding:14px 4px;font-size:11px;color:#8a9ab5;">
-        PoC note: this digest would normally be split and sent to each document owner's own inbox —
-        during the PoC every reminder is routed here instead, with the intended account shown per row.
-      </div>
+      {redirect_note}
     </div>
     """
 

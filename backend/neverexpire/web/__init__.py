@@ -6,6 +6,7 @@ from flask_cors import CORS
 
 from .. import config
 from ..db.session import init_engine
+from .limiter import limiter
 from .routes import register_blueprints
 
 
@@ -33,6 +34,7 @@ def create_app() -> Flask:
     app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB upload limit
 
     CORS(app, origins=config.CORS_ORIGINS, supports_credentials=True)
+    limiter.init_app(app)
 
     init_engine()
     register_blueprints(app)

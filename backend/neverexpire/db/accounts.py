@@ -1,5 +1,6 @@
+import secrets
 import uuid
-from datetime import date
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from PIL import Image
@@ -7,10 +8,11 @@ from sqlalchemy.orm import Session
 from werkzeug.datastructures import FileStorage
 
 from .. import config
-from ..security import hash_password, verify_password
-from .models import FamilyRelationType, Person, PersonRelationship, User
+from ..security import hash_password, hash_token, verify_password
+from .models import FamilyRelationType, PasswordResetToken, Person, PersonRelationship, User
 
 ALLOWED_PHOTO_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+RESET_TOKEN_TTL_HOURS = 1
 
 
 def register_user(
@@ -119,3 +121,31 @@ def set_person_photo(session: Session, person: Person, file: FileStorage) -> Non
 
     if old_photo_path:
         (config.AVATAR_DIR / Path(old_photo_path).name).unlink(missing_ok=True)
+
+
+def create_password_reset_token(session: Session, user: User) -> str:
+    """Generate a reset token, store only its hash, and return the raw token (for the email link)."""
+    raw_token = secrets.token_urlsafe(32)
+    session.add(PasswordResetToken(
+        user_id=user.id,
+        token_hash=hash_token(raw_token),
+        expires_at=datetime.utcnow() + timedelta(hours=RESET_TOKEN_TTL_HOURS),
+    ))
+    session.commit()
+    return raw_token
+
+
+def consume_password_reset_token(session: Session, raw_token: str, new_password: str) -> bool:
+    """Validate a reset token (unused, unexpired) and set the new password. Returns success."""
+    record = session.query(PasswordResetToken).filter_by(token_hash=hash_token(raw_token)).first()
+    if record is None or record.used_at is not None or record.expires_at < datetime.utcnow():
+        return False
+
+    user = session.get(User, record.user_id)
+    if user is None:
+        return False
+
+    user.hashed_password = hash_password(new_password)
+    record.used_at = datetime.utcnow()
+    session.commit()
+    return True

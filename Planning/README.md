@@ -9,6 +9,7 @@ Planning artifacts prepared for management review, showing how this project was 
 | [03 — Solution Architecture](03_Solution_Architecture.md) | Tech stack, architecture diagram, data model, API surface, security/trust design |
 | [04 — UI Wireframes & Screen Evolution](04_UI_Wireframes_and_Screen_Evolution.md) | Screen inventory and how each core screen evolved from first concept sketch to shipped design |
 | [05 — MVP Backlog](05_MVP_Backlog.md) | Full feature-by-feature delivery record, by epic and platform |
+| [06 — Go-Live Readiness & Risk Register](06_Go_Live_Readiness_and_Risk_Register.md) | Private-beta go-live plan for invited families, phased readiness checklist, risk register, deferred items |
 | [screens/](screens/) | Concept-sketch mockups referenced in document 04 |
 
 For day-to-day engineering documentation (API contract detail, in-flight sprint tracking, open/deferred items), see `../docs/architecture.md` and `../docs/phase-plan.md` — these Planning documents are the management-facing summary of that same underlying work.

@@ -81,6 +81,10 @@ export default function RegisterPage() {
           Already have an account?{' '}
           <Link to="/login" style={{ color: '#34c9ba', fontWeight: 700, textDecoration: 'none' }}>Sign in</Link>
         </p>
+
+        <p style={{ textAlign: 'center', fontSize: 11, color: '#8a9ab5', marginTop: 16, marginBottom: 0, lineHeight: 1.5 }}>
+          NeverExpire is currently a private beta. We store your family's document details (names, dates, ID/document numbers, and any photos you upload) only to track expiry and enable the sharing features you choose to use — never sold or shared beyond that.
+        </p>
       </div>
     </div>
   )

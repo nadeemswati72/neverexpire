@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../auth'
 import type { Person, User } from '../api'
@@ -36,20 +37,54 @@ function formatRelationLabel(code: string) {
 
 export default function Sidebar({ user, family, selectedPersonId, onSelectPerson, activePage = 'dashboard' }: Props) {
   const navigate = useNavigate()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <aside style={{
-      width: 240,
-      minHeight: '100vh',
-      background: 'rgba(255,255,255,0.52)',
-      backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-      borderRight: '1px solid rgba(255,255,255,0.55)',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: '0 0 24px',
-      flexShrink: 0,
-      boxShadow: '2px 0 16px rgba(30,45,80,0.06)',
-    }}>
+    <>
+      {/* Mobile hamburger — hidden on desktop, hidden once the drawer is open */}
+      {!mobileOpen && (
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="md:hidden"
+          aria-label="Open menu"
+          style={{
+            position: 'fixed', top: 14, left: 14, zIndex: 50,
+            width: 40, height: 40, borderRadius: 10,
+            background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(30,45,80,0.1)', boxShadow: '0 2px 10px rgba(30,45,80,0.12)',
+            fontSize: 18, cursor: 'pointer', color: '#15203a',
+          }}
+        >
+          ☰
+        </button>
+      )}
+
+      {/* Backdrop — mobile only, closes the drawer on tap */}
+      {mobileOpen && (
+        <div
+          onClick={() => setMobileOpen(false)}
+          className="md:hidden"
+          style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', zIndex: 40 }}
+        />
+      )}
+
+      <aside
+        className={`fixed md:static top-0 left-0 bottom-0 z-50 md:z-auto ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}
+        style={{
+          width: 240,
+          minHeight: '100vh',
+          background: 'rgba(255,255,255,0.92)',
+          backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+          borderRight: '1px solid rgba(255,255,255,0.55)',
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '0 0 24px',
+          flexShrink: 0,
+          boxShadow: '2px 0 16px rgba(30,45,80,0.06)',
+          transition: 'transform 0.2s ease',
+          overflowY: 'auto',
+        }}
+      >
       {/* Brand */}
       <div style={{ padding: '22px 20px 18px', borderBottom: '1px solid rgba(30,45,80,0.07)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -64,6 +99,14 @@ export default function Sidebar({ user, family, selectedPersonId, onSelectPerson
             <div style={{ fontSize: 11, color: '#8a9ab5', marginTop: 1 }}>Document Tracker</div>
           </div>
           <NotificationBell />
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="md:hidden"
+            aria-label="Close menu"
+            style={{ background: 'none', border: 'none', fontSize: 18, color: '#4a5568', cursor: 'pointer', padding: 4 }}
+          >
+            ✕
+          </button>
         </div>
       </div>
 
@@ -186,6 +229,7 @@ export default function Sidebar({ user, family, selectedPersonId, onSelectPerson
           <span>🚪</span> Sign out
         </button>
       </div>
-    </aside>
+      </aside>
+    </>
   )
 }

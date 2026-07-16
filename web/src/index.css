@@ -39,3 +39,18 @@ body {
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(30,45,80,0.18); border-radius: 3px; }
+
+/* Below md, Sidebar's <aside> becomes an off-canvas drawer with a fixed
+   hamburger button at top-left. Reserve space so it doesn't sit on top of
+   each page's own top-left content (headings, back buttons, etc). Sidebar
+   always renders its <aside> as the last element before each page's content
+   div, so this sibling selector reaches every page without touching them. */
+@media (max-width: 767px) {
+  /* !important is deliberate: every page sets its own inline padding on this
+     div, which otherwise always wins over external CSS regardless of
+     selector specificity — this is the one reliable way to reserve space
+     for the hamburger without editing every page. */
+  aside + div {
+    padding-top: 64px !important;
+  }
+}

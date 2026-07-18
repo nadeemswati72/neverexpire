@@ -19,6 +19,7 @@ export const ROUTES = {
   FAMILY_MEMBER_DOCUMENTS: "FamilyMemberDocuments",
   PROFILE: "Profile",
   NOTIFICATIONS: "Notifications",
+  REMINDERS: "Reminders",
   SETTINGS: "Settings",
   HELP_SUPPORT: "HelpSupport",
   ABOUT: "About",

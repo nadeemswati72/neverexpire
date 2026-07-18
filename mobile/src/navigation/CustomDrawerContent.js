@@ -55,6 +55,12 @@ const MENU_ITEMS = [
     action: (navigation) => navigation.getParent()?.navigate(ROUTES.NOTIFICATIONS),
   },
   {
+    key: ROUTES.REMINDERS,
+    emoji: "⏰",
+    label: "Reminders",
+    action: (navigation) => navigation.getParent()?.navigate(ROUTES.REMINDERS),
+  },
+  {
     key: ROUTES.SETTINGS,
     emoji: "⚙️",
     label: "Settings",

@@ -22,6 +22,7 @@ import SharingScreen from "../screens/sharing/SharingScreen";
 import FamilyMemberDocumentsScreen from "../screens/family/FamilyMemberDocumentsScreen";
 import ProfileScreen from "../screens/profile/ProfileScreen";
 import NotificationsScreen from "../screens/misc/NotificationsScreen";
+import RemindersScreen from "../screens/misc/RemindersScreen";
 import SettingsScreen from "../screens/misc/SettingsScreen";
 import HelpSupportScreen from "../screens/misc/HelpSupportScreen";
 import AboutScreen from "../screens/misc/AboutScreen";
@@ -72,6 +73,7 @@ export default function RootNavigator() {
             <Stack.Screen name={ROUTES.FAMILY_MEMBER_DOCUMENTS} component={FamilyMemberDocumentsScreen} />
             <Stack.Screen name={ROUTES.PROFILE} component={ProfileScreen} />
             <Stack.Screen name={ROUTES.NOTIFICATIONS} component={NotificationsScreen} />
+            <Stack.Screen name={ROUTES.REMINDERS} component={RemindersScreen} />
             <Stack.Screen name={ROUTES.SETTINGS} component={SettingsScreen} />
             <Stack.Screen name={ROUTES.HELP_SUPPORT} component={HelpSupportScreen} />
             <Stack.Screen name={ROUTES.ABOUT} component={AboutScreen} />

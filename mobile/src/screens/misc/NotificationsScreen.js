@@ -1,18 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
 import Header from "../../components/common/Header";
 import Card from "../../components/common/Card";
-import IconBox from "../../components/common/IconBox";
-import EmptyState from "../../components/common/EmptyState";
 import EmojiIcon from "../../components/common/EmojiIcon";
-import { useAppData } from "../../context/DataContext";
 import * as NotificationService from "../../services/NotificationService";
-import { getDocumentTypeMeta } from "../../constants/documentTypes";
-import { EXPIRY_STATUS, getExpiryStatus, formatDaysLabel, formatDate, daysRemaining } from "../../utils/dateUtils";
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, STATUS_COLORS, withOpacity } from "../../constants/theme";
+import { formatDate } from "../../utils/dateUtils";
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, withOpacity } from "../../constants/theme";
 import { ROUTES } from "../../navigation/routes";
 
 function formatNotificationTime(isoString) {
@@ -23,13 +19,14 @@ function formatNotificationTime(isoString) {
 }
 
 /**
- * Notifications feed. Two sections: sharing activity from the backend
- * (someone shared/revoked a document — with unread state + "mark all read"),
- * and expiry reminders derived from the document list.
+ * Sharing-activity feed only (someone shared/revoked a document — with
+ * unread state + "mark all read"). Expiry reminders live on their own real,
+ * backend-tracked screen (RemindersScreen) — this used to fake a reminders
+ * section by deriving it client-side from the document list, which had no
+ * 90/30/7-day rule distinction and no server-side dismiss/send-now.
  */
 export default function NotificationsScreen() {
   const navigation = useNavigation();
-  const { documents, getFamilyMemberById } = useAppData();
 
   const [sharingNotifications, setSharingNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -40,7 +37,7 @@ export default function NotificationsScreen() {
       setSharingNotifications(data.notifications || []);
       setUnreadCount(data.unread_count || 0);
     } catch {
-      // Offline or transient failure — expiry reminders below still render.
+      // Offline or transient failure.
     }
   }, []);
 
@@ -62,40 +59,27 @@ export default function NotificationsScreen() {
     }
   };
 
-  const reminders = useMemo(() => {
-    return documents
-      .filter((doc) => {
-        const status = getExpiryStatus(doc.expiryDate);
-        return status === EXPIRY_STATUS.EXPIRING_SOON || status === EXPIRY_STATUS.EXPIRED;
-      })
-      .sort((a, b) => daysRemaining(a.expiryDate) - daysRemaining(b.expiryDate))
-      .map((doc) => {
-        const typeMeta = getDocumentTypeMeta(doc.documentType);
-        const status = getExpiryStatus(doc.expiryDate);
-        const member = getFamilyMemberById(doc.familyMemberId);
-        return {
-          id: doc.id,
-          documentId: doc.id,
-          icon: typeMeta.icon,
-          color: STATUS_COLORS[status],
-          title: `${typeMeta.label}${status === EXPIRY_STATUS.EXPIRED ? " expired" : " expiring soon"}`,
-          subtitle: `${member?.name || "Document"} · ${formatDaysLabel(doc.expiryDate)}`,
-        };
-      });
-  }, [documents, getFamilyMemberById]);
-
-  const isEmpty = sharingNotifications.length === 0 && reminders.length === 0;
-
   return (
     <ScreenContainer>
       <Header variant="back" title="Notifications" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {isEmpty ? (
-          <EmptyState
-            icon="notifications-outline"
-            title="You're all caught up"
-            message="Sharing activity and expiry reminders will appear here."
-          />
+        <TouchableOpacity
+          style={styles.remindersLink}
+          onPress={() => navigation.navigate(ROUTES.REMINDERS)}
+          activeOpacity={0.85}
+        >
+          <View style={styles.remindersLinkIcon}>
+            <EmojiIcon name="alarm-outline" size={18} color={COLORS.accentDark} />
+          </View>
+          <View style={styles.textWrap}>
+            <Text style={styles.title}>Expiry Reminders</Text>
+            <Text style={styles.subtitle}>90/30/7-day rules, dismiss, and send-now</Text>
+          </View>
+          <EmojiIcon name="chevron-forward" size={18} color={COLORS.textMuted} />
+        </TouchableOpacity>
+
+        {sharingNotifications.length === 0 ? (
+          <Text style={styles.emptyText}>No sharing activity yet.</Text>
         ) : null}
 
         {sharingNotifications.length > 0 ? (
@@ -137,32 +121,6 @@ export default function NotificationsScreen() {
             </Card>
           </>
         ) : null}
-
-        {reminders.length > 0 ? (
-          <>
-            <View style={styles.sectionRow}>
-              <Text style={styles.sectionTitle}>Expiry Reminders</Text>
-            </View>
-            <Card padded={false} style={styles.listCard}>
-              {reminders.map((reminder, index) => (
-                <View key={reminder.id}>
-                  <TouchableOpacity
-                    style={styles.row}
-                    activeOpacity={0.85}
-                    onPress={() => navigation.navigate(ROUTES.DOCUMENT_DETAILS, { documentId: reminder.documentId })}
-                  >
-                    <IconBox icon={reminder.icon} color={reminder.color} />
-                    <View style={styles.textWrap}>
-                      <Text style={styles.title}>{reminder.title}</Text>
-                      <Text style={styles.subtitle}>{reminder.subtitle}</Text>
-                    </View>
-                  </TouchableOpacity>
-                  {index < reminders.length - 1 ? <View style={styles.separator} /> : null}
-                </View>
-              ))}
-            </Card>
-          </>
-        ) : null}
       </ScrollView>
     </ScreenContainer>
   );
@@ -179,6 +137,28 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: SPACING.sm,
     marginTop: SPACING.xs,
+  },
+  remindersLink: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.md,
+    padding: SPACING.md,
+    marginBottom: SPACING.lg,
+  },
+  remindersLinkIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: RADIUS.sm,
+    backgroundColor: withOpacity(COLORS.accent, 0.12),
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyText: {
+    textAlign: "center",
+    color: COLORS.textSecondary,
+    fontSize: FONT_SIZES.sm,
+    padding: SPACING.xl,
   },
   sectionTitle: {
     fontSize: FONT_SIZES.md,

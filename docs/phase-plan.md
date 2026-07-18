@@ -222,7 +222,7 @@
 |------|--------|-------|
 | **E2E Testing Plan** | 📋 Created | See `docs/testing-plan.md`. Covers web, iOS, Android, API. Review before Sprint 6 merge. |
 | **Document photo upload (manual entry)** | ✅ Done (PoC-FeedBack) | Manual entry now has an optional picture attach; new `POST /documents/:id/files` endpoint, no AI extraction. |
-| **Web mobile responsiveness** | 🔴 Confirmed broken | Sidebar is a fixed 240px on all viewports — on a 375px phone it eats 64% of the screen width, leaving ~135px for content. Needs a collapsible/hamburger sidebar below ~768px. Not yet fixed. |
+| **Web mobile responsiveness** | ✅ Fixed 2026-07-16 | Sidebar is now a collapsible off-canvas drawer with a hamburger toggle below ~768px; desktop layout unchanged. Verified at both breakpoints via the browser, in production. |
 | **App icon + splash screen** | 💬 Discussed | Currently using clock emoji. Proper PNG icons needed before App Store submission. |
 | **Privacy policy URL** | 💬 Discussed | Required by App Store + Play Store before submission. |
 | **Database persistence for production** | 💬 Discussed | Railway SQLite is ephemeral (data lost on redeploy). Need persistent volume or PostgreSQL before production launch. Fine for PoC. |
@@ -231,8 +231,11 @@
 | **Offline behaviour** | 💬 Discussed | No offline handling. Friendly error message at minimum. |
 | **Navigation architecture review** | 💬 Discussed | Before adding Budgeting/Games features, review mobile navigation (bottom tabs vs stack). |
 | **MRZ parsing for passports** | 💬 Discussed | Passports have MRZ (2 lines of OCR-B at bottom). Python `mrz` library could parse reliably. Emirates ID does NOT have MRZ — has PDF417 barcode on back instead. |
-| **Web "Reminders" page (un-stub the "Soon" nav item)** | ⏸ Parked for demo | Backend `POST /api/v1/admin/run-reminder-check` already exists ("for demoing the email flow on demand" per its own docstring); APScheduler job, email templates, Gmail SMTP all done. Just needs a page + button. Parked 2026-07-15 — Nadeem chose the compliance-score widget and PDF export instead for the management demo. |
+| **Web "Reminders" page (un-stub the "Soon" nav item)** | ✅ Done 2026-07-16 | Built after all: per-user reminder list, on-demand "Send Now" (now scoped to the caller's own family, not the whole system), dismiss action. Nav item un-stubbed. |
 | **Live Google Drive storage proof for demo** | ⏸ Parked for demo | GDriveStorageBackend + encryption already implemented and OAuth-consented earlier this session. Nothing to build — just confirm the OAuth token is still valid and add it to the demo script. Parked 2026-07-15 alongside the Reminders page. |
+| **Mobile — Phase A parity gaps (2026-07-17 audit)** | 🔴 Not started | Web got several features this round that mobile does not have yet: (1) **Password reset** — mobile has no forgot/reset-password screen at all (web has both); needs either an in-app "enter the code from your email" screen or a deep-link scheme (`neverexpire://reset-password?token=...`) since mobile can't rely on URL query params the way web does. (2) **Dedicated Reminders screen** — mobile only surfaces reminders as a read-only section inside `NotificationsScreen.js`; no per-user list with a manual "send now" trigger like web's new Reminders page. (3) **Share watermark toggle** — mobile's `ShareModal.js` has permission/expiry/include-future controls but no on/off watermark choice; sharing from mobile always uses the default (watermarked) behavior. (4) **Change Password is a non-functional stub** — `ProfileScreen.js`'s handler only does local validation and never calls the backend (`"Password updated for this demo session"` — no API call); needs wiring to a real endpoint once mobile has a reset flow to reuse. All four are candidates for the next mobile work block. |
+| **TestFlight setup (A6)** | 🔴 Blocked on Nadeem | Needs Apple Developer Program enrollment ($99/yr, Nadeem's Apple ID + payment) before any build/submission work can start. See `Planning/06_Go_Live_Readiness_and_Risk_Register.md`. |
+| **Mobile Android device testing** | 🔴 Never done | Still only tested on Nadeem's iPhone via Expo Go. No Android device testing has occurred. |
 
 ### Future Features (noted, not planned)
 

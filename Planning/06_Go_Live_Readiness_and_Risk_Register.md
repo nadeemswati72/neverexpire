@@ -57,7 +57,19 @@ A traditional user manual has low value for a family-facing consumer app — rea
 - Mobile already has a real Help/FAQ screen; worth mirroring the same content to web.
 - **Higher priority than either of the above**: an internal ops runbook for the Product Owner — how to restore the database from a Neon backup, how to manually trigger a reminder digest, how to reset a locked-out user directly if the self-service flow ever fails, how to rotate credentials (Gmail app password, JWT secret, Google OAuth token). At this scale, the Product Owner is the only operator, and this is what actually reduces operational risk during and after launch.
 
-## 6. Summary Risk Table
+## 6. Mobile App — Outstanding Work (noted 2026-07-17)
+
+Web picked up several features this round that the mobile app does not have yet. None of these block the web go-live, but they need attention before mobile goes to invited families over TestFlight (A6):
+
+| Item | Gap |
+|---|---|
+| Password reset | Mobile has no forgot/reset-password screen at all. Needs either an in-app "enter the code from your email" step, or a deep-link scheme (e.g. `neverexpire://reset-password?token=...`) so tapping the email link opens the app directly — mobile can't reuse web's URL-query-param approach as-is. |
+| Dedicated Reminders screen | Mobile only shows reminders as a read-only section inside the Notifications screen. No per-user list with a manual "send now" trigger, unlike web's new Reminders page. |
+| Share watermark toggle | Mobile's share form has permission level, expiry, and "include future documents" — but no on/off watermark choice. Sharing from mobile always uses the default (watermarked) behavior. |
+| Change Password (Settings) | Currently a non-functional stub — it validates the form locally and shows "Password updated for this demo session," but never calls the backend. Should be wired to a real endpoint once mobile has a reset flow to share the logic with. |
+| Android testing | Still never tested on a real Android device — only Nadeem's iPhone via Expo Go. |
+
+## 7. Summary Risk Table
 
 | ID | Risk | Severity | Status |
 |---|---|---|---|

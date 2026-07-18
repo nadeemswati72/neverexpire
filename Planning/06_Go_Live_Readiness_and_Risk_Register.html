@@ -105,7 +105,22 @@
     </div>
 
     <div class="card">
-      <h2>6. Summary Risk Table</h2>
+      <h2>6. Mobile App — Outstanding Work <span style="font-weight:400; text-transform:none; letter-spacing:0; color:var(--text-faint);">(noted 2026-07-17)</span></h2>
+      <p>Web picked up several features this round that the mobile app does not have yet. None of these block the web go-live, but they need attention before mobile goes to invited families over TestFlight (A6):</p>
+      <table>
+        <thead><tr><th>Item</th><th>Gap</th></tr></thead>
+        <tbody>
+          <tr><td>Password reset</td><td>Mobile has no forgot/reset-password screen at all. Needs either an in-app "enter the code from your email" step, or a deep-link scheme (e.g. <code>neverexpire://reset-password?token=...</code>) so tapping the email link opens the app directly — mobile can't reuse web's URL-query-param approach as-is.</td></tr>
+          <tr><td>Dedicated Reminders screen</td><td>Mobile only shows reminders as a read-only section inside the Notifications screen. No per-user list with a manual "send now" trigger, unlike web's new Reminders page.</td></tr>
+          <tr><td>Share watermark toggle</td><td>Mobile's share form has permission level, expiry, and "include future documents" — but no on/off watermark choice. Sharing from mobile always uses the default (watermarked) behavior.</td></tr>
+          <tr><td>Change Password (Settings)</td><td>Currently a non-functional stub — validates the form locally and shows "Password updated for this demo session," but never calls the backend. Should be wired to a real endpoint once mobile has a reset flow to share the logic with.</td></tr>
+          <tr><td>Android testing</td><td>Still never tested on a real Android device — only Nadeem's iPhone via Expo Go.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>7. Summary Risk Table</h2>
       <table>
         <thead><tr><th>ID</th><th>Risk</th><th>Severity</th><th>Status</th></tr></thead>
         <tbody>

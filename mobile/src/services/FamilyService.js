@@ -36,6 +36,7 @@ function toAppMember(person) {
     relationshipCode: person.relation_type,
     isSelf: person.is_primary,
     avatarColor: RELATION_COLORS[person.relation_type] || "#4F8EF7",
+    dateOfBirth: person.date_of_birth || null,
     photoPath: person.photo_path,
     photoUri: person.photo_path ? photoUrlFor(person.id) : null,
   };
@@ -52,5 +53,20 @@ export async function addFamilyMember({ name, relationshipCode, dateOfBirth }) {
     relation_type: relationshipCode,
     date_of_birth: dateOfBirth || null,
   });
+  return getAllFamilyMembers();
+}
+
+export async function updateFamilyMember(personId, { name, relationshipCode, dateOfBirth }) {
+  await ApiService.put(`/family/${personId}`, {
+    full_name: name,
+    relation_type: relationshipCode,
+    date_of_birth: dateOfBirth || null,
+  });
+  return getAllFamilyMembers();
+}
+
+/** Soft-delete — the backend preserves the member's existing documents. */
+export async function deleteFamilyMember(personId) {
+  await ApiService.del(`/family/${personId}`);
   return getAllFamilyMembers();
 }

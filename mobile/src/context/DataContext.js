@@ -63,6 +63,18 @@ export function DataProvider({ children }) {
     return updated;
   }, []);
 
+  const updateFamilyMember = useCallback(async (personId, member) => {
+    const updated = await FamilyService.updateFamilyMember(personId, member);
+    setFamilyMembers(updated);
+    return updated;
+  }, []);
+
+  const deleteFamilyMember = useCallback(async (personId) => {
+    const updated = await FamilyService.deleteFamilyMember(personId);
+    setFamilyMembers(updated);
+    return updated;
+  }, []);
+
   const getDocumentsForMember = useCallback(
     (familyMemberId) => documents.filter((doc) => doc.familyMemberId === familyMemberId),
     [documents]
@@ -87,6 +99,8 @@ export function DataProvider({ children }) {
     saveDocument,
     deleteDocument,
     addFamilyMember,
+    updateFamilyMember,
+    deleteFamilyMember,
     getDocumentsForMember,
     getDocumentById,
     getFamilyMemberById,

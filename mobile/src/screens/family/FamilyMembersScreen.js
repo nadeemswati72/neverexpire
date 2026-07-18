@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, Modal, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, ScrollView, Modal, TouchableOpacity, Alert, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
@@ -13,49 +13,94 @@ import { useAppData } from "../../context/DataContext";
 import { useAuth } from "../../context/AuthContext";
 import { authHeader } from "../../services/ApiService";
 import { RELATION_TYPES } from "../../services/FamilyService";
+import { EXPIRY_STATUS, getExpiryStatus } from "../../utils/dateUtils";
+import { isValidISODate } from "../../utils/validators";
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOW, withOpacity } from "../../constants/theme";
 import { ROUTES } from "../../navigation/routes";
 
-/** Family Members list (Mobile.jpg screen 5) with an inline "add member" modal. */
+/** Family Members list (Mobile.jpg screen 5) with an inline "add/edit member" modal. */
 export default function FamilyMembersScreen() {
   const navigation = useNavigation();
-  const { familyMembers, documents, addFamilyMember } = useAppData();
+  const { familyMembers, documents, addFamilyMember, updateFamilyMember, deleteFamilyMember } = useAppData();
   const { token } = useAuth();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingMember, setEditingMember] = useState(null);
   const [name, setName] = useState("");
   const [relationshipCode, setRelationshipCode] = useState(RELATION_TYPES[0].code);
+  const [dateOfBirth, setDateOfBirth] = useState("");
   const [error, setError] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [sharingMember, setSharingMember] = useState(null);
 
-  const openModal = () => {
+  const openAddModal = () => {
+    setEditingMember(null);
     setName("");
     setRelationshipCode(RELATION_TYPES[0].code);
+    setDateOfBirth("");
+    setError(null);
+    setIsModalVisible(true);
+  };
+
+  const openEditModal = (member) => {
+    setEditingMember(member);
+    setName(member.name);
+    setRelationshipCode(member.relationshipCode || RELATION_TYPES[0].code);
+    setDateOfBirth(member.dateOfBirth || "");
     setError(null);
     setIsModalVisible(true);
   };
 
   const closeModal = () => setIsModalVisible(false);
 
-  const handleAddMember = async () => {
+  const handleSaveMember = async () => {
     if (!name.trim()) {
       setError("Name is required.");
+      return;
+    }
+    if (dateOfBirth.trim() && !isValidISODate(dateOfBirth.trim())) {
+      setError("Date of birth must be in YYYY-MM-DD format.");
       return;
     }
 
     setIsSaving(true);
     try {
-      await addFamilyMember({ name: name.trim(), relationshipCode });
+      const payload = { name: name.trim(), relationshipCode, dateOfBirth: dateOfBirth.trim() || null };
+      if (editingMember) {
+        await updateFamilyMember(editingMember.id, payload);
+      } else {
+        await addFamilyMember(payload);
+      }
       closeModal();
     } finally {
       setIsSaving(false);
     }
   };
 
+  const handleDeleteMember = (member) => {
+    Alert.alert(
+      "Remove Family Member",
+      `Remove ${member.name}? Their existing documents are kept, not deleted.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Remove", style: "destructive", onPress: () => deleteFamilyMember(member.id) },
+      ]
+    );
+  };
+
+  const docStatsFor = (memberId) => {
+    const memberDocs = documents.filter((doc) => doc.familyMemberId === memberId);
+    return {
+      total: memberDocs.length,
+      expired: memberDocs.filter((d) => getExpiryStatus(d.expiryDate) === EXPIRY_STATUS.EXPIRED).length,
+      expiringSoon: memberDocs.filter((d) => getExpiryStatus(d.expiryDate) === EXPIRY_STATUS.EXPIRING_SOON).length,
+      valid: memberDocs.filter((d) => getExpiryStatus(d.expiryDate) === EXPIRY_STATUS.VALID).length,
+    };
+  };
+
   return (
     <ScreenContainer>
-      <Header title="Family" rightIcon="person-add-outline" onRightPress={openModal} />
+      <Header title="Family" rightIcon="person-add-outline" onRightPress={openAddModal} />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {familyMembers.length === 0 ? (
@@ -66,14 +111,16 @@ export default function FamilyMembersScreen() {
           />
         ) : (
           familyMembers.map((member) => {
-            const documentCount = documents.filter((doc) => doc.familyMemberId === member.id).length;
+            const docStats = docStatsFor(member.id);
             return (
               <FamilyMemberCard
                 key={member.id}
                 member={member}
-                documentCount={documentCount}
+                docStats={docStats}
                 onPress={() => navigation.navigate(ROUTES.FAMILY_MEMBER_DOCUMENTS, { familyMemberId: member.id })}
-                onSharePress={documentCount > 0 ? () => setSharingMember(member) : undefined}
+                onSharePress={docStats.total > 0 ? () => setSharingMember(member) : undefined}
+                onEditPress={() => openEditModal(member)}
+                onDeletePress={member.isSelf ? undefined : () => handleDeleteMember(member)}
                 photoHeaders={authHeader(token)}
               />
             );
@@ -91,7 +138,7 @@ export default function FamilyMembersScreen() {
       <Modal visible={isModalVisible} transparent animationType="fade" onRequestClose={closeModal}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Add Family Member</Text>
+            <Text style={styles.modalTitle}>{editingMember ? "Edit Family Member" : "Add Family Member"}</Text>
 
             <AppTextInput
               label="Name"
@@ -99,6 +146,13 @@ export default function FamilyMembersScreen() {
               value={name}
               onChangeText={setName}
               autoCapitalize="words"
+            />
+
+            <AppTextInput
+              label="Date of birth (optional)"
+              placeholder="YYYY-MM-DD"
+              value={dateOfBirth}
+              onChangeText={setDateOfBirth}
             />
 
             <Text style={styles.pickerLabel}>Relationship</Text>
@@ -125,7 +179,12 @@ export default function FamilyMembersScreen() {
 
             <View style={styles.modalActions}>
               <AppButton label="Cancel" variant="outline" onPress={closeModal} style={styles.modalButton} />
-              <AppButton label="Add" onPress={handleAddMember} loading={isSaving} style={styles.modalButton} />
+              <AppButton
+                label={editingMember ? "Save" : "Add"}
+                onPress={handleSaveMember}
+                loading={isSaving}
+                style={styles.modalButton}
+              />
             </View>
           </View>
         </View>

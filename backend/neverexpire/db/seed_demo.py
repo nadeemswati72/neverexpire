@@ -4,11 +4,47 @@ Usage: python -m neverexpire.db.seed_demo
 """
 from datetime import date, timedelta
 
+from sqlalchemy import text
+
 from .accounts import add_family_member, promote_to_admin, register_user
 from .models import Document, DocumentType, User
 from .session import get_session, init_engine
 
 DEMO_PASSWORD = "Demo@1234"
+
+_DEMO_EMAILS = ["alice@neverexpire.test", "bob@neverexpire.test", "carol@neverexpire.test", "demoadmin@neverexpire.test"]
+
+
+def _delete_users_and_dependents(session, emails: list[str]) -> None:
+    """
+    Delete these users and everything that references them or their persons/
+    documents, in FK-safe order (leaves first). Plain `session.delete(user)`
+    relies on SQLAlchemy's default cascade, which tries to NULL out
+    `persons.user_id` before deleting — but that column is NOT NULL, so it
+    fails outright. This never surfaced on SQLite because Railway's ephemeral
+    storage meant "old demo data" never actually existed on boot; it's a real
+    bug against a persistent database (Postgres) where seed_demo runs more
+    than once against the same data.
+    """
+    params = {"emails": tuple(emails)}
+    doc_scope = "SELECT d.id FROM documents d JOIN persons p ON d.person_id = p.id JOIN users u ON p.user_id = u.id WHERE u.email IN :emails"
+    person_scope = "SELECT p.id FROM persons p JOIN users u ON p.user_id = u.id WHERE u.email IN :emails"
+    user_scope = "SELECT id FROM users WHERE email IN :emails"
+
+    session.execute(text(f"DELETE FROM document_access_logs WHERE document_id IN ({doc_scope}) OR user_id IN ({user_scope})"), params)
+    session.execute(text(f"DELETE FROM document_extraction_runs WHERE document_id IN ({doc_scope})"), params)
+    session.execute(text(f"DELETE FROM document_files WHERE document_id IN ({doc_scope})"), params)
+    session.execute(text(f"DELETE FROM document_reminders WHERE document_id IN ({doc_scope})"), params)
+    session.execute(text(f"DELETE FROM document_shares WHERE document_id IN ({doc_scope}) OR shared_by_user_id IN ({user_scope}) OR shared_with_user_id IN ({user_scope})"), params)
+    session.execute(text(f"DELETE FROM notifications WHERE user_id IN ({user_scope}) OR document_id IN ({doc_scope})"), params)
+    session.execute(text(f"DELETE FROM password_reset_tokens WHERE user_id IN ({user_scope})"), params)
+    session.execute(text(f"DELETE FROM person_relationships WHERE person_id IN ({person_scope}) OR related_person_id IN ({person_scope})"), params)
+    session.execute(text(f"DELETE FROM person_share_grants WHERE person_id IN ({person_scope}) OR granted_by_user_id IN ({user_scope}) OR granted_to_user_id IN ({user_scope})"), params)
+    session.execute(text(f"DELETE FROM audit_logs WHERE user_id IN ({user_scope})"), params)
+    session.execute(text(f"DELETE FROM documents WHERE id IN ({doc_scope})"), params)
+    session.execute(text(f"DELETE FROM persons WHERE id IN ({person_scope})"), params)
+    session.execute(text(f"DELETE FROM users WHERE email IN :emails"), params)
+    session.commit()
 
 
 def _doc(session, types, person, code, title, issued_offset, expiry_offset, **kw):
@@ -33,12 +69,7 @@ def run() -> None:
         # Delete old demo data if it exists
         old_alice = session.query(User).filter_by(email="alice@neverexpire.test").first()
         if old_alice:
-            # Delete users and cascade to related data
-            for email in ["alice@neverexpire.test", "bob@neverexpire.test", "carol@neverexpire.test", "demoadmin@neverexpire.test"]:
-                user = session.query(User).filter_by(email=email).first()
-                if user:
-                    session.delete(user)
-            session.commit()
+            _delete_users_and_dependents(session, _DEMO_EMAILS)
             print("Cleared old demo data.")
 
         types = {dt.code: dt for dt in session.query(DocumentType).all()}

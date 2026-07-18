@@ -12,6 +12,7 @@ import FamilyPage from './pages/FamilyPage'
 import SharingPage from './pages/SharingPage'
 import MockInboxPage from './pages/MockInboxPage'
 import RemindersPage from './pages/RemindersPage'
+import SettingsPage from './pages/SettingsPage'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   return isLoggedIn() ? <>{children}</> : <Navigate to="/login" replace />
@@ -32,6 +33,7 @@ export default function App() {
       <Route path="/sharing" element={<RequireAuth><SharingPage /></RequireAuth>} />
       <Route path="/mock-inbox" element={<RequireAuth><MockInboxPage /></RequireAuth>} />
       <Route path="/reminders" element={<RequireAuth><RemindersPage /></RequireAuth>} />
+      <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

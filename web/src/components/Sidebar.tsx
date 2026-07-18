@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { label: 'Sharing', icon: '🔗', path: '/sharing', id: 'sharing' },
   { label: 'Mock Inbox', icon: '📬', path: '/mock-inbox', id: 'mock-inbox' },
   { label: 'Reminders', icon: '🔔', path: '/reminders', id: 'reminders' },
+  { label: 'Settings', icon: '⚙️', path: '/settings', id: 'settings' },
 ]
 
 const RELATION_ICONS: Record<string, string> = {

@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 
-from sqlalchemy import func
+from sqlalchemy import and_, case, func
 from sqlalchemy.orm import Session, joinedload
 
 from .. import config
@@ -129,29 +129,49 @@ def get_dashboard_summary(session: Session, user_id: int) -> dict:
             "pending_reminders": [],
         }
 
-    base_query = session.query(Document).filter(Document.id.in_(accessible_ids))
+    # A single aggregate query (conditional SUMs) replaces what used to be 5
+    # separate .count() round-trips — each was free on local SQLite but now
+    # costs real network latency to Neon, so they're collapsed into one.
+    total_documents, expiring_soon, expired, valid, no_expiry = session.query(
+        func.count(Document.id),
+        func.sum(case(
+            (and_(
+                Document.status == "active",
+                Document.expiry_date.isnot(None),
+                Document.expiry_date >= today,
+                Document.expiry_date <= horizon,
+            ), 1),
+            else_=0,
+        )),
+        func.sum(case(
+            (and_(
+                Document.status == "active",
+                Document.expiry_date.isnot(None),
+                Document.expiry_date < today,
+            ), 1),
+            else_=0,
+        )),
+        func.sum(case(
+            (and_(
+                Document.status == "active",
+                Document.expiry_date.isnot(None),
+                Document.expiry_date > horizon,
+            ), 1),
+            else_=0,
+        )),
+        func.sum(case(
+            (and_(
+                Document.status == "active",
+                Document.expiry_date.is_(None),
+            ), 1),
+            else_=0,
+        )),
+    ).filter(Document.id.in_(accessible_ids)).one()
 
-    total_documents = base_query.count()
-    expiring_soon = base_query.filter(
-        Document.status == "active",
-        Document.expiry_date.isnot(None),
-        Document.expiry_date >= today,
-        Document.expiry_date <= horizon,
-    ).count()
-    expired = base_query.filter(
-        Document.status == "active",
-        Document.expiry_date.isnot(None),
-        Document.expiry_date < today,
-    ).count()
-    valid = base_query.filter(
-        Document.status == "active",
-        Document.expiry_date.isnot(None),
-        Document.expiry_date > horizon,
-    ).count()
-    no_expiry = base_query.filter(
-        Document.status == "active",
-        Document.expiry_date.is_(None),
-    ).count()
+    expiring_soon = expiring_soon or 0
+    expired = expired or 0
+    valid = valid or 0
+    no_expiry = no_expiry or 0
 
     pending_reminders = (
         session.query(DocumentReminder)

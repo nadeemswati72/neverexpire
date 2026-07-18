@@ -3,7 +3,7 @@ Sharing repository functions for documents and persons.
 """
 
 from datetime import datetime
-from sqlalchemy import or_
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from ..email_service import MockEmailService
@@ -120,15 +120,16 @@ def get_user_accessible_document_ids(session: Session, user_id: int) -> list[int
     - Documents they own (via their persons)
     - Documents shared with them (accepted or granted immediately)
     - Documents via person bulk shares
-    """
-    # 1. Documents they own
-    owned_ids = session.query(Document.id).join(Person).filter(
-        Person.user_id == user_id
-    ).all()
-    owned_ids = [row[0] for row in owned_ids]
 
-    # 2. Documents directly shared with them (accepted or immediately granted, not expired)
-    shared_ids = session.query(DocumentShare.document_id).filter(
+    A single UNION query replaces what used to be 3 separate round-trips —
+    each was free on local SQLite but now costs real network latency to
+    Neon, and this helper runs on nearly every page load.
+    """
+    owned = session.query(Document.id).join(Person).filter(
+        Person.user_id == user_id
+    )
+
+    shared = session.query(DocumentShare.document_id).filter(
         DocumentShare.shared_with_user_id == user_id,
         DocumentShare.revoked_at.is_(None),
         or_(DocumentShare.expires_at.is_(None), DocumentShare.expires_at > datetime.utcnow()),
@@ -136,11 +137,9 @@ def get_user_accessible_document_ids(session: Session, user_id: int) -> list[int
             (DocumentShare.is_invite.is_(True)) & (DocumentShare.response == "accepted"),
             DocumentShare.is_invite.is_(False)
         )
-    ).all()
-    shared_ids = [row[0] for row in shared_ids]
+    )
 
-    # 3. Documents via person bulk shares (accepted or immediately granted, not expired)
-    bulk_ids = (
+    bulk = (
         session.query(Document.id)
         .join(Person, Document.person_id == Person.id)
         .join(PersonShareGrant, Person.id == PersonShareGrant.person_id)
@@ -153,11 +152,10 @@ def get_user_accessible_document_ids(session: Session, user_id: int) -> list[int
                 PersonShareGrant.is_invite.is_(False)
             )
         )
-        .all()
     )
-    bulk_ids = [row[0] for row in bulk_ids]
 
-    return list(set(owned_ids + shared_ids + bulk_ids))
+    rows = owned.union(shared).union(bulk).all()
+    return [row[0] for row in rows]
 
 
 def share_person_all(
@@ -428,57 +426,43 @@ def share_person_all_by_email(
 
 
 def get_user_sharing_recipients(session: Session, user_id: int) -> list[dict]:
-    """Get all users this user has shared documents with."""
-    # Direct document shares
-    doc_shares = (
-        session.query(DocumentShare.shared_with_user_id, DocumentShare.permission_level)
+    """
+    Get all users this user has shared documents with.
+
+    Batched into 4 flat queries regardless of recipient count — the previous
+    version queried once per recipient (3 round-trips each), which was cheap
+    on local SQLite but scales badly over the network to Neon.
+    """
+    doc_counts = dict(
+        session.query(DocumentShare.shared_with_user_id, func.count(DocumentShare.id))
         .filter(DocumentShare.shared_by_user_id == user_id, DocumentShare.revoked_at.is_(None))
-        .distinct()
+        .group_by(DocumentShare.shared_with_user_id)
         .all()
     )
 
-    # Bulk person shares
-    person_shares = (
-        session.query(PersonShareGrant.granted_to_user_id, PersonShareGrant.permission_level)
+    person_counts = dict(
+        session.query(PersonShareGrant.granted_to_user_id, func.count(PersonShareGrant.id))
         .filter(PersonShareGrant.granted_by_user_id == user_id, PersonShareGrant.revoked_at.is_(None))
-        .distinct()
+        .group_by(PersonShareGrant.granted_to_user_id)
         .all()
     )
 
-    recipient_ids = set([s[0] for s in doc_shares] + [s[0] for s in person_shares])
+    recipient_ids = set(doc_counts) | set(person_counts)
+    if not recipient_ids:
+        return []
+
+    users = {u.id: u for u in session.query(User).filter(User.id.in_(recipient_ids)).all()}
 
     recipients = []
     for recipient_id in recipient_ids:
-        user = session.query(User).filter_by(id=recipient_id).first()
+        user = users.get(recipient_id)
         if user:
-            # Count documents shared with this recipient
-            doc_count = (
-                session.query(DocumentShare)
-                .filter(
-                    DocumentShare.shared_by_user_id == user_id,
-                    DocumentShare.shared_with_user_id == recipient_id,
-                    DocumentShare.revoked_at.is_(None),
-                )
-                .count()
-            )
-
-            # Count person bulk shares
-            person_count = (
-                session.query(PersonShareGrant)
-                .filter(
-                    PersonShareGrant.granted_by_user_id == user_id,
-                    PersonShareGrant.granted_to_user_id == recipient_id,
-                    PersonShareGrant.revoked_at.is_(None),
-                )
-                .count()
-            )
-
             recipients.append({
                 "user_id": recipient_id,
                 "email": user.email,
                 "full_name": user.full_name,
-                "documents_shared": doc_count,
-                "persons_shared": person_count,
+                "documents_shared": doc_counts.get(recipient_id, 0),
+                "persons_shared": person_counts.get(recipient_id, 0),
             })
 
     return recipients

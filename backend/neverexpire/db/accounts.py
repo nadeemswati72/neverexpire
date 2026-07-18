@@ -123,6 +123,16 @@ def set_person_photo(session: Session, person: Person, file: FileStorage) -> Non
         (config.AVATAR_DIR / Path(old_photo_path).name).unlink(missing_ok=True)
 
 
+def change_password(session: Session, user_id: int, current_password: str, new_password: str) -> bool:
+    """Verify the caller's current password and set a new one. Returns False if it doesn't match."""
+    user = session.get(User, user_id)
+    if user is None or not verify_password(current_password, user.hashed_password):
+        return False
+    user.hashed_password = hash_password(new_password)
+    session.commit()
+    return True
+
+
 def create_password_reset_token(session: Session, user: User) -> str:
     """Generate a reset token, store only its hash, and return the raw token (for the email link)."""
     raw_token = secrets.token_urlsafe(32)

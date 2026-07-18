@@ -2,6 +2,7 @@ from flask import Blueprint, g, jsonify, request
 
 from ...db.accounts import (
     authenticate_user,
+    change_password,
     consume_password_reset_token,
     create_password_reset_token,
     register_user,
@@ -70,6 +71,26 @@ def me():
     with get_session() as session:
         user = session.get(User, g.current_user_id)
         return jsonify({"data": _user_payload(user), "error": None})
+
+
+@auth_bp.post("/change-password")
+@jwt_required
+@limiter.limit("10 per hour")
+def change_password_route():
+    body = request.get_json(silent=True) or {}
+    current_password = body.get("current_password", "")
+    new_password = body.get("new_password", "")
+
+    if not current_password or not new_password:
+        return jsonify({"data": None, "error": "current_password and new_password are required"}), 400
+    if len(new_password) < 8:
+        return jsonify({"data": None, "error": "Password must be at least 8 characters"}), 400
+
+    with get_session() as session:
+        ok = change_password(session, g.current_user_id, current_password, new_password)
+        if not ok:
+            return jsonify({"data": None, "error": "Current password is incorrect."}), 401
+        return jsonify({"data": {"changed": True}, "error": None})
 
 
 @auth_bp.post("/forgot-password")

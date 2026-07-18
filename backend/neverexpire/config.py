@@ -3,7 +3,14 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load .env by an absolute path derived from this file's own location, not
+# the process's current working directory. load_dotenv() with no argument
+# only searches the CWD and its parents — it never looks into a child
+# directory. Any invocation from the repo root (e.g. `python backend/run_dev.py`
+# instead of `cd backend && python run_dev.py`) would silently miss
+# backend/.env entirely and fall back to insecure defaults for SECRET_KEY
+# and CORS_ORIGINS with no error at all.
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 

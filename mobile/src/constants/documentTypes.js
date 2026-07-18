@@ -7,6 +7,11 @@
  * app-wide "Emoji Nav" icon set (see constants/emojiIcons.js for the
  * Ionicons-derived counterpart used by shared chrome components).
  */
+// Icons match web's DOC_ICON map (web/src/pages/DocumentsPage.tsx) exactly
+// for every code both platforms share, so a document type reads as the same
+// glyph regardless of platform. Covers all 13 backend document_types (see
+// backend/neverexpire/db/seed.py) — previously only 7 were listed here, so
+// the other 6 silently rendered as generic "Other" on mobile.
 export const DOCUMENT_TYPES = {
   PASSPORT: {
     code: "PASSPORT",
@@ -20,17 +25,29 @@ export const DOCUMENT_TYPES = {
     icon: "🪪",
     color: "#34C38F",
   },
+  VISA: {
+    code: "VISA",
+    label: "Visa",
+    icon: "✈️",
+    color: "#8B5CF6",
+  },
   DRIVING_LICENSE: {
     code: "DRIVING_LICENSE",
     label: "Driving License",
     icon: "🚗",
     color: "#EF5DA8",
   },
-  VISA: {
-    code: "VISA",
-    label: "Visa",
-    icon: "🎫",
-    color: "#8B5CF6",
+  VEHICLE_REGISTRATION: {
+    code: "VEHICLE_REGISTRATION",
+    label: "Vehicle Registration",
+    icon: "🚙",
+    color: "#4F8EF7",
+  },
+  HEALTH_INSURANCE: {
+    code: "HEALTH_INSURANCE",
+    label: "Health Insurance",
+    icon: "🏥",
+    color: "#22B8CF",
   },
   INSURANCE: {
     code: "INSURANCE",
@@ -38,11 +55,35 @@ export const DOCUMENT_TYPES = {
     icon: "🛡️",
     color: "#22B8CF",
   },
+  WARRANTY: {
+    code: "WARRANTY",
+    label: "Warranty",
+    icon: "🔧",
+    color: "#9CA3AF",
+  },
+  MEDICATION: {
+    code: "MEDICATION",
+    label: "Medication",
+    icon: "💊",
+    color: "#EF5DA8",
+  },
+  FOOD_ITEM: {
+    code: "FOOD_ITEM",
+    label: "Food Item",
+    icon: "🥫",
+    color: "#F2994A",
+  },
   CERTIFICATE: {
     code: "CERTIFICATE",
     label: "Certificate",
-    icon: "📜",
+    icon: "🎓",
     color: "#F2994A",
+  },
+  SUBSCRIPTION: {
+    code: "SUBSCRIPTION",
+    label: "Subscription",
+    icon: "📱",
+    color: "#8B5CF6",
   },
   OTHER: {
     code: "OTHER",
@@ -66,14 +107,26 @@ const EXTRACTED_TYPE_KEYWORDS = [
   ["emirates", "EMIRATES_ID"],
   ["national id", "EMIRATES_ID"],
   ["identity", "EMIRATES_ID"],
+  ["vehicle registration", "VEHICLE_REGISTRATION"],
+  ["car registration", "VEHICLE_REGISTRATION"],
   ["driving", "DRIVING_LICENSE"],
   ["license", "DRIVING_LICENSE"],
   ["licence", "DRIVING_LICENSE"],
   ["visa", "VISA"],
   ["residency", "VISA"],
   ["permit", "VISA"],
+  ["health insurance", "HEALTH_INSURANCE"],
+  ["medical insurance", "HEALTH_INSURANCE"],
   ["insurance", "INSURANCE"],
   ["policy", "INSURANCE"],
+  ["warranty", "WARRANTY"],
+  ["guarantee", "WARRANTY"],
+  ["medication", "MEDICATION"],
+  ["prescription", "MEDICATION"],
+  ["food", "FOOD_ITEM"],
+  ["expiry label", "FOOD_ITEM"],
+  ["subscription", "SUBSCRIPTION"],
+  ["membership", "SUBSCRIPTION"],
   ["certificate", "CERTIFICATE"],
   ["certification", "CERTIFICATE"],
   ["diploma", "CERTIFICATE"],

@@ -1,6 +1,6 @@
 /**
  * Expiry date helpers shared by the dashboard, document list, and details
- * screens. The 30-day "expiring soon" threshold mirrors
+ * screens. The 90-day "expiring soon" threshold mirrors
  * REMINDER_DAYS_THRESHOLD in the NeverExpire Flask backend
  * (neverexpire/config.py) so status colors stay consistent across the
  * product.
@@ -13,7 +13,7 @@ export const EXPIRY_STATUS = {
   NO_EXPIRY: "no_expiry",
 };
 
-export const EXPIRING_SOON_THRESHOLD_DAYS = 30;
+export const EXPIRING_SOON_THRESHOLD_DAYS = 90;
 
 function startOfDay(date) {
   const copy = new Date(date);

@@ -9,13 +9,15 @@ import * as ApiService from "./ApiService";
 
 // Mirrors backend family_relation_types (excluding SELF, which is the
 // primary account holder and isn't addable through this form).
+// Colors match web's relation-type palette exactly (FamilyPage.tsx) so a
+// given relation reads as the same color on both platforms.
 export const RELATION_TYPES = [
-  { code: "SPOUSE", label: "Spouse", color: "#EF5DA8" },
-  { code: "CHILD", label: "Child", color: "#34C38F" },
-  { code: "PARENT", label: "Parent", color: "#22B8CF" },
-  { code: "SIBLING", label: "Sibling", color: "#8B5CF6" },
-  { code: "DOMESTIC_HELP", label: "Domestic Help", color: "#F2994A" },
-  { code: "OTHER", label: "Other", color: "#9CA3AF" },
+  { code: "SPOUSE", label: "Spouse", color: "#e879a0" },
+  { code: "CHILD", label: "Child", color: "#f6ad55" },
+  { code: "PARENT", label: "Parent", color: "#68d391" },
+  { code: "SIBLING", label: "Sibling", color: "#76e4f7" },
+  { code: "DOMESTIC_HELP", label: "Domestic Help", color: "#f6a5c0" },
+  { code: "OTHER", label: "Other", color: "#b794f4" },
 ];
 
 const RELATION_LABELS = Object.fromEntries(RELATION_TYPES.map((r) => [r.code, r.label]));

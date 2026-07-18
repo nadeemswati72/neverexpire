@@ -1,26 +1,27 @@
 /**
  * Central design tokens for NeverExpire mobile.
- * Derived from Sample/Mobile.jpg — keep all screens/components on these
- * tokens instead of inlining hex codes or magic numbers (see
- * .claude/rules/ui-consistency.md).
+ * Brand/status/navy values match web's design system (web/src/index.css,
+ * StatusBadge.tsx) exactly, so the same concept reads as the same color on
+ * both platforms. Keep all screens/components on these tokens instead of
+ * inlining hex codes or magic numbers (see .claude/rules/ui-consistency.md).
  */
 
 export const COLORS = {
-  // Brand
-  primary: "#1B2A4A", // deep navy — headers, drawer, primary buttons
-  primaryDark: "#11192E",
-  primaryLight: "#2A3F66",
-  accent: "#2BB3A6", // teal/green — logo, links, "All Documents"
-  accentDark: "#1F8C82",
+  // Brand — matches web's --brand / --brand-dark and --text-primary
+  primary: "#15203a", // deep navy — headers, drawer, primary buttons
+  primaryDark: "#0d1526",
+  primaryLight: "#1e2d50", // matches web's hero-card gradient second stop
+  accent: "#34c9ba", // teal — logo, links, "All Documents"
+  accentDark: "#22a99c",
 
-  // Status
-  danger: "#EB5757", // expired / urgent (<= 0 days)
+  // Status — matches web's StatusBadge.tsx base hues
+  danger: "#e53e3e", // expired / urgent (<= 0 days)
   dangerLight: "#FF9A9A",
-  warning: "#F2994A", // expiring soon (<= 30 days)
+  warning: "#d97706", // expiring soon (<= 90 days)
   warningLight: "#FFC98A",
-  success: "#27AE60", // valid / safe (> 30 days)
+  success: "#38a169", // valid / safe (> 90 days)
   successLight: "#6FE3A0",
-  noExpiry: "#9CA3AF",
+  noExpiry: "#718096",
 
   // Family/people identity (glossy icon pucks, tab bar)
   purple: "#8B6FD6",
@@ -80,14 +81,14 @@ export const FONT_WEIGHTS = {
 
 export const SHADOW = {
   card: {
-    shadowColor: "#1B2A4A",
+    shadowColor: "#15203a",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.06,
     shadowRadius: 12,
     elevation: 3,
   },
   fab: {
-    shadowColor: "#1B2A4A",
+    shadowColor: "#15203a",
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.25,
     shadowRadius: 10,

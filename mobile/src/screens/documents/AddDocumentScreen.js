@@ -53,7 +53,7 @@ export default function AddDocumentScreen({ navigation, route }) {
     setIsProcessing(true);
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ["images"],
         quality: 0.7,
       });
       if (!result.canceled && result.assets?.length) {

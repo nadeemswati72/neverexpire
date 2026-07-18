@@ -30,7 +30,13 @@ export function imageUrlFor(fileId) {
 }
 
 function toAppDocument(backendDoc) {
-  const firstFile = backendDoc.files?.[0];
+  const files = (backendDoc.files || []).map((f) => ({
+    id: f.id,
+    uri: imageUrlFor(f.id),
+    originalFilename: f.original_filename,
+    mimeType: f.mime_type,
+  }));
+  const firstFile = files[0];
   return {
     id: backendDoc.id,
     familyMemberId: backendDoc.person_id,
@@ -42,9 +48,19 @@ function toAppDocument(backendDoc) {
     expiryDate: backendDoc.expiry_date,
     issuedBy: backendDoc.issuing_authority,
     notes: backendDoc.notes,
-    imageUri: firstFile ? imageUrlFor(firstFile.id) : null,
-    imageFileId: firstFile?.id || null,
+    // `files` preserves every attached file (not just the first) so extra
+    // files added from web aren't silently hidden on mobile; imageUri/
+    // imageFileId stay as convenience aliases for screens that only show one.
+    files,
+    imageUri: firstFile ? firstFile.uri : null,
+    imageFileId: firstFile ? firstFile.id : null,
     createdAt: backendDoc.created_at,
+    source: backendDoc.source || null,
+    // Only present on the single-document fetch (document_detail), not the
+    // list endpoint — undefined on list-derived docs, which is fine since
+    // only DocumentDetailsScreen (which uses getDocument()) needs them.
+    watermarkedForViewer: backendDoc.watermarked_for_viewer,
+    extractionRuns: backendDoc.extraction_runs || [],
     // Sharing: the backend list mixes in documents shared with this user.
     isOwner: backendDoc.is_owner !== false,
     userPermission: backendDoc.user_permission || null,

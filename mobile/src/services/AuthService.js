@@ -61,6 +61,9 @@ export async function register(email, password, fullName) {
 export async function logout() {
   await StorageService.removeItem(StorageService.STORAGE_KEYS.AUTH_TOKEN);
   await StorageService.removeItem(StorageService.STORAGE_KEYS.CURRENT_USER);
+  // Without this, a different user logging in on the same device silently
+  // inherits the previous account's on-device notification toggle state.
+  await StorageService.removeItem(StorageService.STORAGE_KEYS.NOTIFICATION_PREFS);
 }
 
 export async function getCurrentUser() {

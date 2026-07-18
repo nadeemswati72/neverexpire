@@ -20,6 +20,7 @@ const FILTERS = [
   { key: "expiring_soon", label: "Expiring Soon" },
   { key: "expired", label: "Expired" },
   { key: "valid", label: "Valid" },
+  { key: "no_expiry", label: "No Expiry" },
 ];
 
 /** Full, searchable, filterable document list (Dashboard "See All"). */
@@ -52,6 +53,8 @@ export default function MyDocumentsScreen() {
             return status === EXPIRY_STATUS.EXPIRED;
           case "valid":
             return status === EXPIRY_STATUS.VALID;
+          case "no_expiry":
+            return status === EXPIRY_STATUS.NO_EXPIRY;
           default:
             return true;
         }

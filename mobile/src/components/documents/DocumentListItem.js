@@ -37,6 +37,12 @@ export default function DocumentListItem({ document, subtitle, onPress }) {
             {resolvedSubtitle}
           </Text>
         ) : null}
+        {document.isOwner === false && document.sharedByEmail ? (
+          <Text style={styles.sharedMeta} numberOfLines={1}>
+            🔗 Shared by {document.sharedByEmail}
+            {document.userPermission ? ` · ${document.userPermission.toUpperCase()}` : ""}
+          </Text>
+        ) : null}
       </View>
       <View style={styles.meta}>
         <Text style={[styles.days, { color: statusColor }]}>{formatDaysLabel(document.expiryDate)}</Text>
@@ -84,6 +90,12 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: FONT_SIZES.sm,
     color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  sharedMeta: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.accentDark,
+    fontWeight: FONT_WEIGHTS.medium,
     marginTop: 2,
   },
   meta: {

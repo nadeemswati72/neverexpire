@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NeverExpire — Testing Guide (PoC Feedback Round 2)</title>
+<title>NeverExpire — Testing Guide (Web + iOS + Android)</title>
 <style>
   :root {
-    --navy: #1b2a4a;
-    --teal: #2bb3a6;
-    --teal-dark: #1f8c82;
+    --navy: #15203a;
+    --teal: #34c9ba;
+    --teal-dark: #22a99c;
     --ink: #1f2a3c;
     --ink-soft: #5b6a80;
     --bg: #f4f6fa;
@@ -18,6 +18,7 @@
     --warn-border: #f2994a;
     --info-bg: #e9f6f5;
     --danger: #eb5757;
+    --success: #38a169;
   }
   * { box-sizing: border-box; }
   body {
@@ -27,29 +28,39 @@
     color: var(--ink);
     line-height: 1.55;
   }
-  .wrap { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
-  header.hero { text-align: center; margin-bottom: 36px; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 40px 24px 80px; }
+  header.hero { text-align: center; margin-bottom: 32px; }
   header.hero h1 { font-size: 30px; margin: 0 0 6px; color: var(--navy); }
   header.hero p { color: var(--ink-soft); margin: 0; font-size: 16px; }
   h2 { font-size: 21px; color: var(--navy); margin: 40px 0 12px; border-bottom: 2px solid var(--teal); padding-bottom: 6px; }
-  h3 { font-size: 16px; color: var(--navy); margin: 24px 0 8px; }
+  h3 { font-size: 16px; color: var(--navy); margin: 26px 0 10px; }
+  h4 { font-size: 14px; color: var(--navy); margin: 18px 0 8px; text-transform: uppercase; letter-spacing: 0.04em; }
   .alert { border-radius: 10px; padding: 12px 16px; margin: 14px 0; font-size: 14px; }
   .alert.warn { background: var(--warn-bg); border: 1px solid var(--warn-border); }
   .alert.info { background: var(--info-bg); border: 1px solid var(--teal); }
-  table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--surface); border-radius: 10px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--surface); border-radius: 10px; overflow: hidden; margin-bottom: 8px; }
   th, td { border: 1px solid var(--border); padding: 9px 12px; text-align: left; vertical-align: top; }
-  th { background: rgba(27,42,74,0.05); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); }
-  code { background: rgba(27,42,74,0.07); border-radius: 5px; padding: 1px 6px; font-family: Consolas, Menlo, monospace; font-size: 13px; }
+  th { background: rgba(21,32,58,0.05); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); }
+  code { background: rgba(21,32,58,0.07); border-radius: 5px; padding: 1px 6px; font-family: Consolas, Menlo, monospace; font-size: 13px; }
   ul, ol { padding-left: 22px; }
   li { margin: 5px 0; font-size: 14.5px; }
   .tag-new { display: inline-block; background: var(--teal); color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 99px; padding: 2px 8px; margin-left: 6px; vertical-align: middle; }
-  .shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; margin-top: 18px; }
-  .shot { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-  .shot img { width: 100%; display: block; border-bottom: 1px solid var(--border); }
-  .shot .cap { padding: 12px 14px; }
-  .shot .cap h5 { margin: 0 0 4px; font-size: 14px; color: var(--navy); }
-  .shot .cap p { margin: 0; font-size: 12.5px; color: var(--ink-soft); }
+  .platform-tags { display: inline-flex; gap: 4px; margin-left: 8px; vertical-align: middle; }
+  .ptag { font-size: 9px; font-weight: 700; border-radius: 4px; padding: 2px 5px; letter-spacing: 0.03em; }
+  .ptag.web { background: rgba(52,201,186,0.15); color: var(--teal-dark); }
+  .ptag.ios { background: rgba(21,32,58,0.1); color: var(--navy); }
+  .ptag.android { background: rgba(56,161,105,0.12); color: var(--success); }
+  .checklist { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 6px 18px; margin-bottom: 18px; }
+  .checklist label { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 14.5px; cursor: pointer; }
+  .checklist label:last-child { border-bottom: none; }
+  .checklist input[type="checkbox"] { margin-top: 3px; width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--teal-dark); }
+  .checklist .step-text { flex: 1; }
+  .checklist .step-note { display: block; font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
   footer { margin-top: 48px; font-size: 13px; color: var(--ink-soft); text-align: center; }
+  .toc { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; }
+  .toc ul { columns: 2; gap: 24px; }
+  .toc a { color: var(--navy); text-decoration: none; font-size: 13.5px; }
+  .toc a:hover { color: var(--teal-dark); }
 </style>
 </head>
 <body>
@@ -57,97 +68,222 @@
 
 <header class="hero">
   <h1>NeverExpire Testing Guide</h1>
-  <p>PoC Feedback Round 2 — website + mobile app, now sharing one backend and one set of accounts.</p>
+  <p>Full checklist for Web, iOS, and Android — every screen, every feature, one shared backend and one set of accounts.</p>
 </header>
 
-<div class="alert warn"><strong>Temporary guide</strong> — written for the current testing round and replaced each round.</div>
+<div class="alert info"><strong>How to use this page:</strong> tick each box as you verify it. Boxes are per-browser-tab only (nothing is saved), so keep this tab open while you test, or print/export it first if you'd rather mark on paper.</div>
 
-<h2>Before You Start</h2>
+<div class="toc">
+  <strong>Jump to:</strong>
+  <ul>
+    <li><a href="#before-you-start">Before You Start</a></li>
+    <li><a href="#demo-accounts">Demo Accounts</a></li>
+    <li><a href="#setup-web">Setup — Web</a></li>
+    <li><a href="#setup-ios">Setup — iOS</a></li>
+    <li><a href="#setup-android">Setup — Android</a></li>
+    <li><a href="#authentication">1. Authentication</a></li>
+    <li><a href="#dashboard">2. Dashboard</a></li>
+    <li><a href="#documents-list">3. Documents List</a></li>
+    <li><a href="#add-document">4. Add Document</a></li>
+    <li><a href="#document-detail">5. Document Detail</a></li>
+    <li><a href="#family">6. Family</a></li>
+    <li><a href="#sharing">7. Sharing</a></li>
+    <li><a href="#reminders">8. Reminders</a></li>
+    <li><a href="#notifications">9. Notifications</a></li>
+    <li><a href="#settings">10. Settings</a></li>
+    <li><a href="#parity">11. Cross-Platform Consistency</a></li>
+    <li><a href="#limitations">Known Limitations</a></li>
+    <li><a href="#reporting">Reporting Issues</a></li>
+  </ul>
+</div>
+
+<h2 id="before-you-start">Before You Start</h2>
 <ul>
-  <li><strong>Big change from last round:</strong> the website and the mobile app now use the <strong>same accounts and the same data</strong>. A document you add on your phone appears on the website, and vice versa.</li>
+  <li>Web, iOS, and Android all use the <strong>same accounts and the same data</strong> — a document you add on your phone appears on the website, and vice versa.</li>
   <li>Every demo account uses the same password: <code>Demo@1234</code></li>
-  <li>To use the mobile app (including AI document scan), your phone must be on the <strong>same Wi-Fi network</strong> as the developer's computer.</li>
-  <li>On a different network? Review the <a href="#mobile-screens">screen walkthrough</a> below and send feedback on layout and wording instead.</li>
+  <li><strong>Web</strong> is a public URL — test it from anywhere, anytime.</li>
+  <li><strong>iOS and Android</strong> (Expo Go) need your phone on the <strong>same Wi-Fi network</strong> as the developer's computer, which must be running the backend + Metro bundler during your test session.</li>
+  <li>If you find a bug, don't fix your test data around it — note it (see <a href="#reporting">Reporting Issues</a>) and keep going. Untidy demo data helps prove things actually work.</li>
 </ul>
 
-<h2>Demo Accounts</h2>
-<p>Two realistic families. Log in as different members to test sharing between accounts.</p>
+<h2 id="demo-accounts">Demo Accounts</h2>
+<p>Two realistic families sharing documents with each other. Log in as different members to test sharing, permissions, and cross-account visibility.</p>
 <table>
   <thead><tr><th>Family</th><th>Account</th><th>Email</th><th>Notes</th></tr></thead>
   <tbody>
-    <tr><td rowspan="2">Al Rashid</td><td>Ahmed Al Rashid</td><td><code>ahmed.alrashid@neverexpire.test</code></td><td>Primary — spouse, 2 children, domestic help; ~25 documents</td></tr>
+    <tr><td rowspan="2">Al Rashid</td><td>Ahmed Al Rashid</td><td><code>ahmed.alrashid@neverexpire.test</code></td><td>Primary — spouse, 2 children, domestic help; ~20 documents</td></tr>
     <tr><td>Fatima Al Rashid</td><td><code>fatima.alrashid@neverexpire.test</code></td><td>Has documents shared by Ahmed</td></tr>
-    <tr><td rowspan="2">Khan</td><td>Imran Khan</td><td><code>imran.khan@neverexpire.test</code></td><td>Primary — spouse, 3 children, domestic help; ~21 documents</td></tr>
-    <tr><td>Sara Khan</td><td><code>sara.khan@neverexpire.test</code></td><td>Has cross-family shares from Ahmed</td></tr>
+    <tr><td rowspan="2">Khan</td><td>Imran Khan</td><td><code>imran.khan@neverexpire.test</code></td><td>Primary — spouse, 3 children, domestic help</td></tr>
+    <tr><td>Sara Khan</td><td><code>sara.khan@neverexpire.test</code></td><td>Has cross-family shares from Ahmed's family</td></tr>
+  </tbody>
+</table>
+<div class="alert warn"><strong>Password reset / forgot password:</strong> demo (<code>@neverexpire.test</code>) accounts cannot receive real email, so "Forgot password" for them will show the generic confirmation message but no email actually arrives. To test the real emailed link end-to-end, register a fresh account with a real email address you can check.</div>
+
+<h2 id="setup-web">Setup — Web</h2>
+<div class="checklist">
+  <label><input type="checkbox"><span class="step-text">Open <code>https://neverexpire-poc.vercel.app</code> in Chrome (or your usual browser).<span class="step-note">No install needed — this is a live public deployment.</span></span></label>
+</div>
+
+<h2 id="setup-ios">Setup — iOS</h2>
+<div class="checklist">
+  <label><input type="checkbox"><span class="step-text">Install <strong>Expo Go</strong> from the App Store.</span></label>
+  <label><input type="checkbox"><span class="step-text">Join the <strong>same Wi-Fi network</strong> as the developer's computer.</span></label>
+  <label><input type="checkbox"><span class="step-text">Ask the developer to run the backend + <code>npx expo start</code>, then scan the QR code shown in the terminal using your iPhone's Camera app.<span class="step-note">First load compiles the app and can take a minute or two.</span></span></label>
+</div>
+
+<h2 id="setup-android">Setup — Android</h2>
+<div class="alert info"><strong>Same idea as iOS, different app store.</strong> The mobile app is one shared React Native codebase — nothing Android-specific to install beyond Expo Go itself.</div>
+<div class="checklist">
+  <label><input type="checkbox"><span class="step-text">Install <strong>Expo Go</strong> from the Google Play Store.</span></label>
+  <label><input type="checkbox"><span class="step-text">Join the <strong>same Wi-Fi network</strong> as the developer's computer.</span></label>
+  <label><input type="checkbox"><span class="step-text">Ask the developer to run the backend + <code>npx expo start</code>, then open the <strong>Expo Go</strong> app and use its built-in <strong>"Scan QR Code"</strong> button (Android's Camera app does not deep-link into Expo Go the way iOS's does).<span class="step-note">First load compiles the app and can take a minute or two.</span></span></label>
+  <label><input type="checkbox"><span class="step-text">Grant camera and photo-library permissions when prompted (needed for the AI document-scan feature).</span></label>
+</div>
+<div class="alert warn"><strong>Never tested on real Android hardware before this round.</strong> Every fix in this round was verified through a browser-based React Native preview (no iOS/Android-specific code paths were touched), but this is genuinely the first pass on an actual Android device or emulator. Please pay extra attention to anything Android-specific: back-button behavior, camera/gallery permission prompts, keyboard covering input fields, and the system status bar/nav bar overlapping content.</div>
+
+<h2 id="authentication">1. Authentication <span class="platform-tags"><span class="ptag web">WEB</span><span class="ptag ios">iOS</span><span class="ptag android">ANDROID</span></span></h2>
+<div class="checklist">
+  <label><input type="checkbox"><span class="step-text">Log in with a valid demo account.</span></label>
+  <label><input type="checkbox"><span class="step-text">Log in with a wrong password — a clear error appears, no crash.</span></label>
+  <label><input type="checkbox"><span class="step-text">Log in with empty fields — validation error appears.</span></label>
+  <label><input type="checkbox"><span class="step-text">Register a brand-new account (a real email you can check) — lands straight on the dashboard.</span></label>
+  <label><input type="checkbox"><span class="step-text">Register with mismatched passwords — error shown.</span></label>
+  <label><input type="checkbox"><span class="step-text">Register with an email that already exists — error shown.</span></label>
+  <label><input type="checkbox"><span class="step-text"><strong>Forgot password</strong> — enter your real registered email, submit, confirmation message appears.<span class="step-note tag-new">NEW</span></span></label>
+  <label><input type="checkbox"><span class="step-text">Check your email for the reset link, click it, set a new password, confirm you can log in with the new one.<span class="step-note">The emailed link always opens the <strong>web</strong> reset page, even if you requested it from iOS/Android — open it in your phone's browser, that's expected.</span></span></label>
+  <label><input type="checkbox"><span class="step-text">Reopen the app after logging in (mobile) — you stay logged in, no re-login needed.</span></label>
+  <label><input type="checkbox"><span class="step-text">Sign out — returns to the login screen; going back afterward does not re-enter the app.</span></label>
+</div>
+
+<h2 id="dashboard">2. Dashboard <span class="platform-tags"><span class="ptag web">WEB</span><span class="ptag ios">iOS</span><span class="ptag android">ANDROID</span></span></h2>
+<div class="checklist">
+  <label><input type="checkbox"><span class="step-text">Dashboard loads with the correct total document count.</span></label>
+  <label><input type="checkbox"><span class="step-text">All 4 stat cards show correct counts: <strong>Total / Expired / Expiring Soon / Valid</strong>.<span class="step-note tag-new">NEW on mobile — Expired and Valid cards were missing before this round.</span></span></label>
+  <label><input type="checkbox"><span class="step-text">Tapping/clicking each stat card navigates to the documents list pre-filtered to that status.</span></label>
+  <label><input type="checkbox"><span class="step-text">Status donut chart renders with correct colored segments and a legend with counts.</span></label>
+  <label><input type="checkbox"><span class="step-text">Recent Documents list shows the soonest-expiring documents first.</span></label>
+  <label><input type="checkbox"><span class="step-text"><strong>Valid Documents</strong> panel appears below Recent Documents, listing only valid (not-expiring-soon) documents.<span class="step-note tag-new">NEW on mobile</span></span></label>
+  <label><input type="checkbox"><span class="step-text">Family member filter chips/sidebar narrow every card, chart, and list to one person.</span></label>
+  <label><input type="checkbox"><span class="step-text">Tapping a document row navigates to its detail page.</span></label>
+</div>
+
+<h3 id="documents-list">3. Documents List <span class="platform-tags"><span class="ptag web">WEB</span><span class="ptag ios">iOS</span><span class="ptag android">ANDROID</span></span></h3>
+<div class="checklist">
+  <label><input type="checkbox"><span class="step-text">Search by document title, person name, and document number all filter correctly.</span></label>
+  <label><input type="checkbox"><span class="step-text">All 5 status filters work: <strong>All / Expiring Soon / Expired / Valid / No Expiry</strong>.<span class="step-note tag-new">NEW on mobile — "No Expiry" was missing before this round.</span></span></label>
+  <label><input type="checkbox"><span class="step-text">Documents shared with you show a <strong>"Shared"</strong> badge with the sharer's email and permission level (e.g. "🔗 Shared by fatima@... · EDIT").<span class="step-note tag-new">NEW on mobile — used to be a generic "Shared" pill with no detail.</span></span></label>
+  <label><input type="checkbox"><span class="step-text">Document type icons match their type (🛂 passport, 🪪 Emirates ID, ✈️ visa, 🎓 certificate, etc.) and are the <strong>same icon on every platform</strong>.</span></label>
+</div>
+
+<h2 id="add-document">4. Add Document <span class="platform-tags"><span class="ptag web">WEB</span><span class="ptag ios">iOS</span><span class="ptag android">ANDROID</span></span></h2>
+<div class="checklist">
+  <label><input type="checkbox"><span class="step-text">Manual entry: pick family member, document type (all 13 types available — Passport, Emirates ID, Visa, Driving License, Vehicle Registration, Health Insurance, Insurance, Warranty, Medication, Food Item, Certificate, Subscription, Other), dates, save — appears in the list immediately.</span></label>
+  <label><input type="checkbox"><span class="step-text">AI extraction: take/upload a photo of a real document, review the pre-filled fields, edit if needed, save.</span></label>
+  <label><input type="checkbox"><span class="step-text">AI confidence / model name shown somewhere in the review step.</span></label>
+  <label><input type="checkbox"><span class="step-text">If extraction fails or looks wrong, you can still fall back to entering fields manually.</span></label>
+  <label><input type="checkbox"><span class="step-text">Camera and gallery/file picker both work (mobile).</span></label>
+</div>
+
+<h2 id="document-detail">5. Document Detail <span class="platform-tags"><span class="ptag web">WEB</span><span class="ptag ios">iOS</span><span class="ptag android">ANDROID</span></span></h2>
+<div class="checklist">
+  <label><input type="checkbox"><span class="step-text">All fields shown: title, type, status badge with correct color, days remaining, dates, document number, issuing authority, who it belongs to.</span></label>
+  <label><input type="checkbox"><span class="step-text"><strong>Source</strong> field shows "🤖 AI Extracted" or "✏️ Manual Entry" correctly.<span class="step-note tag-new">NEW on mobile</span></span></label>
+  <label><input type="checkbox"><span class="step-text">If AI-extracted, an <strong>AI Extraction</strong> section shows the model name and confidence %.<span class="step-note tag-new">NEW on mobile</span></span></label>
+  <label><input type="checkbox"><span class="step-text">Watermarked file preview loads, with the watermark text visible over the image.</span></label>
+  <label><input type="checkbox"><span class="step-text">A note under the image says <strong>"Watermarked copy"</strong> (as owner) or <strong>"⚠️ Original copy — no watermark"</strong> (if you're a recipient who was shared a clean copy).<span class="step-note tag-new">NEW on mobile</span></span></label>
+  <label><input type="checkbox"><span class="step-text"><strong>Add Picture</strong> (owner only) — attach an extra photo to an existing document without going through the full edit form.<span class="step-note tag-new">NEW on mobile</span></span></label>
+  <label><input type="checkbox"><span class="step-text">Edit the document — change a field, save, change persists.</span></label>
+  <label><input type="checkbox"><span class="step-text">Delete the document — confirmation shown, then removed, navigates back.</span></label>
+  <label><input type="checkbox"><span class="step-text">Share the document (see <a href="#sharing">Sharing</a> below).</span></label>
+  <label><input type="checkbox"><span class="step-text">As owner, <strong>Access History</strong> shows who viewed/downloaded, and flags any entry where the recipient saw an <strong>unwatermarked</strong> copy.<span class="step-note tag-new">NEW on mobile</span></span></label>
+</div>
+<div class="alert warn"><strong>Not built yet:</strong> a "Download to device" button and a multi-photo gallery/carousel for documents with more than one attached file. Both are on the backlog — don't file these as new bugs, they're already tracked.</div>
+
+<h2 id="family">6. Family <span class="platform-tags"><span class="ptag web">WEB</span><span class="ptag ios">iOS</span><span class="ptag android">ANDROID</span></span></h2>
+<div class="checklist">
+  <label><input type="checkbox"><span class="step-text">Family page/screen loads all members with avatar, name, and relationship.</span></label>
+  <label><input type="checkbox"><span class="step-text">Each member shows a small colored <strong>relation-type badge</strong> (spouse/child/parent/etc.) on their avatar.<span class="step-note tag-new">NEW on mobile</span></span></label>
+  <label><input type="checkbox"><span class="step-text">Each member shows a <strong>per-status document breakdown</strong> (e.g. "7 total · 1 expired · 2 soon"), not just a flat count.<span class="step-note tag-new">NEW on mobile</span></span></label>
+  <label><input type="checkbox"><span class="step-text">Add a new family member: name, relationship, and <strong>date of birth</strong> all save correctly.<span class="step-note tag-new">DOB field is new on mobile</span></span></label>
+  <label><input type="checkbox"><span class="step-text"><strong>Edit</strong> an existing member — name/DOB/relationship changes persist.<span class="step-note tag-new">NEW on mobile — editing a family member was previously impossible</span></span></label>
+  <label><input type="checkbox"><span class="step-text"><strong>Remove</strong> a family member (not yourself) — confirmation shown, member removed, their documents are kept.<span class="step-note tag-new">NEW on mobile — deleting a family member was previously impossible</span></span></label>
+  <label><input type="checkbox"><span class="step-text">Confirm you (the primary/self account) <strong>cannot</strong> be removed — no delete option should appear for your own card.</span></label>
+  <label><input type="checkbox"><span class="step-text">Upload/change a member's profile photo.</span></label>
+  <label><input type="checkbox"><span class="step-text">Tap/click a member's document count — navigates to their documents, filtered.</span></label>
+</div>
+
+<h2 id="sharing">7. Sharing <span class="platform-tags"><span class="ptag web">WEB</span><span class="ptag ios">iOS</span><span class="ptag android">ANDROID</span></span></h2>
+<div class="checklist">
+  <label><input type="checkbox"><span class="step-text">Share a single document by email, choosing a permission level: <strong>View / View+Download / Edit</strong>.</span></label>
+  <label><input type="checkbox"><span class="step-text">Choose an access duration: never / 7 days / 30 days.</span></label>
+  <label><input type="checkbox"><span class="step-text">Toggle <strong>watermark on/off</strong> — off shows the "⚠️ clean copy, not traceable" warning text.<span class="step-note tag-new">NEW on mobile</span></span></label>
+  <label><input type="checkbox"><span class="step-text">Toggle <strong>"Send as invite"</strong> — share to an email with no account shows a "user not found" message with a "Send Invitation" option.<span class="step-note tag-new">NEW on mobile</span></span></label>
+  <label><input type="checkbox"><span class="step-text">Share <strong>all</strong> of a family member's documents at once (with optional "include future documents").</span></label>
+  <label><input type="checkbox"><span class="step-text"><strong>Shared With Me</strong> tab — log in as the recipient (or check on another device) and confirm the document appears with the right permission.</span></label>
+  <label><input type="checkbox"><span class="step-text"><strong>Shared By Me</strong> tab — shows your outgoing shares; pending invites show a "(Pending)" label.<span class="step-note tag-new">Pending label is new on mobile</span></span></label>
+  <label><input type="checkbox"><span class="step-text"><strong>My Recipients</strong> tab — lists everyone you've shared with, with document counts.<span class="step-note tag-new">NEW on mobile</span></span></label>
+  <label><input type="checkbox"><span class="step-text">Revoke an outgoing share — recipient loses access immediately.</span></label>
+  <label><input type="checkbox"><span class="step-text">As owner, watch <strong>Access History</strong> on the document update when the recipient views/downloads (may take up to 15 seconds to refresh on mobile).</span></label>
+</div>
+
+<h2 id="reminders">8. Reminders <span class="platform-tags"><span class="ptag web">WEB</span><span class="ptag ios">iOS</span><span class="ptag android">ANDROID</span></span></h2>
+<div class="alert info tag-new">Entirely new screen on mobile this round — previously mobile only faked a reminders list inside Notifications.</div>
+<div class="checklist">
+  <label><input type="checkbox"><span class="step-text">Open Reminders — shows a <strong>Pending</strong> section (documents due for a 90/30/7-day reminder) and an <strong>Already Sent</strong> section.</span></label>
+  <label><input type="checkbox"><span class="step-text">Each pending reminder shows the right urgency badge (EXPIRED / URGENT / SOON / UPCOMING) and days-remaining.</span></label>
+  <label><input type="checkbox"><span class="step-text"><strong>Dismiss</strong> a pending reminder — disappears from the list without waiting for the digest email.</span></label>
+  <label><input type="checkbox"><span class="step-text"><strong>Send Reminder Digest Now</strong> — triggers an immediate digest email for your family; check the web's Mock Inbox page to see it (or your real inbox if using a real-domain account).</span></label>
+</div>
+
+<h2 id="notifications">9. Notifications <span class="platform-tags"><span class="ptag web">WEB</span><span class="ptag ios">iOS</span><span class="ptag android">ANDROID</span></span></h2>
+<div class="checklist">
+  <label><input type="checkbox"><span class="step-text">Sharing activity (someone shared/revoked with you) appears with unread indicators.</span></label>
+  <label><input type="checkbox"><span class="step-text">"Mark all read" clears the unread state; the bell badge count updates.</span></label>
+  <label><input type="checkbox"><span class="step-text">Tapping a notification navigates to the relevant document.</span></label>
+  <label><input type="checkbox"><span class="step-text">A card/link to the <strong>Reminders</strong> screen appears at the top (mobile) — expiry reminders are no longer mixed into this list.<span class="step-note tag-new">Changed this round</span></span></label>
+</div>
+
+<h2 id="settings">10. Settings <span class="platform-tags"><span class="ptag web">WEB</span><span class="ptag ios">iOS</span><span class="ptag android">ANDROID</span></span></h2>
+<div class="checklist">
+  <label><input type="checkbox"><span class="step-text"><strong>Change Password</strong> — enter current + new password, submit, success message shown; log out and confirm the new password works.<span class="step-note tag-new">NEW everywhere — web had no Change Password page before this round; mobile's was a non-functional stub that never called the backend.</span></span></label>
+  <label><input type="checkbox"><span class="step-text">Change Password with the wrong current password — clear error shown, nothing changes.</span></label>
+  <label><input type="checkbox"><span class="step-text">Notification toggles (Expiry Reminders, Expired Alerts) persist after leaving and returning to the screen (mobile).</span></label>
+  <label><input type="checkbox"><span class="step-text">"Weekly Email Digest" toggle now also persists correctly across screen visits (mobile) — it's still not wired to a real digest yet, but at least stops silently reverting to off.<span class="step-note tag-new">Fixed this round</span></span></label>
+</div>
+
+<h2 id="parity">11. Cross-Platform Consistency <span class="platform-tags"><span class="ptag web">WEB</span><span class="ptag ios">iOS</span><span class="ptag android">ANDROID</span></span></h2>
+<p>This section is specifically about catching platform drift — the same thing should look and behave the same way everywhere.</p>
+<div class="checklist">
+  <label><input type="checkbox"><span class="step-text">Open the <strong>same document</strong> on two platforms — status color (red/amber/green) and "days left" text must match exactly.<span class="step-note">This was a real bug this round: mobile used a 30-day "expiring soon" window while web/backend use 90, so a document 31–90 days from expiry could show green on one platform and orange on the other. Now fixed — verify with a document that expires 40–80 days out.</span></span></label>
+  <label><input type="checkbox"><span class="step-text">Brand teal, navy, and every status/relation-type color look identical between web and mobile — no "close but not quite" shades.</span></label>
+  <label><input type="checkbox"><span class="step-text">The same document type shows the <strong>same emoji icon</strong> on every platform (e.g. Visa is always ✈️, Certificate is always 🎓).</span></label>
+  <label><input type="checkbox"><span class="step-text">A change made on one platform (add/edit/delete a document, family member, or share) shows up correctly on the other platforms after a refresh.</span></label>
+</div>
+
+<h2 id="limitations">Known Limitations (Do Not Re-Report)</h2>
+<table>
+  <thead><tr><th>Item</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td>Document "Download to device" button</td><td>Not built — backlog item</td></tr>
+    <tr><td>Multi-photo gallery/carousel on document detail</td><td>Not built — backlog item (a document with 2+ photos only shows the first)</td></tr>
+    <tr><td>Manual entry with a picture but skipping AI extraction (mobile)</td><td>Not built on mobile yet — web supports this, mobile always runs AI extraction on any picked photo</td></tr>
+    <tr><td>Weekly Email Digest toggle</td><td>UI only — doesn't yet trigger a real weekly email</td></tr>
+    <tr><td>EID (Emirates ID) dates sometimes misread by AI</td><td>Known — prompt improvement deferred</td></tr>
+    <tr><td>Emirates ID has no MRZ</td><td>By design — it uses a PDF417 barcode on the back, not supported</td></tr>
+    <tr><td>Android — never tested on real hardware before this round</td><td>See the warning under <a href="#setup-android">Setup — Android</a> above</td></tr>
   </tbody>
 </table>
 
-<h2>1. Testing the Website</h2>
-<p>Open the address the developer gives you, e.g. <code>http://&lt;developer's IP&gt;:5173</code>.</p>
+<h2 id="reporting">Reporting Issues</h2>
+<p>For each issue, please note:</p>
 <ul>
-  <li><strong>Dashboard</strong> — stat cards, status donut chart, and the family sidebar. Click a family member: every card, chart, and list narrows to them.</li>
-  <li><strong>Documents</strong> — add via AI photo/PDF upload (review before saving), add manually (with optional picture), edit, delete, filter by status. Shared documents carry a badge.</li>
-  <li><strong>Sharing</strong>
-    <ul>
-      <li>Open a document → share it by email with a permission level (view / view+download / edit) and an optional expiry (7 or 30 days).</li>
-      <li>Family page → member menu → <em>Share All Documents</em> (optionally including future ones).</li>
-      <li>Sharing page — incoming/outgoing shares, revoke access.</li>
-      <li>As the owner, watch <em>Access History</em> update when the recipient views/downloads.</li>
-      <li>Downloads by recipients carry a <strong>personalized watermark</strong> naming them.</li>
-    </ul>
-  </li>
-  <li><strong>Notifications</strong> — bell icon shows share/revoke events with unread badges.</li>
-  <li><strong>Mock Inbox</strong> — demo view of the emails the system would send.</li>
-  <li><strong>Family</strong> — members with photos, add member (incl. Domestic Help relation).</li>
+  <li>Which platform (Web / iOS / Android) and which account you were on</li>
+  <li>The screen and the exact action you took</li>
+  <li>What you expected vs. what actually happened</li>
+  <li>A screenshot or screen recording if you can — it helps enormously</li>
 </ul>
 
-<h2>2. Testing the Mobile App</h2>
-<div class="alert info"><strong>Set up:</strong> install <strong>Expo Go</strong> (App Store / Play Store), join the developer's Wi-Fi, then scan the QR code the developer shares. First load compiles the app and can take a minute.</div>
-
-<h3>What to Test</h3>
-<ul>
-  <li><strong>Login / Register</strong> — tap a demo account to autofill, or create a fresh account. <span class="tag-new">new</span></li>
-  <li><strong>Dashboard</strong> — summary cards, status donut chart <span class="tag-new">new</span>, and family member filter chips <span class="tag-new">new</span> that narrow everything to one person.</li>
-  <li><strong>Add Document</strong> — camera / gallery / file, AI pre-fills the form; review and save. Or enter manually.</li>
-  <li><strong>Document Details</strong> — full watermarked picture <span class="tag-new">new</span>, details, edit, delete.</li>
-  <li><strong>Share a document</strong> <span class="tag-new">new</span> — Details → Share, enter another demo email, pick permission + expiry. Log in as the recipient (or check the website) to confirm.</li>
-  <li><strong>Sharing screen</strong> <span class="tag-new">new</span> — drawer → Sharing: "Shared with Me" / "Shared by Me", revoke outgoing shares.</li>
-  <li><strong>Access History</strong> <span class="tag-new">new</span> — on your own shared document, see who viewed/downloaded it.</li>
-  <li><strong>Family</strong> — member photos <span class="tag-new">new</span>, add member with relationship picker, and the share icon to share ALL of a member's documents. <span class="tag-new">new</span></li>
-  <li><strong>Member documents</strong> — per-member status donut <span class="tag-new">new</span> + document list.</li>
-  <li><strong>My Documents</strong> — search + status filter chips.</li>
-  <li><strong>Notifications</strong> — sharing activity (unread dots, mark all read) <span class="tag-new">new</span> + expiry reminders; the dashboard bell shows a live badge.</li>
-</ul>
-
-<h3>Known Limitations</h3>
-<ul>
-  <li>Share emails are mocked — view them in the website's Mock Inbox. Recipients get in-app notifications.</li>
-  <li>Change Password and the Settings toggles are UI-only this round.</li>
-  <li>Camera capture needs a real device.</li>
-  <li>Daily reminder digest emails go to the developer's Gmail during the PoC.</li>
-</ul>
-
-<h2 id="mobile-screens">3. Mobile Screen Walkthrough</h2>
-<p>Screenshots below are from the previous round — the layout is the same, but this round adds the donut chart and member chips (Dashboard), Share/Sharing/Access History, and member photos. If you can't run the app, review these and the "What to Test" list above.</p>
-
-<div class="shots">
-  <div class="shot"><img src="../neverexpire/web/static/screenshots/mobile/01-login.png" alt="Login"><div class="cap"><h5>1. Login</h5><p>Tap a demo account to autofill. New: a "Create an account" link for fresh signups.</p></div></div>
-  <div class="shot"><img src="../neverexpire/web/static/screenshots/mobile/02-dashboard.png" alt="Dashboard"><div class="cap"><h5>2. Dashboard</h5><p>Summary cards + recent documents. New: status donut chart and family member filter chips.</p></div></div>
-  <div class="shot"><img src="../neverexpire/web/static/screenshots/mobile/03-drawer.png" alt="Drawer"><div class="cap"><h5>3. Side Drawer</h5><p>All screens in one menu. New: a "Sharing" entry.</p></div></div>
-  <div class="shot"><img src="../neverexpire/web/static/screenshots/mobile/04-profile.png" alt="Profile"><div class="cap"><h5>4. Profile</h5><p>Account details; password change is UI-only this round.</p></div></div>
-  <div class="shot"><img src="../neverexpire/web/static/screenshots/mobile/05-family-members.png" alt="Family Members"><div class="cap"><h5>5. Family Members</h5><p>Members with document counts. New: photos and a share-all icon per member.</p></div></div>
-  <div class="shot"><img src="../neverexpire/web/static/screenshots/mobile/06-family-member-documents.png" alt="Member documents"><div class="cap"><h5>6. Member's Documents</h5><p>One person's documents. New: per-member status donut.</p></div></div>
-  <div class="shot"><img src="../neverexpire/web/static/screenshots/mobile/07-notifications.png" alt="Notifications"><div class="cap"><h5>7. Notifications</h5><p>New: sharing activity with unread dots + expiry reminders in one feed.</p></div></div>
-  <div class="shot"><img src="../neverexpire/web/static/screenshots/mobile/08-add-document.png" alt="Add Document"><div class="cap"><h5>8. Add Document</h5><p>Camera, gallery, or file — AI pre-fills the form; manual entry also available.</p></div></div>
-  <div class="shot"><img src="../neverexpire/web/static/screenshots/mobile/09-document-form.png" alt="Document form"><div class="cap"><h5>9. Document Form</h5><p>Review AI-extracted fields (type, who it belongs to, dates, number, issuer) before saving.</p></div></div>
-  <div class="shot"><img src="../neverexpire/web/static/screenshots/mobile/10-my-documents.png" alt="My Documents"><div class="cap"><h5>10. My Documents</h5><p>Search + status filter chips; shared documents carry a badge.</p></div></div>
-  <div class="shot"><img src="../neverexpire/web/static/screenshots/mobile/11-document-details.png" alt="Document details"><div class="cap"><h5>11. Document Details</h5><p>New: full watermarked picture, Share button, Shared With list, and Access History.</p></div></div>
-</div>
-
-<h2>Reporting Issues</h2>
-<p>For each issue: which app (website or mobile), the account you were on, the screen and action, what you expected, and what actually happened. Screenshots help a lot.</p>
-
-<footer>NeverExpire · PoC Feedback Round 2 · This page lives at <code>docs/testing-guide.html</code></footer>
+<footer>NeverExpire · Testing Guide · This page lives at <code>docs/testing-guide.html</code> · Last updated for the mobile/web parity round</footer>
 </div>
 </body>
 </html>

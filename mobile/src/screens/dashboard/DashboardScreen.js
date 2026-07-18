@@ -55,8 +55,15 @@ export default function DashboardScreen() {
       const status = getExpiryStatus(doc.expiryDate);
       return status === EXPIRY_STATUS.EXPIRING_SOON || status === EXPIRY_STATUS.EXPIRED;
     }).length;
-    return { totalCount: visibleDocuments.length, expiringSoonCount };
+    const expiredCount = visibleDocuments.filter((doc) => getExpiryStatus(doc.expiryDate) === EXPIRY_STATUS.EXPIRED).length;
+    const validCount = visibleDocuments.filter((doc) => getExpiryStatus(doc.expiryDate) === EXPIRY_STATUS.VALID).length;
+    return { totalCount: visibleDocuments.length, expiringSoonCount, expiredCount, validCount };
   }, [visibleDocuments]);
+
+  const validDocuments = useMemo(
+    () => visibleDocuments.filter((doc) => getExpiryStatus(doc.expiryDate) === EXPIRY_STATUS.VALID).slice(0, RECENT_LIMIT),
+    [visibleDocuments]
+  );
 
   const recentDocuments = useMemo(() => {
     return [...visibleDocuments]
@@ -140,19 +147,36 @@ export default function DashboardScreen() {
 
         <View style={styles.summaryRow}>
           <SummaryCard
+            icon="folder-outline"
+            label="All Documents"
+            count={summary.totalCount}
+            color={COLORS.accent}
+            onPress={() => openAllDocuments("all")}
+          />
+          <View style={styles.summaryGap} />
+          <SummaryCard
             icon="alert-circle-outline"
             label="Expiring Soon"
             count={summary.expiringSoonCount}
             color={COLORS.warning}
             onPress={() => openAllDocuments("expiring_soon")}
           />
+        </View>
+        <View style={styles.summaryRow}>
+          <SummaryCard
+            icon="close-circle-outline"
+            label="Expired"
+            count={summary.expiredCount}
+            color={COLORS.danger}
+            onPress={() => openAllDocuments("expired")}
+          />
           <View style={styles.summaryGap} />
           <SummaryCard
-            icon="folder-outline"
-            label="All Documents"
-            count={summary.totalCount}
-            color={COLORS.accent}
-            onPress={() => openAllDocuments("all")}
+            icon="checkmark-circle-outline"
+            label="Valid"
+            count={summary.validCount}
+            color={COLORS.success}
+            onPress={() => openAllDocuments("valid")}
           />
         </View>
 
@@ -190,6 +214,31 @@ export default function DashboardScreen() {
             })}
           </Card>
         )}
+
+        {validDocuments.length > 0 ? (
+          <>
+            <SectionHeader
+              title="✅ Valid Documents"
+              actionLabel="See All"
+              onActionPress={() => openAllDocuments("valid")}
+            />
+            <Card padded={false} style={styles.listCard}>
+              {validDocuments.map((doc, index) => {
+                const member = getFamilyMemberById(doc.familyMemberId);
+                return (
+                  <View key={doc.id}>
+                    <DocumentListItem
+                      document={doc}
+                      subtitle={member?.name}
+                      onPress={() => openDocument(doc.id)}
+                    />
+                    {index < validDocuments.length - 1 ? <View style={styles.separator} /> : null}
+                  </View>
+                );
+              })}
+            </Card>
+          </>
+        ) : null}
       </ScrollView>
     </ScreenContainer>
   );

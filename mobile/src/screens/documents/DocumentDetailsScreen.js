@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, Image, ScrollView, Alert, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import * as ImagePicker from "expo-image-picker";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
 import Header from "../../components/common/Header";
@@ -14,6 +15,7 @@ import ShareModal from "../../components/documents/ShareModal";
 import { useAppData } from "../../context/DataContext";
 import { useAuth } from "../../context/AuthContext";
 import { authHeader } from "../../services/ApiService";
+import * as DocumentService from "../../services/DocumentService";
 import * as SharingService from "../../services/SharingService";
 import { PERMISSION_LEVELS } from "../../services/SharingService";
 import { getDocumentTypeMeta } from "../../constants/documentTypes";
@@ -42,8 +44,9 @@ export default function DocumentDetailsScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { documentId } = route.params || {};
-  const { getDocumentById, getFamilyMemberById, deleteDocument } = useAppData();
+  const { getDocumentById, getFamilyMemberById, deleteDocument, reload } = useAppData();
   const { token } = useAuth();
+  const [isAddingPicture, setIsAddingPicture] = useState(false);
 
   const document = getDocumentById(documentId);
   const isOwner = document ? document.isOwner !== false : false;
@@ -52,6 +55,17 @@ export default function DocumentDetailsScreen() {
   const [shareVisible, setShareVisible] = useState(false);
   const [shares, setShares] = useState([]);
   const [accessLog, setAccessLog] = useState([]);
+  // The cached documents list (getDocumentById) comes from the LIST endpoint,
+  // which doesn't include watermarked_for_viewer/extraction_runs — those are
+  // only returned by the single-document fetch, so pull them separately.
+  const [detailExtra, setDetailExtra] = useState(null);
+
+  useEffect(() => {
+    if (!documentId) return;
+    DocumentService.getDocument(documentId)
+      .then((full) => setDetailExtra({ watermarkedForViewer: full.watermarkedForViewer, extractionRuns: full.extractionRuns, source: full.source }))
+      .catch(() => {});
+  }, [documentId]);
 
   const loadSharingInfo = useCallback(async () => {
     if (!documentId) return;
@@ -110,6 +124,21 @@ export default function DocumentDetailsScreen() {
     ]);
   };
 
+  const handleAddPicture = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7 });
+    if (result.canceled || !result.assets?.length) return;
+
+    setIsAddingPicture(true);
+    try {
+      await DocumentService.addPictureToDocument(document.id, result.assets[0].uri);
+      await reload();
+    } catch (err) {
+      Alert.alert("Couldn't add picture", err.message || "Please try again.");
+    } finally {
+      setIsAddingPicture(false);
+    }
+  };
+
   const handleRevoke = (share) => {
     Alert.alert("Revoke Access", `Stop sharing with ${share.shared_with_email}?`, [
       { text: "Cancel", style: "cancel" },
@@ -124,6 +153,11 @@ export default function DocumentDetailsScreen() {
     ]);
   };
 
+  const source = detailExtra?.source || document.source;
+  const extractionRuns = detailExtra?.extractionRuns || [];
+  const latestExtraction = extractionRuns[extractionRuns.length - 1];
+  const watermarkedForViewer = detailExtra?.watermarkedForViewer;
+
   const infoRows = [
     { label: "Full Name", value: document.fullName },
     { label: "Document Number", value: document.documentNumber },
@@ -135,6 +169,7 @@ export default function DocumentDetailsScreen() {
       label: "Belongs To",
       value: member ? (member.isSelf ? `${member.name} (Me)` : `${member.name} (${member.relationship})`) : null,
     },
+    { label: "Source", value: source === "ai_extracted" ? "🤖 AI Extracted" : source === "manual" ? "✏️ Manual Entry" : null },
   ].filter((row) => !!row.value);
 
   return (
@@ -168,6 +203,12 @@ export default function DocumentDetailsScreen() {
           </View>
         )}
 
+        {document.imageUri && watermarkedForViewer !== undefined ? (
+          <Text style={[styles.watermarkNote, !watermarkedForViewer && styles.watermarkNoteWarning]}>
+            {watermarkedForViewer ? "Watermarked copy" : "⚠️ Original copy — no watermark"}
+          </Text>
+        ) : null}
+
         <View style={styles.titleRow}>
           <IconBox icon={typeMeta.icon} color={typeMeta.color} size={48} />
           <View style={styles.titleText}>
@@ -195,6 +236,16 @@ export default function DocumentDetailsScreen() {
           <Card style={styles.notesCard}>
             <Text style={styles.sectionLabel}>Notes</Text>
             <Text style={styles.notesText}>{document.notes}</Text>
+          </Card>
+        ) : null}
+
+        {latestExtraction ? (
+          <Card style={styles.notesCard}>
+            <Text style={styles.sectionLabel}>AI Extraction</Text>
+            <Text style={styles.notesText}>
+              {latestExtraction.model_name}
+              {latestExtraction.confidence != null ? ` · ${Math.round(latestExtraction.confidence * 100)}% confidence` : ""}
+            </Text>
           </Card>
         ) : null}
 
@@ -248,6 +299,7 @@ export default function DocumentDetailsScreen() {
                     <Text style={styles.shareEmail} numberOfLines={1}>{entry.user_email}</Text>
                     <Text style={styles.shareMeta}>
                       {entry.action === "download" ? "Downloaded" : "Viewed"} · {formatLogTime(entry.created_at)}
+                      {entry.watermarked === false ? " · ⚠️ unwatermarked" : ""}
                     </Text>
                   </View>
                 </View>
@@ -271,6 +323,16 @@ export default function DocumentDetailsScreen() {
             onPress={handleEdit}
             variant="outline"
             icon="create-outline"
+            style={styles.actionButton}
+          />
+        ) : null}
+        {isOwner ? (
+          <AppButton
+            label="Add Picture"
+            onPress={handleAddPicture}
+            loading={isAddingPicture}
+            variant="outline"
+            icon="camera-outline"
             style={styles.actionButton}
           />
         ) : null}
@@ -333,6 +395,17 @@ const styles = StyleSheet.create({
   },
   placeholderEmoji: {
     fontSize: 48,
+  },
+  watermarkNote: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.textSecondary,
+    textAlign: "center",
+    marginTop: -SPACING.md,
+    marginBottom: SPACING.md,
+  },
+  watermarkNoteWarning: {
+    color: COLORS.warning,
+    fontWeight: FONT_WEIGHTS.semibold,
   },
   titleRow: {
     flexDirection: "row",

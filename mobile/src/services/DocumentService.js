@@ -89,6 +89,16 @@ async function uploadDocumentImage(documentId, imageUri) {
 }
 
 /**
+ * Attaches an extra picture to an EXISTING document without going through
+ * full field editing or AI extraction — the mobile counterpart of web's
+ * "Add Picture" quick action on the document detail page.
+ */
+export async function addPictureToDocument(documentId, imageUri) {
+  await uploadDocumentImage(documentId, imageUri);
+  return getDocument(documentId);
+}
+
+/**
  * Creates a new document (when `document.id` is absent) or updates an
  * existing one. Returns { documents, saved } — the full refreshed list plus
  * the single document that was just created/updated (callers should

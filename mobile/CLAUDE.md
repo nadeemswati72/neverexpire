@@ -24,7 +24,7 @@ Standalone.html`.
 - **State:** React Context + hooks (`AuthContext`, `DataContext`) — no Redux
 - **Storage:** AsyncStorage via `src/services/StorageService.js` — JWT + cached user only
 - **Media:** `expo-image-picker` (camera + gallery), `expo-document-picker` (file upload)
-- **Icons:** `@expo/vector-icons` — Ionicons for UI chrome, MaterialCommunityIcons for document-type icons
+- **Icons:** emoji glyphs via `src/components/common/EmojiIcon.js` + `src/constants/emojiIcons.js` (the "Emoji Nav" set) — `@expo/vector-icons` is a declared dependency but not actually imported anywhere; every icon in the app renders as an emoji, not a vector icon font
 - **Language:** JavaScript (not TypeScript) — JSDoc comments document non-obvious shapes/decisions
 
 ## Backend connectivity

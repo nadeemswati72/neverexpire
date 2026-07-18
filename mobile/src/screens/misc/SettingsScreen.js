@@ -51,9 +51,13 @@ export default function SettingsScreen() {
   const handleToggle = async (key, option) => {
     const next = { ...toggles, [key]: !toggles[key] };
     setToggles(next);
+    // Persist every toggle (including email-only ones) so the switch state
+    // survives navigating away and back — only the on-device notification
+    // re-sync is skipped for email-only options, since there's nothing
+    // scheduled on-device to update for those.
+    await NotificationSchedulerService.setPreferences(next);
     if (option.isEmailOnly) return;
 
-    await NotificationSchedulerService.setPreferences(next);
     NotificationSchedulerService.syncExpiryNotifications(documents).catch(() => {});
   };
 

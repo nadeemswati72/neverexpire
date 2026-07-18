@@ -11,6 +11,7 @@ import { navigationRef, navigate } from "./navigationRef";
 
 import LoginScreen from "../screens/auth/LoginScreen";
 import RegisterScreen from "../screens/auth/RegisterScreen";
+import ForgotPasswordScreen from "../screens/auth/ForgotPasswordScreen";
 import MainDrawerNavigator from "./MainDrawerNavigator";
 import AddDocumentScreen from "../screens/documents/AddDocumentScreen";
 import VoiceReminderScreen from "../screens/documents/VoiceReminderScreen";
@@ -80,6 +81,7 @@ export default function RootNavigator() {
           <Stack.Group>
             <Stack.Screen name={ROUTES.LOGIN} component={LoginScreen} />
             <Stack.Screen name={ROUTES.REGISTER} component={RegisterScreen} />
+            <Stack.Screen name={ROUTES.FORGOT_PASSWORD} component={ForgotPasswordScreen} />
           </Stack.Group>
         )}
       </Stack.Navigator>

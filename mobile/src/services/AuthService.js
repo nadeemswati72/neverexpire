@@ -66,6 +66,18 @@ export async function logout() {
   await StorageService.removeItem(StorageService.STORAGE_KEYS.NOTIFICATION_PREFS);
 }
 
+/**
+ * Kicks off the same server-side reset-password flow as web
+ * (POST /auth/forgot-password). The emailed link always points at the web
+ * frontend (config.FRONTEND_URL) — that page already works from any mobile
+ * browser, so there's no separate native "enter new password" screen; this
+ * screen only covers requesting the email.
+ */
+export async function forgotPassword(email) {
+  const data = await ApiService.post("/auth/forgot-password", { email: email.trim() });
+  return data.message;
+}
+
 export async function getCurrentUser() {
   const token = await StorageService.getItem(StorageService.STORAGE_KEYS.AUTH_TOKEN);
   if (!token) return null;

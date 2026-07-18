@@ -88,6 +88,14 @@ export default function LoginScreen() {
             leftIcon="lock-closed-outline"
           />
 
+          <TouchableOpacity
+            onPress={() => navigation.navigate(ROUTES.FORGOT_PASSWORD)}
+            style={styles.forgotLink}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.forgotLinkText}>Forgot password?</Text>
+          </TouchableOpacity>
+
           {formError ? <Text style={styles.formError}>{formError}</Text> : null}
 
           <AppButton label="Log In" onPress={handleLogin} loading={isSubmitting} style={styles.loginButton} />
@@ -181,6 +189,16 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.md,
     color: COLORS.textSecondary,
     marginBottom: SPACING.xl,
+  },
+  forgotLink: {
+    alignItems: "flex-end",
+    marginTop: -SPACING.sm,
+    marginBottom: SPACING.md,
+  },
+  forgotLinkText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.accentDark,
+    fontWeight: FONT_WEIGHTS.semibold,
   },
   formError: {
     fontSize: FONT_SIZES.sm,

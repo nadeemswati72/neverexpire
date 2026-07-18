@@ -66,6 +66,18 @@ export async function logout() {
   await StorageService.removeItem(StorageService.STORAGE_KEYS.NOTIFICATION_PREFS);
 }
 
+/** Calls the real POST /auth/change-password endpoint (requires current password). */
+export async function changePassword(currentPassword, newPassword) {
+  try {
+    await ApiService.post("/auth/change-password", {
+      current_password: currentPassword,
+      new_password: newPassword,
+    });
+  } catch (err) {
+    throw new AuthError(err.message || "Could not change password.");
+  }
+}
+
 /**
  * Kicks off the same server-side reset-password flow as web
  * (POST /auth/forgot-password). The emailed link always points at the web

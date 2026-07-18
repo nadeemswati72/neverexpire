@@ -9,13 +9,17 @@ import SectionHeader from "../../components/common/SectionHeader";
 import AppTextInput from "../../components/common/AppTextInput";
 import AppButton from "../../components/common/AppButton";
 import { useAuth } from "../../context/AuthContext";
+import * as AuthService from "../../services/AuthService";
+import { AuthError } from "../../services/AuthService";
 import { isNotEmpty, isValidEmail } from "../../utils/validators";
 import { COLORS, SPACING, FONT_SIZES, FONT_WEIGHTS } from "../../constants/theme";
 
 /**
  * Profile / Settings (Mobile.jpg screen 7). Account details are editable
- * and persisted via AuthContext.updateProfile; the "Change Password"
- * section is UI-only (demo mode has no real credential store).
+ * and persisted via AuthContext.updateProfile; "Change Password" calls the
+ * real POST /auth/change-password endpoint (matches web's lack of a change-
+ * password UI being the actual gap — mobile now has a working one instead
+ * of removing the feature).
  */
 export default function ProfileScreen() {
   const { user, updateProfile, logout } = useAuth();
@@ -30,6 +34,8 @@ export default function ProfileScreen() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMessage, setPasswordMessage] = useState(null);
+  const [passwordMessageIsError, setPasswordMessageIsError] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   const toggleEditing = () => {
     if (isEditing) {
@@ -56,19 +62,37 @@ export default function ProfileScreen() {
     }
   };
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
     if (!isNotEmpty(currentPassword) || !isNotEmpty(newPassword) || !isNotEmpty(confirmPassword)) {
+      setPasswordMessageIsError(true);
       setPasswordMessage("Fill in all password fields.");
       return;
     }
+    if (newPassword.length < 8) {
+      setPasswordMessageIsError(true);
+      setPasswordMessage("New password must be at least 8 characters.");
+      return;
+    }
     if (newPassword !== confirmPassword) {
+      setPasswordMessageIsError(true);
       setPasswordMessage("New password and confirmation do not match.");
       return;
     }
-    setPasswordMessage("Password updated for this demo session.");
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
+
+    setIsChangingPassword(true);
+    try {
+      await AuthService.changePassword(currentPassword, newPassword);
+      setPasswordMessageIsError(false);
+      setPasswordMessage("Password updated.");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error) {
+      setPasswordMessageIsError(true);
+      setPasswordMessage(error instanceof AuthError ? error.message : "Something went wrong. Please try again.");
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   const handleLogout = () => {
@@ -138,8 +162,17 @@ export default function ProfileScreen() {
             onChangeText={setConfirmPassword}
             secureTextEntry
           />
-          {passwordMessage ? <Text style={styles.passwordMessage}>{passwordMessage}</Text> : null}
-          <AppButton label="Update Password" variant="outline" onPress={handleChangePassword} />
+          {passwordMessage ? (
+            <Text style={[styles.passwordMessage, passwordMessageIsError && styles.passwordMessageError]}>
+              {passwordMessage}
+            </Text>
+          ) : null}
+          <AppButton
+            label="Update Password"
+            variant="outline"
+            onPress={handleChangePassword}
+            loading={isChangingPassword}
+          />
         </Card>
 
         <AppButton
@@ -181,6 +214,9 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.xs,
     color: COLORS.accentDark,
     marginBottom: SPACING.md,
+  },
+  passwordMessageError: {
+    color: COLORS.danger,
   },
   logoutButton: {
     marginTop: SPACING.sm,

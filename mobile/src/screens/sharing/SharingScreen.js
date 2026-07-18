@@ -19,6 +19,7 @@ const PERMISSION_LABELS = Object.fromEntries(PERMISSION_LEVELS.map((p) => [p.cod
 const TABS = [
   { key: "incoming", label: "Shared with Me" },
   { key: "outgoing", label: "Shared by Me" },
+  { key: "recipients", label: "My Recipients" },
 ];
 
 /**
@@ -32,17 +33,20 @@ export default function SharingScreen() {
   const [activeTab, setActiveTab] = useState("incoming");
   const [incoming, setIncoming] = useState([]);
   const [outgoing, setOutgoing] = useState([]);
+  const [recipients, setRecipients] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const load = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [inc, out] = await Promise.all([
+      const [inc, out, recips] = await Promise.all([
         SharingService.getIncomingShares(),
         SharingService.getOutgoingShares(),
+        SharingService.getRecipients(),
       ]);
       setIncoming(inc);
       setOutgoing(out);
+      setRecipients(recips);
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +77,7 @@ export default function SharingScreen() {
     ]);
   };
 
-  const rows = activeTab === "incoming" ? incoming : outgoing;
+  const rows = activeTab === "incoming" ? incoming : activeTab === "outgoing" ? outgoing : recipients;
 
   return (
     <ScreenContainer>
@@ -99,13 +103,44 @@ export default function SharingScreen() {
         {rows.length === 0 && !isLoading ? (
           <EmptyState
             icon="share-social-outline"
-            title={activeTab === "incoming" ? "Nothing shared with you" : "You haven't shared anything"}
+            title={
+              activeTab === "incoming"
+                ? "Nothing shared with you"
+                : activeTab === "outgoing"
+                  ? "You haven't shared anything"
+                  : "You haven't shared with anyone yet"
+            }
             message={
               activeTab === "incoming"
                 ? "Documents that others share with you will appear here."
-                : "Open a document and tap Share to give someone access."
+                : activeTab === "outgoing"
+                  ? "Open a document and tap Share to give someone access."
+                  : "People you share documents with will appear here."
             }
           />
+        ) : activeTab === "recipients" ? (
+          <Card padded={false} style={styles.listCard}>
+            {recipients.map((recipient, index) => (
+              <View key={recipient.user_id}>
+                <View style={styles.row}>
+                  <View style={styles.iconWrap}>
+                    <EmojiIcon name="people-outline" size={15} color={COLORS.accentDark} />
+                  </View>
+                  <View style={styles.rowMain}>
+                    <Text style={styles.rowTitle} numberOfLines={1}>{recipient.full_name}</Text>
+                    <Text style={styles.rowMeta} numberOfLines={1}>{recipient.email}</Text>
+                    <Text style={styles.rowDate}>
+                      {recipient.documents_shared} document{recipient.documents_shared !== 1 ? "s" : ""}
+                      {recipient.persons_shared > 0
+                        ? ` · ${recipient.persons_shared} person share${recipient.persons_shared !== 1 ? "s" : ""}`
+                        : ""}
+                    </Text>
+                  </View>
+                </View>
+                {index < recipients.length - 1 ? <View style={styles.separator} /> : null}
+              </View>
+            ))}
+          </Card>
         ) : (
           <Card padded={false} style={styles.listCard}>
             {rows.map((share, index) => (
@@ -130,6 +165,7 @@ export default function SharingScreen() {
                         : `To ${share.shared_with_email}`}
                       {" · "}
                       {PERMISSION_LABELS[share.permission_level] || share.permission_level}
+                      {share.is_invite ? " · Pending" : ""}
                     </Text>
                     <Text style={styles.rowDate}>
                       {share.is_expired

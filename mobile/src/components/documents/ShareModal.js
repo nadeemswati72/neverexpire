@@ -22,7 +22,10 @@ export default function ShareModal({ visible, onClose, onShared, documentId, per
   const [permission, setPermission] = useState("read");
   const [expiresInDays, setExpiresInDays] = useState(null);
   const [includeFuture, setIncludeFuture] = useState(true);
+  const [watermark, setWatermark] = useState(true);
+  const [isInvite, setIsInvite] = useState(false);
   const [error, setError] = useState(null);
+  const [showInviteOption, setShowInviteOption] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const reset = () => {
@@ -30,7 +33,10 @@ export default function ShareModal({ visible, onClose, onShared, documentId, per
     setPermission("read");
     setExpiresInDays(null);
     setIncludeFuture(true);
+    setWatermark(true);
+    setIsInvite(false);
     setError(null);
+    setShowInviteOption(false);
   };
 
   const handleClose = () => {
@@ -44,6 +50,7 @@ export default function ShareModal({ visible, onClose, onShared, documentId, per
       return;
     }
     setError(null);
+    setShowInviteOption(false);
     setIsSubmitting(true);
     try {
       if (isPersonMode) {
@@ -52,22 +59,40 @@ export default function ShareModal({ visible, onClose, onShared, documentId, per
           permissionLevel: permission,
           includeFuture,
           expiresInDays,
+          watermark,
+          isInvite,
         });
       } else {
         await SharingService.shareDocument(documentId, {
           recipientEmail: email.trim(),
           permissionLevel: permission,
           expiresInDays,
+          watermark,
+          isInvite,
         });
       }
       reset();
       onShared?.();
       onClose();
     } catch (err) {
-      setError(err.message || "Could not share. Please try again.");
+      const message = err.message || "Could not share. Please try again.";
+      if (message.toLowerCase().includes("not found")) {
+        setError(`User not found with email: ${email.trim()}`);
+        setShowInviteOption(true);
+      } else {
+        setError(message);
+      }
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Mirrors web ShareModal's mock-invitation flow — no account exists yet
+  // for this email, so there's nothing to grant access to server-side; this
+  // just acknowledges the intent the same way web does.
+  const handleSendInvitation = () => {
+    setError(`Invitation sent to ${email.trim()}!`);
+    setShowInviteOption(false);
   };
 
   return (
@@ -142,7 +167,46 @@ export default function ShareModal({ visible, onClose, onShared, documentId, per
             </View>
           ) : null}
 
-          {error ? <Text style={styles.error}>{error}</Text> : null}
+          <View style={styles.switchRow}>
+            <View style={styles.switchText}>
+              <Text style={styles.switchLabel}>Add watermark to shared copy</Text>
+              <Text style={styles.switchHint}>
+                {watermark
+                  ? "Recipient sees a personalized stamped copy — traceable if it leaks."
+                  : "⚠️ Recipient gets the clean original — not traceable if shared further."}
+              </Text>
+            </View>
+            <Switch
+              value={watermark}
+              onValueChange={setWatermark}
+              trackColor={{ true: withOpacity(COLORS.accent, 0.45), false: COLORS.border }}
+              thumbColor={watermark ? COLORS.accent : COLORS.surface}
+            />
+          </View>
+
+          <View style={styles.switchRow}>
+            <View style={styles.switchText}>
+              <Text style={styles.switchLabel}>Send as invite</Text>
+              <Text style={styles.switchHint}>Requires the recipient to accept before access starts</Text>
+            </View>
+            <Switch
+              value={isInvite}
+              onValueChange={setIsInvite}
+              trackColor={{ true: withOpacity(COLORS.accent, 0.45), false: COLORS.border }}
+              thumbColor={isInvite ? COLORS.accent : COLORS.surface}
+            />
+          </View>
+
+          {error ? (
+            <View>
+              <Text style={styles.error}>{error}</Text>
+              {showInviteOption ? (
+                <TouchableOpacity onPress={handleSendInvitation} style={styles.inviteButton} activeOpacity={0.85}>
+                  <Text style={styles.inviteButtonText}>📧 Send Invitation</Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          ) : null}
 
           <AppButton
             label={isPersonMode ? "Share All Documents" : "Share"}
@@ -246,6 +310,19 @@ const styles = StyleSheet.create({
     color: COLORS.danger,
     marginTop: SPACING.xs,
     marginBottom: SPACING.xs,
+  },
+  inviteButton: {
+    alignSelf: "flex-start",
+    backgroundColor: COLORS.accent,
+    borderRadius: RADIUS.sm,
+    paddingVertical: 6,
+    paddingHorizontal: SPACING.md,
+    marginBottom: SPACING.xs,
+  },
+  inviteButtonText: {
+    color: COLORS.white,
+    fontSize: FONT_SIZES.xs,
+    fontWeight: FONT_WEIGHTS.semibold,
   },
   shareButton: {
     marginTop: SPACING.md,

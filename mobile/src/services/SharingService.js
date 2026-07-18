@@ -19,22 +19,31 @@ export const EXPIRY_OPTIONS = [
 ];
 
 /** Share one document with another user by email. */
-export async function shareDocument(documentId, { recipientEmail, permissionLevel, expiresInDays }) {
+export async function shareDocument(documentId, { recipientEmail, permissionLevel, expiresInDays, watermark, isInvite }) {
   return ApiService.post(`/documents/${documentId}/share`, {
     recipient_email: recipientEmail,
     permission_level: permissionLevel,
     expires_in_days: expiresInDays || null,
+    watermark: watermark !== false,
+    is_invite: !!isInvite,
   });
 }
 
 /** Share ALL of a family member's documents with another user by email. */
-export async function shareAllForMember(personId, { recipientEmail, permissionLevel, includeFuture, expiresInDays }) {
+export async function shareAllForMember(personId, { recipientEmail, permissionLevel, includeFuture, expiresInDays, watermark, isInvite }) {
   return ApiService.post(`/persons/${personId}/share-all`, {
     recipient_email: recipientEmail,
     permission_level: permissionLevel,
     include_future: !!includeFuture,
     expires_in_days: expiresInDays || null,
+    watermark: watermark !== false,
+    is_invite: !!isInvite,
   });
+}
+
+/** Users this account has shared documents/persons with, plus counts. */
+export async function getRecipients() {
+  return ApiService.get("/sharing/recipients");
 }
 
 /** Existing shares on a document (owner only). */

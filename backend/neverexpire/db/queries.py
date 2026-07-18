@@ -65,12 +65,16 @@ def _apply_status_filter(query, status_filter: str | None, today: date, horizon:
 
 
 def get_documents_for_user(
-    session: Session, user_id: int, status_filter: str | None = None
+    session: Session,
+    user_id: int,
+    status_filter: str | None = None,
+    accessible_ids: list[int] | None = None,
 ) -> list[Document]:
     today = date.today()
     horizon = today + timedelta(days=config.REMINDER_DAYS_THRESHOLD)
 
-    accessible_ids = get_user_accessible_document_ids(session, user_id)
+    if accessible_ids is None:
+        accessible_ids = get_user_accessible_document_ids(session, user_id)
     if not accessible_ids:
         return []
 
@@ -114,11 +118,14 @@ def get_document(session: Session, document_id: int) -> Document | None:
     )
 
 
-def get_dashboard_summary(session: Session, user_id: int) -> dict:
+def get_dashboard_summary(
+    session: Session, user_id: int, accessible_ids: list[int] | None = None
+) -> dict:
     today = date.today()
     horizon = today + timedelta(days=config.REMINDER_DAYS_THRESHOLD)
 
-    accessible_ids = get_user_accessible_document_ids(session, user_id)
+    if accessible_ids is None:
+        accessible_ids = get_user_accessible_document_ids(session, user_id)
     if not accessible_ids:
         return {
             "total_documents": 0,

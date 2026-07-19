@@ -44,19 +44,19 @@ const MENU_ITEMS = [
   },
   {
     key: ROUTES.FAMILY,
-    emoji: "👪",
+    emoji: "👨‍👩‍👧",
     label: "Family Members",
     action: (navigation) => navigation.navigate(ROUTES.MAIN_TABS, { screen: ROUTES.FAMILY }),
   },
   {
     key: ROUTES.NOTIFICATIONS,
-    emoji: "🔔",
+    emoji: "📣",
     label: "Notifications",
     action: (navigation) => navigation.getParent()?.navigate(ROUTES.NOTIFICATIONS),
   },
   {
     key: ROUTES.REMINDERS,
-    emoji: "⏰",
+    emoji: "🔔",
     label: "Reminders",
     action: (navigation) => navigation.getParent()?.navigate(ROUTES.REMINDERS),
   },

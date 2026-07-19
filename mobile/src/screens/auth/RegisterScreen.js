@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 
 import ScreenContainer from "../../components/common/ScreenContainer";
 import AppTextInput from "../../components/common/AppTextInput";
@@ -57,9 +58,14 @@ export default function RegisterScreen() {
     <ScreenContainer scroll edges={["top", "bottom"]} contentContainerStyle={styles.content}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
         <View style={styles.brand}>
-          <View style={styles.logoCircle}>
+          <LinearGradient
+            colors={[COLORS.accent, COLORS.accentDark]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.logoCircle}
+          >
             <EmojiIcon name="shield-checkmark" size={30} />
-          </View>
+          </LinearGradient>
           <Text style={styles.brandTitle}>NeverExpire</Text>
           <Text style={styles.brandTagline}>Never miss a renewal again</Text>
         </View>
@@ -139,7 +145,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: RADIUS.xl,
-    backgroundColor: COLORS.primary,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: SPACING.md,

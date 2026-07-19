@@ -25,16 +25,17 @@ export const EMOJI_ICONS = {
   "arrow-down-outline": "⬇️",
   "arrow-up-outline": "⬆️",
 
-  // Brand — matches the web app's ⏰ logo (Sidebar.tsx) for cross-platform consistency
-  "shield-checkmark": "⏰",
+  // Brand — matches the web app's 🛡️ logo (Sidebar.tsx) and the drawer header for cross-platform consistency
+  "shield-checkmark": "🛡️",
 
   // Bottom tabs
   home: "🏠",
   "home-outline": "🏠",
-  // A single-glyph family emoji (👪) renders bigger/punchier across fonts
-  // than the multi-codepoint 👨‍👩‍👧 sequence, which many renderers shrink.
-  people: "👪",
-  "people-outline": "👪",
+  // Matches web's 👨‍👩‍👧 (Sidebar.tsx) for cross-platform consistency —
+  // deliberately chosen over the single-glyph 👪, which renders bigger and
+  // more consistently across fonts but doesn't match web.
+  people: "👨‍👩‍👧",
+  "people-outline": "👨‍👩‍👧",
 
   // Forms
   "mail-outline": "✉️",

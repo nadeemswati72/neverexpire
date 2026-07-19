@@ -14,7 +14,7 @@ interface Props {
 }
 
 const NAV_ITEMS = [
-  { label: 'Dashboard', icon: '▦', path: '/', id: 'dashboard' },
+  { label: 'Dashboard', icon: '🏠', path: '/', id: 'dashboard' },
   { label: 'Documents', icon: '📄', path: '/documents', id: 'documents' },
   { label: 'Family', icon: '👨‍👩‍👧', path: '/family', id: 'family' },
   { label: 'Sharing', icon: '🔗', path: '/sharing', id: 'sharing' },
@@ -94,7 +94,7 @@ export default function Sidebar({ user, family, selectedPersonId, onSelectPerson
             background: 'linear-gradient(135deg, #34c9ba, #22a99c)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 18, boxShadow: '0 3px 10px rgba(52,201,186,0.3)',
-          }}>⏰</div>
+          }}>🛡️</div>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 800, fontSize: 15, color: '#15203a', letterSpacing: '-0.3px' }}>NeverExpire</div>
             <div style={{ fontSize: 11, color: '#8a9ab5', marginTop: 1 }}>Document Tracker</div>

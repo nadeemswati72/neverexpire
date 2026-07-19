@@ -116,7 +116,7 @@ export default function DashboardPage() {
         background: 'linear-gradient(135deg, #dde4f0 0%, #c8d3e8 100%)',
       }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 32, marginBottom: 12 }}>⏰</div>
+          <div style={{ fontSize: 32, marginBottom: 12 }}>🛡️</div>
           <div style={{ color: '#4a5568', fontSize: 15 }}>Loading your documents…</div>
         </div>
       </div>

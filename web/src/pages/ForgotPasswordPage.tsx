@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #dde4f0 0%, #c8d3e8 100%)', padding: 20 }}>
       <div style={{ background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.6)', borderRadius: 20, padding: '44px 40px', width: '100%', maxWidth: 420, boxShadow: '0 8px 32px rgba(30,45,80,0.14)' }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <div style={{ width: 52, height: 52, borderRadius: 14, background: 'linear-gradient(135deg, #34c9ba, #22a99c)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', boxShadow: '0 4px 16px rgba(52,201,186,0.35)', fontSize: 24 }}>⏰</div>
+          <div style={{ width: 52, height: 52, borderRadius: 14, background: 'linear-gradient(135deg, #34c9ba, #22a99c)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', boxShadow: '0 4px 16px rgba(52,201,186,0.35)', fontSize: 24 }}>🛡️</div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: '#15203a', margin: 0 }}>Reset your password</h1>
           <p style={{ color: '#8a9ab5', fontSize: 13, marginTop: 4 }}>Enter your account email and we'll send you a reset link</p>
         </div>

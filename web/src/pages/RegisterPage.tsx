@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { register } from '../auth'
+import PasswordField from '../components/PasswordField'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -49,7 +50,7 @@ export default function RegisterPage() {
 
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <div style={{ width: 52, height: 52, borderRadius: 14, background: 'linear-gradient(135deg, #34c9ba, #22a99c)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', boxShadow: '0 4px 16px rgba(52,201,186,0.35)', fontSize: 24 }}>⏰</div>
+          <div style={{ width: 52, height: 52, borderRadius: 14, background: 'linear-gradient(135deg, #34c9ba, #22a99c)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', boxShadow: '0 4px 16px rgba(52,201,186,0.35)', fontSize: 24 }}>🛡️</div>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: '#15203a', margin: 0 }}>Create Account</h1>
           <p style={{ color: '#8a9ab5', fontSize: 14, marginTop: 4 }}>Join NeverExpire today</p>
         </div>
@@ -57,8 +58,8 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit}>
           {inp('name', 'Full Name', fullName, setFullName)}
           {inp('email', 'Email Address', email, setEmail, 'email')}
-          {inp('password', 'Password', password, setPassword, 'password')}
-          {inp('confirm', 'Confirm Password', confirm, setConfirm, 'password')}
+          <PasswordField id="password" label="Password" value={password} onChange={setPassword} />
+          <PasswordField id="confirm" label="Confirm Password" value={confirm} onChange={setConfirm} />
 
           {error && (
             <div style={{ background: 'rgba(229,62,62,0.1)', border: '1px solid rgba(229,62,62,0.25)', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#c53030', marginBottom: 16 }}>

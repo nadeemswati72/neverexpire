@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { login } from '../auth'
+import PasswordField from '../components/PasswordField'
 
 const DEMO_PASSWORD = 'Demo@1234'
 
@@ -75,7 +76,7 @@ export default function LoginPage() {
         boxShadow: '0 8px 32px rgba(30,45,80,0.14)',
       }}>
         {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div style={{
             width: 52, height: 52, borderRadius: 14,
             background: 'linear-gradient(135deg, #34c9ba, #22a99c)',
@@ -83,9 +84,14 @@ export default function LoginPage() {
             margin: '0 auto 14px',
             boxShadow: '0 4px 16px rgba(52,201,186,0.35)',
             fontSize: 24,
-          }}>⏰</div>
+          }}>🛡️</div>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: '#15203a', margin: 0 }}>NeverExpire</h1>
-          <p style={{ color: '#8a9ab5', fontSize: 14, marginTop: 4 }}>Sign in to your account</p>
+          <p style={{ color: '#8a9ab5', fontSize: 14, marginTop: 4 }}>Never miss a renewal again</p>
+        </div>
+
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <h2 style={{ fontSize: 19, fontWeight: 700, color: '#15203a', margin: 0 }}>Welcome back</h2>
+          <p style={{ color: '#8a9ab5', fontSize: 14, marginTop: 4 }}>Sign in to manage your documents</p>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -111,27 +117,7 @@ export default function LoginPage() {
             />
           </div>
 
-          <div style={{ marginBottom: 24 }}>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#4a5568', marginBottom: 6 }}>
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              placeholder="••••••••"
-              style={{
-                width: '100%', padding: '10px 14px',
-                background: 'rgba(255,255,255,0.7)',
-                border: '1px solid rgba(30,45,80,0.15)',
-                borderRadius: 10, fontSize: 15, color: '#15203a',
-                outline: 'none', transition: 'border-color 0.15s',
-              }}
-              onFocus={e => (e.target.style.borderColor = '#34c9ba')}
-              onBlur={e => (e.target.style.borderColor = 'rgba(30,45,80,0.15)')}
-            />
-          </div>
+          <PasswordField label="Password" value={password} onChange={setPassword} placeholder="••••••••" />
 
           {error && (
             <div style={{

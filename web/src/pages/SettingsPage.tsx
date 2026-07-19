@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Sidebar from '../components/Sidebar'
+import PasswordField from '../components/PasswordField'
 import api, { type Person, type User } from '../api'
 import { fetchMe } from '../auth'
 
@@ -54,27 +55,9 @@ export default function SettingsPage() {
           <h2 style={{ fontSize: 15, fontWeight: 700, color: '#15203a', margin: '0 0 16px' }}>Change Password</h2>
 
           <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#4a5568', marginBottom: 6 }}>Current password</label>
-              <input
-                type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required
-                style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(30,45,80,0.15)', borderRadius: 10, fontSize: 15, color: '#15203a', outline: 'none', boxSizing: 'border-box' }}
-              />
-            </div>
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#4a5568', marginBottom: 6 }}>New password</label>
-              <input
-                type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required
-                style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(30,45,80,0.15)', borderRadius: 10, fontSize: 15, color: '#15203a', outline: 'none', boxSizing: 'border-box' }}
-              />
-            </div>
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#4a5568', marginBottom: 6 }}>Confirm new password</label>
-              <input
-                type="password" value={confirm} onChange={e => setConfirm(e.target.value)} required
-                style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(30,45,80,0.15)', borderRadius: 10, fontSize: 15, color: '#15203a', outline: 'none', boxSizing: 'border-box' }}
-              />
-            </div>
+            <PasswordField label="Current password" value={currentPassword} onChange={setCurrentPassword} />
+            <PasswordField label="New password" value={newPassword} onChange={setNewPassword} />
+            <PasswordField label="Confirm new password" value={confirm} onChange={setConfirm} />
 
             {message && (
               <div style={{ background: 'rgba(52,201,186,0.1)', border: '1px solid rgba(52,201,186,0.25)', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#15203a', marginBottom: 16 }}>
